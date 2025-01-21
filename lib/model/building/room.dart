@@ -1,3 +1,4 @@
+import 'package:emonitor/model/payment/payment.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
@@ -13,12 +14,12 @@ enum Availibility{
 }
 
 class Room{
-  String id = const Uuid().v4();
+  final String id = const Uuid().v4();
   String name;
   double price;
   Availibility roomStatus ;
-  List<Payment> paymentList;
-  List<Consumption> consumptionList;
+  List<Payment> paymentList = [];
+  List<Consumption> consumptionList = [];
   Room({required this.name, required this.price,this.roomStatus= Availibility.available});
 
   List<Consumption> getPeviousAndNewConsumption(DateTime dateTime){

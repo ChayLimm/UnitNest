@@ -1,9 +1,10 @@
+import 'package:emonitor/model/building/building.dart';
 import 'package:emonitor/model/building/room.dart';
 import 'package:emonitor/model/stakeholder/tenant.dart';
 import 'package:flutter/material.dart';
 
 class System{
-  List<Buidling> listBuilding;
+  List<Building> listBuilding;
   List<PriceCharge> priceChargeList;
   System({required this.listBuilding, required this.priceChargeList});
 
