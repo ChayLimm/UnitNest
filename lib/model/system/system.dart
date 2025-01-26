@@ -1,14 +1,21 @@
 import 'package:emonitor/model/building/building.dart';
 import 'package:emonitor/model/building/room.dart';
+import 'package:emonitor/model/payment/payment.dart';
 import 'package:emonitor/model/stakeholder/tenant.dart';
-import 'package:flutter/material.dart';
+import 'package:emonitor/model/system/priceCharge.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+
+@JsonSerializable(explicitToJson: true)
 class System{
+  final String id;
   List<Building> listBuilding;
   List<PriceCharge> priceChargeList;
-  System({required this.listBuilding, required this.priceChargeList});
+  System({required this.id,required this.listBuilding, required this.priceChargeList});
 
-  void registrationTenant(Tenant tenant, Double deposit, Building buidling){
+  
+
+  void registrationTenant(Tenant tenant, double deposit, Building buidling){
     //proccessPayment() (without consumption)
     //generate receipt
     //send receipt tenant's chatID via telegram bot
@@ -30,7 +37,7 @@ class System{
       //send receipt tenant's chatID via telegram bot
     }
     //normalPayment
-    if(){
+    if(true){
       //calculate consumption && roomPrice, ParkingPrice, hygiene, literally everything in the price charge
       //create and put Payment in the rooms and add to room.paymentList.add(newpayment)
       //generate receipt
@@ -51,7 +58,7 @@ class System{
   }
 
   void addPriceCharge(PriceCharge pricecharge){
-    priceChargeList.last.endDate = DateTime.now();
+    // priceChargeList.last.endDate = DateTime.now();
     priceChargeList.add(pricecharge);
   }
 

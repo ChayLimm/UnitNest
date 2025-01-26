@@ -1,4 +1,8 @@
-class Pricecharge {
+import 'package:json_annotation/json_annotation.dart';
+
+
+@JsonSerializable()
+class PriceCharge {
   final double electricityPrice;
   final double waterPrice;
   final double hygieneFee;
@@ -8,7 +12,7 @@ class Pricecharge {
   final DateTime startDate;
   final DateTime? endDate; // Nullable to represent ongoing validity
 
-  Pricecharge({
+  PriceCharge({
     required this.electricityPrice,
     required this.waterPrice,
     required this.hygieneFee,

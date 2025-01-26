@@ -1,7 +1,12 @@
+import 'package:emonitor/screen/registration.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MainApp());
+void main() async {
+    WidgetsFlutterBinding.ensureInitialized();  // Ensures that Firebase is initialized before the app starts
+    await Firebase.initializeApp();  // Initialize Firebase
+      runApp(const MainApp());
+
 }
 
 class MainApp extends StatelessWidget {
@@ -9,12 +14,12 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+       theme: ThemeData(
+          fontFamily: 'Poppins',
         ),
-      ),
+      home:  RegisterScreen()
     );
   }
 }

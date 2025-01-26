@@ -3,6 +3,10 @@ import 'package:emonitor/model/building/room.dart';
 import 'package:emonitor/model/payment/transaction.dart';
 import 'package:emonitor/model/stakeholder/landlord.dart';
 import 'package:emonitor/model/stakeholder/tenant.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+
+
 
 enum PaymentStatus{
   unpaid("Unpaid"),
@@ -21,6 +25,9 @@ enum PaymentApproval{
   const PaymentApproval(this.status);
 }
 
+
+
+@JsonSerializable()
 class Payment {
   final DateTime timeStamp = DateTime.now();
   final Tenant tenant;

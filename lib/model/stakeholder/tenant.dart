@@ -1,5 +1,8 @@
 import 'package:uuid/uuid.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+
+@JsonSerializable()
 class Tenant {
   final String id = Uuid().v4();
   final DateTime registeredOn = DateTime.now();
