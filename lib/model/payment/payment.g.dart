@@ -12,7 +12,7 @@ Payment _$PaymentFromJson(Map<String, dynamic> json) => Payment(
       room: Room.fromJson(json['room'] as Map<String, dynamic>),
       deposit: (json['deposit'] as num).toDouble(),
       transaction:
-          Transaction.fromJson(json['transaction'] as Map<String, dynamic>),
+          TransactionKHQR.fromJson(json['transaction'] as Map<String, dynamic>),
       fine: (json['fine'] as num?)?.toDouble() ?? 0,
     )
       ..paymentStatus =

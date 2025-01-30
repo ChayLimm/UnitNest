@@ -1,5 +1,6 @@
 import 'package:emonitor/model/json/jsonconvertor.dart';
 import 'package:emonitor/model/payment/payment.dart';
+import 'package:emonitor/model/stakeholder/tenant.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -23,13 +24,14 @@ class Room{
   final String id = const Uuid().v4();
   String name;
   double price;
+  Tenant? tenant;
 
   @AvailibilityConverter()
   Availibility roomStatus ;
 
   List<Payment> paymentList = [];
   List<Consumption> consumptionList = [];
-  Room({required this.name, required this.price,this.roomStatus= Availibility.available});
+  Room({required this.name, required this.price,this.roomStatus= Availibility.available, this.tenant});
 
    // Manually add fromJson and toJson
   factory Room.fromJson(Map<String, dynamic> json) => _$RoomFromJson(json);

@@ -35,7 +35,7 @@ class Payment {
   final Landlord landlord;
   final Room room;
   final double deposit;
-  final Transaction transaction;
+  final TransactionKHQR transaction;
   PaymentStatus paymentStatus = PaymentStatus.unpaid;
   PaymentApproval paymentApproval = PaymentApproval.pending;
   double fine;

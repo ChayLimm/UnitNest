@@ -14,10 +14,7 @@ PriceCharge _$PriceChargeFromJson(Map<String, dynamic> json) => PriceCharge(
       fineStartOn: (json['fineStartOn'] as num).toDouble(),
       rentParkingPrice: (json['rentParkingPrice'] as num).toDouble(),
       startDate: DateTime.parse(json['startDate'] as String),
-      endDate: json['endDate'] == null
-          ? null
-          : DateTime.parse(json['endDate'] as String),
-    );
+    )..endDate = DateTime.parse(json['endDate'] as String);
 
 Map<String, dynamic> _$PriceChargeToJson(PriceCharge instance) =>
     <String, dynamic>{
@@ -28,5 +25,5 @@ Map<String, dynamic> _$PriceChargeToJson(PriceCharge instance) =>
       'fineStartOn': instance.fineStartOn,
       'rentParkingPrice': instance.rentParkingPrice,
       'startDate': instance.startDate.toIso8601String(),
-      'endDate': instance.endDate?.toIso8601String(),
+      'endDate': instance.endDate.toIso8601String(),
     };

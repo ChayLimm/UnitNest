@@ -11,7 +11,7 @@ class PriceCharge {
   final double fineStartOn;
   final double rentParkingPrice;
   final DateTime startDate;
-  final DateTime? endDate; // Nullable to represent ongoing validity
+  late DateTime endDate; // Nullable to represent ongoing validity
 
   PriceCharge({
     required this.electricityPrice,
@@ -21,12 +21,17 @@ class PriceCharge {
     required this.fineStartOn,
     required this.rentParkingPrice,
     required this.startDate,
-    this.endDate,
   });
 
   factory PriceCharge.fromJson(Map<String, dynamic> json) => _$PriceChargeFromJson(json);
   Map<String, dynamic> toJson() => _$PriceChargeToJson(this);
  
-
-  
+   bool isValidDate(DateTime datetime) {
+    if (endDate == null) {
+      // print('enddate null checked');
+      return datetime.isAfter(startDate);
+    }
+    // print('enddate null NOT checked');
+    return datetime.isAfter(startDate) && datetime.isBefore(endDate!);
+   }
 }
