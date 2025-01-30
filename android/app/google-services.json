@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "143712922998",
+    "project_id": "unitnest-f12cc",
+    "storage_bucket": "unitnest-f12cc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:143712922998:android:6df815566546adeb0f1e57",
+        "android_client_info": {
+          "package_name": "com.example.emonitor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDuTsu_P_LQq5gu1Sz7v3QDqnniVm4Vgc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

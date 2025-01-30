@@ -1,8 +1,11 @@
 import 'package:emonitor/model/building/room.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 
+part 'building.g.dart';
 
 
+@JsonSerializable(explicitToJson: true)
 class Building {
   final String id =  Uuid().v4();
   String name;
@@ -12,5 +15,7 @@ class Building {
   List<Room> roomList = [];
   Building({required this.name, required this.address,this.floorCount = 0, this.parkingSpace = 0});
 
-}
+  factory Building.fromJson(Map<String, dynamic> json) => _$BuildingFromJson(json);
+  Map<String, dynamic> toJson() => _$BuildingToJson(this);
 
+}

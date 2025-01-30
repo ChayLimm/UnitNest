@@ -1,14 +1,27 @@
 import 'package:emonitor/model/building/building.dart';
 import 'package:emonitor/model/building/room.dart';
+import 'package:emonitor/model/payment/payment.dart';
 import 'package:emonitor/model/stakeholder/tenant.dart';
-import 'package:flutter/material.dart';
+import 'package:emonitor/model/system/priceCharge.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+part 'system.g.dart';
+
+
+@JsonSerializable(explicitToJson: true)
 class System{
-  List<Building> listBuilding;
-  List<PriceCharge> priceChargeList;
-  System({required this.listBuilding, required this.priceChargeList});
+  final String id;
+  List<Building> listBuilding = [];
+  List<PriceCharge> priceChargeList = [];
+  System({required this.id});
 
-  void registrationTenant(Tenant tenant, Double deposit, Building buidling){
+  factory System.fromJson(Map<String, dynamic> json) => _$SystemFromJson(json);
+  Map<String, dynamic> toJson() => _$SystemToJson(this);
+ 
+
+  
+
+  void registrationTenant(Tenant tenant, double deposit, Building buidling){
     //proccessPayment() (without consumption)
     //generate receipt
     //send receipt tenant's chatID via telegram bot
@@ -23,6 +36,14 @@ class System{
   void proccessPayment(String tenentID, Consumption? consumption,[bool lastpayment = false]){
     //firstPayment + deposit if tenant's deposit != roomPrice
     if(consumption == null){
+
+      // Payment payment = Payment(
+      //   tenant: tenant, 
+      //   landlord: landlord, 
+      //   room: room, 
+      //   deposit: deposit, 
+      //   transaction: transaction
+      //   );
       //calculate roomprice & rent parking if have
       //create and put Payment in the rooms and add to room.paymentList.add(newpayment)
       //generate receipt
@@ -30,7 +51,7 @@ class System{
       //send receipt tenant's chatID via telegram bot
     }
     //normalPayment
-    if(){
+    if(true){
       //calculate consumption && roomPrice, ParkingPrice, hygiene, literally everything in the price charge
       //create and put Payment in the rooms and add to room.paymentList.add(newpayment)
       //generate receipt
@@ -51,7 +72,7 @@ class System{
   }
 
   void addPriceCharge(PriceCharge pricecharge){
-    priceChargeList.last.endDate = DateTime.now();
+    // priceChargeList.last.endDate = DateTime.now();
     priceChargeList.add(pricecharge);
   }
 

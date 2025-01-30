@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyCXoG9ByETf4GRvmOnR8fbvUoW7Ii0SQoQ</string>
+	<key>GCM_SENDER_ID</key>
+	<string>143712922998</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.emonitor</string>
+	<key>PROJECT_ID</key>
+	<string>unitnest-f12cc</string>
+	<key>STORAGE_BUCKET</key>
+	<string>unitnest-f12cc.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false/>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false/>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true/>
+	<key>IS_GCM_ENABLED</key>
+	<true/>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true/>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:143712922998:ios:ca311f327455ed340f1e57</string>
+</dict>
+</plist>
