@@ -11,12 +11,14 @@ class Tenant {
   String userName;
   String contact;
   double deposit;
+  int rentParking ;
 
   Tenant({
     required this.identifyID,
     required this.userName,
     required this.contact,
     required this.deposit,
+    this.rentParking = 0,
   });
 
   factory Tenant.fromJson(Map<String, dynamic> json) => _$TenantFromJson(json);
