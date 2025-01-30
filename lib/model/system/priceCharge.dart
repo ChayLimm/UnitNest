@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
+part 'priceCharge.g.dart';
 
 @JsonSerializable()
 class PriceCharge {
@@ -22,6 +23,10 @@ class PriceCharge {
     required this.startDate,
     this.endDate,
   });
+
+  factory PriceCharge.fromJson(Map<String, dynamic> json) => _$PriceChargeFromJson(json);
+  Map<String, dynamic> toJson() => _$PriceChargeToJson(this);
+ 
 
   
 }

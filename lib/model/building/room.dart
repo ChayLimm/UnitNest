@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+part 'room.g.dart';
+
+
 enum Availibility{
   taken("taken",Color(0xFF4FAC80)),
   book("book",Color(0xFFF8A849)),
@@ -15,7 +18,7 @@ enum Availibility{
   const Availibility(this.status,this.color);
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class Room{
   final String id = const Uuid().v4();
   String name;
@@ -27,6 +30,10 @@ class Room{
   List<Payment> paymentList = [];
   List<Consumption> consumptionList = [];
   Room({required this.name, required this.price,this.roomStatus= Availibility.available});
+
+   // Manually add fromJson and toJson
+  factory Room.fromJson(Map<String, dynamic> json) => _$RoomFromJson(json);
+  Map<String, dynamic> toJson() => _$RoomToJson(this);
 
   // List<Consumption> getPeviousAndNewConsumption(DateTime dateTime){
   //   List<Consumption> date=[];
@@ -46,5 +53,9 @@ class Consumption{
   final double electricityMeter;
   
   Consumption({required this.waterMeter, required this.electricityMeter});
+
+  factory Consumption.fromJson(Map<String, dynamic> json) => _$ConsumptionFromJson(json);
+  Map<String, dynamic> toJson() => _$ConsumptionToJson(this);
+ 
 
 }

@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:emonitor/model/system/system.g.dart';
+import 'package:emonitor/model/system/system.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class UnitNestAuth{
@@ -9,7 +9,7 @@ class UnitNestAuth{
 
 
 
-  Future<bool> register(String email, String password) async {
+void register(String email, String password) async {
     try {
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
@@ -21,13 +21,11 @@ class UnitNestAuth{
 
       System system = System(
         id: userID, 
-        listBuilding: [], 
-        priceChargeList: []
       );
 
       storeSystemData(system);    
 
-      return true;
+      return ;
     } on FirebaseAuthException catch (e) {
       String message = 'An error occurred';
       if (e.code == 'email-already-in-use') {
@@ -37,7 +35,7 @@ class UnitNestAuth{
       } else if (e.code == 'invalid-email') {
         message = 'The email address is not valid.';
       }
-      return false;
+      return ;
     }
   }
    Future<void> storeSystemData(System systemData) async {
@@ -45,7 +43,7 @@ class UnitNestAuth{
     FirebaseFirestore firestore = FirebaseFirestore.instance;
 
     // Store the data in the 'system' collection
-    // await firestore.collection('system').doc(systemData.id).set(systemData.toMap());
+    await firestore.collection('system').doc(systemData.id).set(systemData.toJson());
 
     print("System data stored successfully!");
   } catch (e) {

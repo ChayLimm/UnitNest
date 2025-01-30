@@ -5,13 +5,19 @@ import 'package:emonitor/model/stakeholder/tenant.dart';
 import 'package:emonitor/model/system/priceCharge.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+part 'system.g.dart';
+
 
 @JsonSerializable(explicitToJson: true)
 class System{
   final String id;
-  List<Building> listBuilding;
-  List<PriceCharge> priceChargeList;
-  System({required this.id,required this.listBuilding, required this.priceChargeList});
+  List<Building> listBuilding = [];
+  List<PriceCharge> priceChargeList = [];
+  System({required this.id});
+
+  factory System.fromJson(Map<String, dynamic> json) => _$SystemFromJson(json);
+  Map<String, dynamic> toJson() => _$SystemToJson(this);
+ 
 
   
 
@@ -30,6 +36,14 @@ class System{
   void proccessPayment(String tenentID, Consumption? consumption,[bool lastpayment = false]){
     //firstPayment + deposit if tenant's deposit != roomPrice
     if(consumption == null){
+
+      // Payment payment = Payment(
+      //   tenant: tenant, 
+      //   landlord: landlord, 
+      //   room: room, 
+      //   deposit: deposit, 
+      //   transaction: transaction
+      //   );
       //calculate roomprice & rent parking if have
       //create and put Payment in the rooms and add to room.paymentList.add(newpayment)
       //generate receipt

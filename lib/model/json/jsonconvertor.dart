@@ -1,6 +1,9 @@
 import 'package:emonitor/model/building/room.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+part 'jsonconvertor.g.dart';
+
+
 class AvailibilityConverter extends JsonConverter<Availibility, Map<String, dynamic>> {
   const AvailibilityConverter();
 
@@ -21,6 +24,7 @@ class AvailibilityConverter extends JsonConverter<Availibility, Map<String, dyna
     };
   }
 }
+
 
 
 @JsonEnum(alwaysCreate: true)
@@ -48,3 +52,4 @@ enum PaymentApproval {
   final String status;
   const PaymentApproval(this.status);
 }
+
