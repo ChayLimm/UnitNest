@@ -3,13 +3,14 @@ import 'package:emonitor/model/building/room.dart';
 import 'package:emonitor/model/payment/payment.dart';
 import 'package:emonitor/model/stakeholder/tenant.dart';
 import 'package:emonitor/model/system/priceCharge.dart';
+import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'system.g.dart';
 
 
 @JsonSerializable(explicitToJson: true)
-class System{
+class System extends ChangeNotifier{
   final String id;
   List<Building> listBuilding = [];
   List<PriceCharge> priceChargeList = [];

@@ -1,9 +1,11 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emonitor/model/system/system.dart';
+import 'package:emonitor/screen/dashboard/main.dart';
 import 'package:emonitor/utils/component.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -18,6 +20,7 @@ class _RegisterState extends State<Register> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   late System system;
+  
   bool isRegister = false;
   bool isloading = false;
   bool isObscured = true;
@@ -152,20 +155,24 @@ class _RegisterState extends State<Register> {
       }
     }
 
-    return Scaffold(
+    return user != null ? 
+       MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => system),
+        ],
+        child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          fontFamily: 'Poppins',
+        ),
+        home: DashBoard(), // Your home widget
+      ),
+        )
+        
+        : Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: grey,
-        body: user != null
-            ? Column(
-                children: [
-                  Text(system.id),
-                  Center(
-                    child: ElevatedButton(
-                        onPressed: logout, child: const Text("Log out")),
-                  ),
-                ],
-              )
-            : Padding(
+        body: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 40, vertical: 50),
                 child: Container(
