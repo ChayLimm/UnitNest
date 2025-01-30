@@ -11,7 +11,7 @@ class PriceCharge {
   final double fineStartOn;
   final double rentParkingPrice;
   final DateTime startDate;
-  late DateTime endDate; // Nullable to represent ongoing validity
+  DateTime? endDate; // Nullable to represent ongoing validity
 
   PriceCharge({
     required this.electricityPrice,
@@ -21,6 +21,7 @@ class PriceCharge {
     required this.fineStartOn,
     required this.rentParkingPrice,
     required this.startDate,
+    this.endDate
   });
 
   factory PriceCharge.fromJson(Map<String, dynamic> json) => _$PriceChargeFromJson(json);
