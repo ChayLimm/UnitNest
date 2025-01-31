@@ -16,6 +16,14 @@ double h2 = 18;
 double p1 = 12;
 double p2 =10;
 
+BoxShadow shadow() => BoxShadow(
+      color: Colors.black.withOpacity(0.2),
+      spreadRadius: 1,
+      blurRadius: 10,
+      offset: const Offset(3, 3),
+    );
+
+
 TextFormField buildTextFormField({
   String? label,
   String? initialValue,
@@ -40,12 +48,16 @@ TextFormField buildTextFormField({
         color: Color(0xFF757575)
       ),
       border:  OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide(color: lightGrey,width: 1),
       ),
       focusedBorder:  OutlineInputBorder(
         borderSide: BorderSide(color: blue, width: 2.0),
-        borderRadius: BorderRadius.circular(8)
+        borderRadius: BorderRadius.circular(10)
+      ),
+      errorBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: red, width: 2),
+        borderRadius: BorderRadius.circular(10)
       ),
       floatingLabelStyle:TextStyle(color: blue)
     ),
