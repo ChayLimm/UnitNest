@@ -7,18 +7,14 @@ part of 'system.dart';
 // **************************************************************************
 
 System _$SystemFromJson(Map<String, dynamic> json) => System(
+      landlord: Landlord.fromJson(json['landlord'] as Map<String, dynamic>),
       id: json['id'] as String,
-    )
-      ..listBuilding = (json['listBuilding'] as List<dynamic>)
-          .map((e) => Building.fromJson(e as Map<String, dynamic>))
-          .toList()
-      ..priceChargeList = (json['priceChargeList'] as List<dynamic>)
-          .map((e) => PriceCharge.fromJson(e as Map<String, dynamic>))
-          .toList();
+    )..listBuilding = (json['listBuilding'] as List<dynamic>)
+        .map((e) => Building.fromJson(e as Map<String, dynamic>))
+        .toList();
 
 Map<String, dynamic> _$SystemToJson(System instance) => <String, dynamic>{
       'id': instance.id,
+      'landlord': instance.landlord.toJson(),
       'listBuilding': instance.listBuilding.map((e) => e.toJson()).toList(),
-      'priceChargeList':
-          instance.priceChargeList.map((e) => e.toJson()).toList(),
     };

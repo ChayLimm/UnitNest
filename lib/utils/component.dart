@@ -23,6 +23,30 @@ BoxShadow shadow() => BoxShadow(
       offset: const Offset(3, 3),
     );
 
+void showCustomSnackBar(
+    BuildContext context, String message, Color backgroundColor,
+    {Duration duration = const Duration(seconds: 3)}) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message),
+      backgroundColor: backgroundColor,
+      behavior: SnackBarBehavior.floating,
+      margin: const EdgeInsets.all(16),
+      duration: duration,
+    ),
+  );
+}
+
+Future<DateTime?> selectDate(BuildContext context) async {
+  final DateTime? pickedDate = await showDatePicker(
+    context: context,
+    initialDate: DateTime.now(), // Default to today
+    firstDate: DateTime.now().subtract(Duration(days: 90)), // 30 days in the past
+    lastDate: DateTime.now().add(Duration(days: 90)),
+  );
+
+  return pickedDate;
+}
 
 TextFormField buildTextFormField({
   String? label,
@@ -75,12 +99,12 @@ Widget customeButton(
       },
       child: Container(
           height: 44,
-          padding: EdgeInsets.symmetric(horizontal: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
               color: color ?? blue, borderRadius: BorderRadius.circular(10)),
           child: Center(
               child: Text(
             label,
-            style: TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.white),
           ))),
     );
