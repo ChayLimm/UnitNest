@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:emonitor/model/stakeholder/landlord.dart';
 import 'package:emonitor/model/system/system.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -9,7 +10,7 @@ class UnitNestAuth{
 
 
 
-void register(String email, String password) async {
+void register(Landlord landlord,String email, String password) async {
     try {
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
@@ -21,6 +22,8 @@ void register(String email, String password) async {
 
       System system = System(
         id: userID, 
+        landlord : landlord,
+
       );
 
       storeSystemData(system);    

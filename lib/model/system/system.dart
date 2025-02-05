@@ -19,13 +19,20 @@ part 'system.g.dart';
 @JsonSerializable(explicitToJson: true)
 class System extends ChangeNotifier {
   final String id;
+  Landlord landlord;
+
+  ////Convert this into JSON
   List<Building> listBuilding = [];
-  List<PriceCharge> priceChargeList = [];
-  System({required this.id});
+  // List<PriceCharge> priceChargeList = [];
+  System({required this.landlord,required this.id});
 
   factory System.fromJson(Map<String, dynamic> json) => _$SystemFromJson(json);
 
   Map<String, dynamic> toJson() => _$SystemToJson(this);
+
+  List<Map<String , dynamic>> listBuidlingToJson(List<Building> listBuildings){
+    return listBuildings.map((building) => building.toJson()).toList();
+  }
 
   Future<TransactionKHQR> requestKHQR(double amount) async {
     final url = Uri.parse('http://localhost:4040/khqr');
@@ -60,15 +67,26 @@ class System extends ChangeNotifier {
     }
   }
   Future<void> syncCloud () async{
+    try{
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
     final User? user = FirebaseAuth.instance.currentUser; 
-    await firestore
-        .collection('system')
-        .doc(user!.uid)
-        .set({
-          'listBuilding': listBuilding,
-          'priceChargeList': priceChargeList,
-        }, SetOptions(merge: true));
+    if(user == null){
+      print("user is null");
+      return;
+    }else{
+    print("Working with firestore######################################");
+    await firestore.collection('system').doc(user!.uid).set({
+          'listBuilding': listBuidlingToJson(listBuilding),
+          'landlord': landlord.toJson(),
+        },
+        SetOptions(merge: true)
+        );
+        notifyListeners();
+        print("Working with firestore######################################");
+}
+        }catch (e){
+          print(e);
+        }
   }
   void registrationTenant(Tenant tenant, double deposit,Room room) {
       for (var building1 in listBuilding) {
@@ -109,7 +127,6 @@ class System extends ChangeNotifier {
     
     final DateTime timestamp = consumption == null?  DateTime.now() : consumption.timestamp;
     late PriceCharge priceCharge;
-    final Landlord landlord = Landlord(contact: "1324", userName: "ChayLim"); //will figure out later
     late Building building;
     late Room room;
     late Tenant tenant;
@@ -117,7 +134,7 @@ class System extends ChangeNotifier {
     double totalPrice;
 
     //get valid pricecharge
-    for (var item in priceChargeList) {
+    for (var item in landlord.settings!.priceChargeList) {
       if (item.isValidDate(timestamp)) {
         priceCharge = item;
       }
@@ -174,7 +191,6 @@ class System extends ChangeNotifier {
 
     Payment payment = Payment(
         tenant: tenant,
-        landlord: landlord,
         room: room,
         deposit: deposit,
         transaction: transaction,
@@ -183,12 +199,11 @@ class System extends ChangeNotifier {
     
     room.paymentList.add(payment);
     //sync with cloud
-    notifyListeners();
     syncCloud();
   }
   void addPriceCharge(PriceCharge pricecharge) {
-    priceChargeList.last.endDate = DateTime.now();
-    priceChargeList.add(pricecharge);
+    landlord.settings!.priceChargeList.last.endDate = DateTime.now();
+    landlord.settings!.priceChargeList.add(pricecharge);
     notifyListeners();
     syncCloud();
   }
@@ -231,19 +246,16 @@ class System extends ChangeNotifier {
     for(var item in listBuilding){
       if(item.id == building.id){
         item = building;
-        notifyListeners();
         syncCloud();
         return;
       }
     }
     //else just add the room
     listBuilding.add(building);
-    notifyListeners();
     syncCloud();
   }
   void removeBuilding(Building building){
     listBuilding.remove(building);
-    notifyListeners();
     syncCloud();
   }
   //CRUD Rooms
@@ -253,7 +265,6 @@ class System extends ChangeNotifier {
       for (var i = 0; i < b.roomList.length; i++) {
         if (b.roomList[i].id == newRoom.id) {
           b.roomList[i] = newRoom; // Update the room in the list directly
-          notifyListeners();
            syncCloud();
           return;
         }
@@ -262,12 +273,10 @@ class System extends ChangeNotifier {
   } else {
     if (building.roomList.any((item) => item.name == newRoom.name)) {
       print("Room name must be unique");
-      notifyListeners();
     syncCloud();
       return;
     }else{
     building.roomList.add(newRoom);
-    notifyListeners();
     syncCloud();
     }
   }
@@ -281,7 +290,6 @@ class System extends ChangeNotifier {
             for(var payment in room.paymentList){
               if(payment.timeStamp == newPayment.timeStamp){
                 payment.paymentStatus = PaymentStatus.paid;
-                notifyListeners();
                 syncCloud();
               }
             }
@@ -298,7 +306,6 @@ class System extends ChangeNotifier {
       for(var room in building.roomList){
         if(room.id == roomToRemove.id){
           building.roomList.remove(room);
-          notifyListeners();
           syncCloud();
         }
       }
@@ -310,7 +317,6 @@ class System extends ChangeNotifier {
       for(var room in building.roomList){
         if(room.tenant?.id == tenant.id){
           room.tenant = tenant;
-          notifyListeners();
           syncCloud();
         }
       }
@@ -321,7 +327,6 @@ class System extends ChangeNotifier {
       for(var room in building.roomList){
         if(room.tenant?.id == tenant.id){
           room.tenant = null;
-          notifyListeners();
     syncCloud();
         }
       }
