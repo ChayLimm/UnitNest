@@ -108,3 +108,52 @@ Widget customeButton(
             style: const TextStyle(color: Colors.white),
           ))),
     );
+    Widget customFloatingButton({required VoidCallback onPressed}) {
+  return Container(
+    width: 40,
+    height: 44,
+    child: FloatingActionButton(
+      onPressed: onPressed,
+      child: Icon(Icons.bookmark_add, color: Colors.white),
+      backgroundColor: Colors.blue,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+    ),
+  );
+}
+// notification card
+Widget notificationMessage() {
+  return Container(
+    padding: const EdgeInsets.symmetric(vertical: 5),
+    child: ListTile(
+      leading: CircleAvatar(radius: 13, backgroundColor: darkGrey),
+      title: RichText(
+        text: TextSpan(
+            children:[
+              TextSpan(
+                  text: "Payment Request:",
+                  style: TextStyle(
+                      fontSize: 10
+                  )
+              ),
+              TextSpan(
+                  text: "Room A001, Building A1  Vanda",
+                  style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold
+                  )
+              ),
+            ]
+        ),
+      ),
+      trailing: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Text("2 m", style: TextStyle(fontSize: 10)),
+          CircleAvatar(radius: 3, backgroundColor: blue),
+        ],
+      ),
+    ),
+  );
+}

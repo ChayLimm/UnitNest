@@ -1,6 +1,6 @@
+import 'package:emonitor/utils/component.dart';
 import 'package:flutter/material.dart';
 
-import '../utils/component.dart';
 
 class RoomlistScreen extends StatelessWidget {
   final VoidCallback onBack; // Callback to return to previous layout

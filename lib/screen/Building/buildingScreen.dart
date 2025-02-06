@@ -1,6 +1,6 @@
+import 'package:emonitor/utils/component.dart';
 import 'package:flutter/material.dart';
 
-import '../utils/component.dart';
 class BuildingScreen extends StatelessWidget {
   final VoidCallback onNavigate; // Callback to change screen
 

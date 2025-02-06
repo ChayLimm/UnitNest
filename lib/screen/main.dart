@@ -1,5 +1,5 @@
 import 'package:emonitor/model/system/system.dart';
-import 'package:emonitor/screen/dashboard/main.dart';
+import 'package:emonitor/screen/Main/mainScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
               theme: ThemeData(
                 fontFamily: 'Poppins',
               ),
-              home: DashBoard(), // Your home widget
+              home: MainScreen(), // Your home widget
             ),
           );
   }

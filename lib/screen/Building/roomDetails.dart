@@ -1,5 +1,5 @@
+import 'package:emonitor/utils/component.dart';
 import 'package:flutter/material.dart';
-import '../utils/component.dart';
 
 class RoomDetailScreen extends StatelessWidget {
   const RoomDetailScreen({super.key});

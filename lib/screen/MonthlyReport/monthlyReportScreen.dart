@@ -1,6 +1,6 @@
+import 'package:emonitor/utils/component.dart';
 import 'package:flutter/material.dart';
 
-import '../utils/component.dart';
 class MonthlyReportScreen extends StatelessWidget {
   const MonthlyReportScreen({super.key});
 
