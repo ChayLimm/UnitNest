@@ -9,8 +9,8 @@ class Landlord{
   final String id = Uuid().v4();
     String username;
     String phoneNumber;
-    LandlordSettings? settings;
     final DateTime createdAt = DateTime.now();
+    LandlordSettings? settings;
 
     Landlord({
       required this.username,
