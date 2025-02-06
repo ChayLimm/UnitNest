@@ -1,6 +1,6 @@
+import 'package:emonitor/utils/component.dart';
 import 'package:flutter/material.dart';
 
-import '../utils/component.dart';
 
 class NotificationDetailScreen extends StatelessWidget {
   const NotificationDetailScreen({super.key});

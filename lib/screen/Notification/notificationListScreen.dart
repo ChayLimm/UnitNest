@@ -1,6 +1,6 @@
+import 'package:emonitor/utils/component.dart';
 import 'package:flutter/material.dart';
 
-import '../utils/component.dart';
 
 class NotificationListScreen extends StatelessWidget {
   const NotificationListScreen({Key? key}) : super(key: key);

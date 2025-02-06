@@ -1,6 +1,5 @@
+import 'package:emonitor/utils/component.dart';
 import 'package:flutter/material.dart';
-
-import '../utils/component.dart';
 import '../Building/buildingScreen.dart';
 import '../Building/roomDetails.dart';
 import '../Building/roomList.dart';
