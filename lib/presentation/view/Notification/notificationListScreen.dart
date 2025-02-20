@@ -1,3 +1,4 @@
+import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
 import 'package:flutter/material.dart';
 
@@ -8,7 +9,7 @@ class NotificationListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: lightGrey,
+      backgroundColor: UniColor.backGroundColor,
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
         child: Column(
@@ -22,7 +23,7 @@ class NotificationListScreen extends StatelessWidget {
                   const Text("Notification",style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),),
                   TextButton(
                       onPressed: (){},
-                      child: Text("Mark as read",style: TextStyle(color: blue),)
+                      child: Text("Mark as read",style: TextStyle(color: UniColor.primary),)
                   )
                 ],
               ),

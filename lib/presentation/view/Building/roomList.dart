@@ -1,3 +1,4 @@
+import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
 import 'package:flutter/material.dart';
 
@@ -10,7 +11,7 @@ class RoomlistScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: lightGrey,
+      backgroundColor: UniColor.neutralLight,
       floatingActionButton: customFloatingButton(
         onPressed: (){},// place your function here
       ),

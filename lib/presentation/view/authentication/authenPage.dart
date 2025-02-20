@@ -4,21 +4,22 @@ import 'package:emonitor/data/model/stakeholder/landlord.dart';
 import 'package:emonitor/data/model/system/priceCharge.dart';
 import 'package:emonitor/data/repository/firebase/fire_auth_impl.dart';
 import 'package:emonitor/data/repository/firebase/fire_store_impl.dart';
-import 'package:emonitor/domain/usecases/system.dart';
-import 'package:emonitor/presentation/view/Main/mainScreen.dart';
+import 'package:emonitor/data/model/system/system.dart';
+import 'package:emonitor/presentation/theme/theme.dart';
+import 'package:emonitor/presentation/view/main.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AuthenPage extends ConsumerStatefulWidget {
+
+class AuthenPage extends StatefulWidget {
   const AuthenPage({super.key});
 
   @override
   _AuthenPageState createState() => _AuthenPageState();
 }
 
-class _AuthenPageState extends  ConsumerState<AuthenPage>  {
+class _AuthenPageState extends  State<AuthenPage>  {
 
   final PageController _pageController = PageController();
 
@@ -62,11 +63,6 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
    String bakongName = ""; 
 
   User? user;
-
-  @override
-  Widget build(BuildContext context) {
-    
-    
 
     void switchPage() {
       setState(() {
@@ -113,7 +109,7 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
         }
         toggleLoading();
         return;
-      }   on FirebaseAuthException catch (e) {
+      } on FirebaseAuthException catch (e) {
         toggleLoading();
         String message = 'An error occurred';
         if (e.code == 'email-already-in-use') {
@@ -131,47 +127,51 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
     }
 
     void login(String email, String password) async {
-      try {
-        toggleLoading();
-        print("signing in");
-        User? tempUser = await AuthRepoImpl().signIn(email: email, password: password);
+  try {
+    toggleLoading();
+    print("signing in");
+    User? tempUser = await AuthRepoImpl().signIn(email: email, password: password);
 
-        if(tempUser !=null){
-        System tempSystem = await DatabaseRepoImpl().fetchSystem(tempUser.uid);
-        setState((){
-          user =  tempUser;
-          system = tempSystem;
-        });
-        }else{
-           setState(() {
-            warning = "The password is incorrect!";
-          });
-        }
-        toggleLoading();
-      } on FirebaseAuthException catch (e) {
-        toggleLoading();
-        String message = 'An error occurred';
-        if (e.code == 'user-not-found') {
-          message = 'No user found with this email.';
-        } else if (e.code == 'wrong-password') {
-          message = 'Incorrect password.';
-        } else if (e.code == 'invalid-email') {
-          message = 'The email address is not valid.';
-        } else if (e.code == 'user-disabled') {
-          message = 'This user account has been disabled.';
-        } else if (e.code == 'invalid-credential') {
-          message = 'Incorrect password.';
-        } else if (e.code == 'too-many-requests') {
-          message =
-              'We have blocked all requests from this device due to unusual activity. Please try again later.';
-        }
-        print(e.code);
-        setState(() {
-          warning = "Warning : $message";
-        });
-        return;
-      }
+    if (tempUser != null) {
+      System tempSystem = await DatabaseRepoImpl().fetchSystem(tempUser.uid);
+      setState(() {
+        user = tempUser;
+        system = tempSystem;
+      });
+    } else {
+      setState(() {
+        warning = "The password is incorrect!";
+      });
     }
+    toggleLoading();
+  } on FirebaseAuthException catch (e) {
+    toggleLoading();
+    String message = 'An error occurred';
+    if (e.code == 'user-not-found') {
+      message = 'No user found with this email.';
+    } else if (e.code == 'wrong-password') {
+      message = 'Incorrect password.';
+    } else if (e.code == 'invalid-email') {
+      message = 'The email address is not valid.';
+    } else if (e.code == 'user-disabled') {
+      message = 'This user account has been disabled.';
+    } else if (e.code == 'invalid-credential') {
+      message = 'Incorrect password.';
+    } else if (e.code == 'too-many-requests') {
+      message = 'We have blocked all requests from this device due to unusual activity. Please try again later.';
+    }
+    print(e.code);
+    setState(() {
+      warning = "Warning : $message";
+    });
+    return;
+  } catch (e) {
+    toggleLoading();
+    setState(() {
+      warning = "Unexpected error: $e";
+    });
+  }
+}
 
     void nextPage() {
       _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.ease);
@@ -191,18 +191,22 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
       });
       system.syncCloud();
     }
-    // login("test@gmail.com", "Team1234");
 
+
+  @override
+  Widget build(BuildContext context) {
+    
+    //check if there is user and system fill in the form yet
     return user != null && system.landlord.settings != null 
-    ? MainScreen(system: system)
+    ? MyApp(system: system)
     : Scaffold(
             resizeToAvoidBottomInset: false,
-            backgroundColor: grey,
+            backgroundColor: UniColor.backGroundColor,
             body: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 50),
               child: Container(
                 decoration: BoxDecoration(
-                  color: white,
+                  color: UniColor.white,
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: [shadow()],
                 ),
@@ -211,11 +215,31 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                   child: Row(
                     children: [
                       //left panel
+                       leftBanner(),
+                       const SizedBox(
+                        width: 10,
+                      ),
+                      //right panel
                       Expanded(
+                          child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 72, vertical: 40),
+                        child: user == null? registerAndLogin() : multiFormRegistration()
+                      )
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            )
+        );
+  }
+  Widget leftBanner(){
+    return Expanded(
                           child: Container(
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
-                            color: blue),
+                            color: UniColor.primary),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 44,
@@ -229,14 +253,11 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                                 child: ListTile(
                                   leading: Icon(
                                     Icons.check_box,
-                                    color: white,
+                                    color: UniColor.white,
                                   ),
                                   title: AutoSizeText(
                                     "UnitNest",
-                                    style: TextStyle(
-                                        fontSize: h2,
-                                        fontWeight: FontWeight.w600,
-                                        color: white),
+                                    style: UniTextStyles.heading.copyWith(color: Colors.white),
                                   ),
                                 ),
                               ),
@@ -249,20 +270,12 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                                     children: [
                                       AutoSizeText(
                                         "Start your journey ",
-                                        style: TextStyle(
-                                          fontSize: h,
-                                          fontWeight: FontWeight.w600,
-                                          color: white,
-                                        ),
+                                        style: UniTextStyles.heading.copyWith(color: UniColor.white),
                                         maxLines: 1,
                                       ),
                                       AutoSizeText(
                                         "with us",
-                                        style: TextStyle(
-                                          fontSize: h,
-                                          fontWeight: FontWeight.w600,
-                                          color: white,
-                                        ),
+                                        style:  UniTextStyles.heading.copyWith(color: UniColor.white),
                                         maxLines: 1,
                                       ),
                                       const SizedBox(
@@ -270,11 +283,7 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                                               10), // Add spacing between texts
                                       AutoSizeText(
                                         "Redefine Rental Management – Stress Less, Earn \nMore",
-                                        style: TextStyle(
-                                          fontSize:
-                                              p1, // Smaller font size for this part
-                                          color: grey, // Color for this part
-                                        ),
+                                        style: UniTextStyles.body.copyWith(color: UniColor.white),
                                         maxLines: 2,
                                       ),
                                     ],
@@ -293,18 +302,12 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                             ],
                           ),
                         ),
-                      )),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      //right panel
-                      Expanded(
-                          child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 72, vertical: 40),
-                        child: user == null?
-                       //register or login
-                        SingleChildScrollView(
+                      ));
+                    
+  }
+
+  Widget registerAndLogin(){
+    return SingleChildScrollView(
                           child:Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -313,11 +316,7 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                                 children: [
                                   AutoSizeText(
                                     isRegister ? "Create an account" : "Login",
-                                    style: TextStyle(
-                                      fontSize: h,
-                                      fontWeight: FontWeight.w600,
-                                      color: black,
-                                    ),
+                                    style: UniTextStyles.heading.copyWith(color: UniColor.neutralDark),
                                     maxLines: 1,
                                   ),
                                   Row(
@@ -326,10 +325,7 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                                         isRegister
                                             ? "Already have account?"
                                             : "Don't have account yet?",
-                                        style: TextStyle(
-                                          fontSize: p1,
-                                          color: darkGrey,
-                                        ),
+                                        style: UniTextStyles.body.copyWith(color: UniColor.neutral),
                                         maxLines: 1,
                                       ),
                                       TextButton(
@@ -345,10 +341,7 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                                           onPressed: switchPage,
                                           child: Text(
                                             isRegister ? " Log in" : " Sign up",
-                                            style: TextStyle(
-                                              fontSize: p1,
-                                              color: blue,
-                                            ),
+                                            style:UniTextStyles.body.copyWith(color: UniColor.primary),
                                           )),
                                     ],
                                   ),
@@ -420,30 +413,29 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                                                 borderRadius:
                                                     BorderRadius.circular(10),
                                                 borderSide: BorderSide(
-                                                    color: red, width: 2)),
+                                                    color: UniColor.red, width: 2)),
                                             enabledBorder: OutlineInputBorder(
                                                 borderSide: BorderSide(
-                                                    color:
-                                                        lightGrey), // Default border color
+                                                    color:UniColor.neutralLight), // Default border color
                                                 borderRadius:
                                                     BorderRadius.circular(10)),
                                             border: OutlineInputBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(10),
                                                 borderSide:
-                                                    BorderSide(color: grey)),
+                                                    BorderSide(color: UniColor.neutralLight)),
                                             focusedBorder: OutlineInputBorder(
                                                 borderSide: BorderSide(
-                                                    color: blue, width: 2.0),
+                                                    color: UniColor.primary, width: 2.0),
                                                 borderRadius:
                                                     BorderRadius.circular(10)),
                                             floatingLabelStyle:
-                                                TextStyle(color: blue),
+                                                TextStyle(color: UniColor.primary),
                                             suffix: SizedBox(
                                               height: 24,
                                               child: IconButton(
                                                 iconSize: 20,
-                                                color: darkGrey,
+                                                color: UniColor.iconNormal,
                                                 padding: EdgeInsets.zero,
                                                 icon: Icon(isObscured
                                                     ? Icons.visibility
@@ -456,8 +448,8 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                                               ),
                                             ),
                                             label: const Text("Password"),
-                                            labelStyle: const TextStyle(
-                                                color: Color(0xFF757575)),
+                                            labelStyle:  TextStyle(
+                                                color: UniColor.neutral),
                                           ),
                                           onChanged: (value) {
                                             setState(() {
@@ -480,30 +472,30 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                                                   borderRadius:
                                                       BorderRadius.circular(10),
                                                   borderSide: BorderSide(
-                                                      color: red, width: 2)),
+                                                      color: UniColor.red, width: 2)),
                                               enabledBorder: OutlineInputBorder(
                                                   borderSide: BorderSide(
                                                       color:
-                                                          lightGrey), // Default border color
+                                                          UniColor.neutralLight), // Default border color
                                                   borderRadius:
                                                       BorderRadius.circular(10)),
                                               border: OutlineInputBorder(
                                                   borderRadius:
                                                       BorderRadius.circular(10),
                                                   borderSide:
-                                                      BorderSide(color: grey)),
+                                                      BorderSide(color: UniColor.neutralLight)),
                                               focusedBorder: OutlineInputBorder(
                                                   borderSide: BorderSide(
-                                                      color: blue, width: 2.0),
+                                                      color: UniColor.primary, width: 2.0),
                                                   borderRadius:
                                                       BorderRadius.circular(10)),
                                               floatingLabelStyle:
-                                                  TextStyle(color: blue),
+                                                  TextStyle(color: UniColor.primary),
                                               suffix: SizedBox(
                                                 height: 24,
                                                 child: IconButton(
                                                   iconSize: 20,
-                                                  color: darkGrey,
+                                                  color: UniColor.iconNormal,
                                                   padding: EdgeInsets.zero,
                                                   icon: Icon(isObscured
                                                       ? Icons.visibility
@@ -547,21 +539,21 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                                           },
                                           child: Container(
                                             decoration: BoxDecoration(
-                                                color: blue,
+                                                color: UniColor.primary,
                                                 borderRadius:
                                                     BorderRadius.circular(10)),
                                             height: 44,
                                             child: Center(
                                               child: isloading
                                                   ? CircularProgressIndicator(
-                                                      color: white,
+                                                      color: UniColor.white,
                                                     )
                                                   : AutoSizeText(
                                                       isRegister
                                                           ? "Create Account"
                                                           : "Login",
                                                       style: TextStyle(
-                                                          color: white,
+                                                          color:  UniColor.white,
                                                           fontWeight:
                                                               FontWeight.w500),
                                                     ),
@@ -577,9 +569,7 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                                                   vertical: 10),
                                               child: AutoSizeText(
                                                 "This app is a demo. Features may be limited or change.",
-                                                style: TextStyle(
-                                                    color: darkGrey,
-                                                    fontSize: 10),
+                                                style: UniTextStyles.body.copyWith(color: UniColor.neutral)
                                               ),
                                             )
                                           ],
@@ -590,7 +580,7 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                                           child: AutoSizeText(
                                             warning,
                                             style: TextStyle(
-                                              color: red,
+                                              color: UniColor.red,
                                             ),
                                           ),
                                         )
@@ -602,9 +592,11 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                             ],
                           ),
                         )
-                                      
-                       //Multi Registration form
-                      : PageView(
+                        ;
+  }
+
+  Widget multiFormRegistration(){
+    return  PageView(
                         controller: _pageController,
                         physics: const NeverScrollableScrollPhysics(), 
                         pageSnapping: true,
@@ -613,17 +605,11 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              AutoSizeText("Hello, ${system.landlord.username}",style:  TextStyle(
-                                  fontSize: h,
-                                  fontWeight: FontWeight.w600,
-                                  color: black,
-                                ),
+                              AutoSizeText("Hello, ${system.landlord.username}",style:  UniTextStyles.heading.copyWith(color: UniColor.neutralDark)
                               ),
                               const SizedBox(height: 32,),
-                              AutoSizeText("To provide you with the best experience and ensure our system functions smoothly, we require some basic information. This helps us personalize your account, process transactions securely, and offer tailored services. Rest assured, your data will be handled securely and used only for the purpose of improving your experience.",style:  TextStyle(
-                                  fontSize: p1,
-                                  color: black,
-                                ),),
+                              AutoSizeText("To provide you with the best experience and ensure our system functions smoothly, we require some basic information. This helps us personalize your account, process transactions securely, and offer tailored services. Rest assured, your data will be handled securely and used only for the purpose of improving your experience.",
+                              style:    UniTextStyles.body.copyWith()),
                               const SizedBox(height: 16,),
                               Row(mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
@@ -631,11 +617,8 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                                   onPressed: (){
                                   nextPage();
                                  },
-                                 child: Text("Next >",style: TextStyle(
-                                  color: blue,
-                                  fontSize: p1,
-                                 ),),
-                                 )
+                                 child: Text("Next >",style: UniTextStyles.body.copyWith(color: UniColor.primary),
+                                 ))
                                 ],
                               )
                             ],
@@ -645,15 +628,8 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            AutoSizeText("PriceCharge",style: TextStyle(
-                                  fontSize: h,
-                                  fontWeight: FontWeight.w600,
-                                  color: black,
-                                ),),
-                            AutoSizeText("Set up your Price Charge Form for future payments.",style:  TextStyle(
-                                  fontSize: p1,
-                                  color: darkGrey,
-                                ),
+                            AutoSizeText("PriceCharge",style: UniTextStyles.heading.copyWith(color: UniColor.neutralDark)),
+                            AutoSizeText("Set up your Price Charge Form for future payments.",style:    UniTextStyles.heading.copyWith(color: UniColor.neutral)
                               ),
                             const SizedBox(height: 20,),
                             Form(
@@ -763,10 +739,7 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                                 ],
                                ),
                                const SizedBox(height: 10,),
-                                  AutoSizeText("Fine will start counting after : ",style:  TextStyle(
-                                  fontSize: p1,
-                                  color: darkGrey,
-                                ),),
+                                  AutoSizeText("Fine will start counting after : ", style:  UniTextStyles.body.copyWith(color: UniColor.neutral),),
                                const SizedBox(height: 10,),
                                GestureDetector(
                                 onTap: () async {
@@ -781,7 +754,7 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                                   height: 44,
                                   decoration: BoxDecoration(
                                     border: Border.all(
-                                      color: lightGrey,
+                                      color: UniColor.neutralLight,
                                       width: 1
                                     ),
                                     borderRadius: BorderRadius.circular(10),
@@ -792,13 +765,10 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                                       children: [
                                          Icon(
                                           Icons.date_range, 
-                                          color: black,
+                                          color: UniColor.iconNormal,
                                           size: 20,
                                           ),
-                                        AutoSizeText("${fineStartOn.day}/${fineStartOn.month}/${fineStartOn.year}",style: TextStyle(
-                                          color: black,
-                                          fontWeight: FontWeight.w500
-                                        ),
+                                        AutoSizeText("${fineStartOn.day}/${fineStartOn.month}/${fineStartOn.year}",style: UniTextStyles.body.copyWith(color: UniColor.neutralDark)
                                        ),
                                       ],
                                     ),
@@ -812,10 +782,7 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                                   onPressed: (){
                                   previousPage();
                                  },
-                                 child: Text("< Previous",style: TextStyle(
-                                  color: blue,
-                                  fontSize: p1,
-                                 ),),
+                                 child: Text("< Previous",style:UniTextStyles.body.copyWith(color: UniColor.primary)),
                                  ),
                                  TextButton(
                                   onPressed: (){
@@ -823,10 +790,7 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                                        nextPage();
                                     };
                                  },
-                                 child: Text("Next >",style: TextStyle(
-                                  color: blue,
-                                  fontSize: p1,
-                                 ),),
+                                 child: Text("Next >",style: UniTextStyles.body.copyWith(color: UniColor.primary)),
                                  ),
                                 ],
                               )
@@ -842,16 +806,9 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              AutoSizeText("Bakong",style:TextStyle(
-                                    fontSize: h,
-                                    fontWeight: FontWeight.w600,
-                                    color: black,
-                                  )
+                              AutoSizeText("Bakong",style:UniTextStyles.heading.copyWith(color: UniColor.neutralDark)
                               ,),
-                               AutoSizeText("Set up your Price Charge Form for future payments.",style:  TextStyle(
-                                    fontSize: p1,
-                                    color: darkGrey,
-                                  ),
+                               AutoSizeText("Set up your Price Charge Form for future payments.",style: UniTextStyles.body.copyWith(color: UniColor.neutral)
                                 ),
                               const SizedBox(height: 20,),
                               buildTextFormField(
@@ -906,10 +863,7 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                                     onPressed: (){
                                     previousPage();
                                    },
-                                   child: Text("< Previous",style: TextStyle(
-                                    color: blue,
-                                    fontSize: p1,
-                                   ),),
+                                   child: Text("< Previous",style: UniTextStyles.body.copyWith(color: UniColor.primary)),
                                    ),
                                    TextButton(
                                     onPressed: (){
@@ -917,10 +871,7 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                                         registerLandLord();
                                       }
                                    },
-                                   child: Text("Done ",style: TextStyle(
-                                    color: blue,
-                                    fontSize: p1,
-                                   ),),
+                                   child: Text("Done ",style: UniTextStyles.body.copyWith(color: UniColor.primary)),
                                    ),
                                   ],
                                 )
@@ -930,13 +881,8 @@ class _AuthenPageState extends  ConsumerState<AuthenPage>  {
                       
                       ],
                       )
-                      )
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            )
-        );
+                      ;
   }
+
+
 }

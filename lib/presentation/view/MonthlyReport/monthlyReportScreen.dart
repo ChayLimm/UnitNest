@@ -1,3 +1,4 @@
+import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
 import 'package:flutter/material.dart';
 
@@ -7,7 +8,7 @@ class MonthlyReportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: lightGrey,
+      backgroundColor: UniColor.backGroundColor,
       floatingActionButton: customFloatingButton(
         onPressed: (){},// place your function here
       ),

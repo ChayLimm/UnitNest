@@ -2,17 +2,17 @@
 import 'package:emonitor/data/model/building/room.dart';
 import 'package:emonitor/data/model/payment/payment.dart';
 import 'package:emonitor/data/model/payment/transaction.dart';
+import 'package:emonitor/data/model/stakeholder/landlord.dart';
 import 'package:emonitor/data/model/stakeholder/tenant.dart';
+import 'package:emonitor/data/model/system/priceCharge.dart';
+import 'package:emonitor/data/model/system/system.dart';
+import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/view/authentication/authenPage.dart';
 import 'package:emonitor/presentation/view/receipt/receipt.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';  // Import Riverpod
-
-
-
-
+// import 'package:flutter_riverpod/flutter_riverpod.dart';  // Import Riverpod
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();  
@@ -31,8 +31,8 @@ void main() async {
   }else{
     await Firebase.initializeApp();
   }
-
-  runApp(const ProviderScope(child: MainApp()));
+  System.num += 1;
+  runApp(MainApp());
 }
 
 
@@ -50,15 +50,18 @@ class MainApp extends StatelessWidget {
     TransactionKHQR transaction = TransactionKHQR(qr: "QR13413241234", md5: "MD51341324123");
     Payment dummyData = Payment(tenant: tenant, room: room, deposit: 0, transaction: transaction);
 
-    return 
-    
-    
-    MaterialApp(
+ 
+   List<PriceCharge> priceChargeList =  [PriceCharge(electricityPrice: 1, waterPrice: 1, hygieneFee: 1, finePerDay: 1, fineStartOn: 1, rentParkingPrice: 1,startDate: DateTime.now())];
+    LandlordSettings landlordSettings = LandlordSettings(
+      bakongAccount: BakongAccount(bakongID: "chayd@acld.com", username: "Cheng ChayLim", location:"Phnom Penh"), 
+      priceChargeList: priceChargeList,
+      );
+    Landlord landlord = Landlord(username: "ChayLim", phoneNumber: "012341234",settings: landlordSettings);
+
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-       theme: ThemeData(
-          fontFamily: 'Poppins',
-        ),
-      home:  AuthenPage(),
+       theme: appTheme,
+      home: AuthenPage(),
     );
   }
 }
