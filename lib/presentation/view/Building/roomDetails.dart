@@ -1,3 +1,4 @@
+import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
 import 'package:flutter/material.dart';
 
@@ -7,7 +8,7 @@ class RoomDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: white,
+      backgroundColor: UniColor.white,
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
         child: Column(
@@ -23,10 +24,10 @@ class RoomDetailScreen extends StatelessWidget {
                         width: 30,
                         height: 30,
                         decoration: BoxDecoration(
-                            color: blue,
+                            color: UniColor.primary,
                             borderRadius: BorderRadius.circular(8)
                         ),
-                        child: Icon(Icons.bed,color: white,),
+                        child: Icon(Icons.bed,color: UniColor.white,),
                       ),
                       const SizedBox(width: 5),
                       const Column(

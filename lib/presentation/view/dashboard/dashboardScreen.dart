@@ -1,3 +1,5 @@
+import 'package:emonitor/data/model/system/system.dart';
+import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -9,8 +11,11 @@ class DashboardScreen extends StatelessWidget {
     DateTime todayDate = DateTime.now();
     String formattedDate = DateFormat('MMMM dd, yyyy').format(todayDate);
     String dayOfWeek = DateFormat('EEEE').format(todayDate);
+
+    print(System.num);
+
     return Scaffold(
-      backgroundColor: lightGrey,
+      backgroundColor: UniColor.backGroundColor,
       floatingActionButton:customFloatingButton(
         onPressed: (){},// place your function here
       ),
@@ -28,7 +33,7 @@ class DashboardScreen extends StatelessWidget {
                   // Profile Information
                   Row(
                     children: [
-                      CircleAvatar(radius: 15, backgroundColor: darkGrey),
+                      CircleAvatar(radius: 15, backgroundColor: UniColor.neutralLight),
                       const SizedBox(width: 5),
                       const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

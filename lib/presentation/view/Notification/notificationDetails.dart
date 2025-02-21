@@ -1,3 +1,4 @@
+import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
 import 'package:flutter/material.dart';
 
@@ -8,7 +9,7 @@ class NotificationDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: white,
+      backgroundColor: UniColor.backGroundColor,
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
         child: Column(
@@ -24,10 +25,10 @@ class NotificationDetailScreen extends StatelessWidget {
                         width: 30,
                         height: 30,
                         decoration: BoxDecoration(
-                            color: blue,
+                            color: UniColor.primary,
                             borderRadius: BorderRadius.circular(8)
                         ),
-                        child: Icon(Icons.person,color: white,),
+                        child: Icon(Icons.person,color: UniColor.iconNormal,),
                       ),
                       const SizedBox(width: 5),
                       const Column(

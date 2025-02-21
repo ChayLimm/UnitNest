@@ -1,3 +1,4 @@
+import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
 import 'package:flutter/material.dart';
 
@@ -8,7 +9,7 @@ class RequestScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:white,
+      backgroundColor:UniColor.backGroundColor,
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
         child: Column(

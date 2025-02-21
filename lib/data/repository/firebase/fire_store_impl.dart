@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'package:emonitor/domain/usecases/system.dart';
+import 'package:emonitor/data/model/system/system.dart';
 import 'package:emonitor/domain/repository/repo.dart';
 
 class DatabaseRepoImpl implements DatabaseRepository{

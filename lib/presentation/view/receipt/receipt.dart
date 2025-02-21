@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:emonitor/data/model/building/room.dart';
 import 'package:emonitor/data/model/payment/payment.dart';
+import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -76,7 +77,7 @@ class Receipt extends StatelessWidget {
     return Scaffold(
       body: Container(
         width: double.infinity,
-        color: grey,
+        color: UniColor.backGroundColor,
         child: Center(
           child: SingleChildScrollView(
             child: 
@@ -87,7 +88,7 @@ class Receipt extends StatelessWidget {
                   child: Container(
                     height: 1000,
                     width: 800,
-                    color: white,
+                    color: UniColor.white,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -96,7 +97,7 @@ class Receipt extends StatelessWidget {
                           width: double.infinity,
                           height: 14,
                           decoration: BoxDecoration(
-                            color: blue,
+                            color: UniColor.primary,
                           ),
                         ),
                         //Content
@@ -155,18 +156,16 @@ class Receipt extends StatelessWidget {
                     children: [
                       Icon(
                         Icons.check_box,
-                        color: blue,
+                        color: UniColor.primary,
                       ),
                       Text(
                         "UnitNest",
-                        style: TextStyle(
-                            fontSize: h3, fontWeight: FontWeight.bold),
-                      ),
+                        style:UniTextStyles.heading)
                     ],
                   ),
                   Text(
                     "${payment.timeStamp.day}/${payment.timeStamp.month}/${payment.timeStamp.year}",
-                    style: TextStyle(fontSize: p1, fontWeight: FontWeight.bold),
+                    style: UniTextStyles.body,
                   )
                 ],
               ),
@@ -177,17 +176,11 @@ class Receipt extends StatelessWidget {
                 children: [
                   Text(
                     "Invoice",
-                    style: TextStyle(
-                      fontSize: p1,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: UniTextStyles.body
                   ),
                   Text(
                     "#INV$invoiceID",
-                    style: TextStyle(
-                      fontSize: p1,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: UniTextStyles.body
                   )
                 ],
               )
@@ -279,7 +272,7 @@ class Receipt extends StatelessWidget {
             children: [
               Text(
                 "Tax Invoice",
-                style: TextStyle(fontSize: h3, fontWeight: FontWeight.bold),
+                style: UniTextStyles.heading,
               )
             ],
           ),
@@ -297,16 +290,16 @@ class Receipt extends StatelessWidget {
                           TableRow(children: [
                             TableCell(
                                 child: customeText("ITEM",
-                                    color: darkGrey, isBold: false)),
+                                    color: UniColor.neutral, isBold: false)),
                             TableCell(
                                 child: customeText("NEW",
-                                    color: darkGrey, isBold: false)),
+                                    color: UniColor.neutral, isBold: false)),
                             TableCell(
                                 child: customeText("OLD",
-                                    color: darkGrey, isBold: false)),
+                                    color: UniColor.neutral, isBold: false)),
                             TableCell(
                                 child: customeText("TOTAL",
-                                    color: darkGrey, isBold: false)),
+                                    color: UniColor.neutral, isBold: false)),
                           ])
                         ],
                       ),
@@ -323,19 +316,19 @@ class Receipt extends StatelessWidget {
                           TableRow(children: [
                             TableCell(
                                 child: customeText("NO.",
-                                    color: darkGrey, isBold: false)),
+                                    color: UniColor.neutral, isBold: false)),
                             TableCell(
                                 child: customeText("ITEM",
-                                    color: darkGrey, isBold: false)),
+                                    color: UniColor.neutral, isBold: false)),
                             TableCell(
                                 child: customeText("QTY",
-                                    color: darkGrey, isBold: false)),
+                                    color: UniColor.neutral, isBold: false)),
                             TableCell(
                                 child: customeText("PRICE",
-                                    color: darkGrey, isBold: false)),
+                                    color: UniColor.neutral, isBold: false)),
                             TableCell(
                                 child: customeText("Total",
-                                    color: darkGrey, isBold: false)),
+                                    color: UniColor.neutral, isBold: false)),
                           ])
                         ],
                       ),
@@ -357,7 +350,7 @@ class Receipt extends StatelessWidget {
                         build5CellRow(" ", " ", " ", "TAX (10%)", "\$15.1"),
                       ]),
                       Divider(
-                        color: blue,
+                        color:  UniColor.primary,
                         thickness: 1,
                         indent: 250,
                       ),
@@ -383,7 +376,7 @@ class Receipt extends StatelessWidget {
             margin: const EdgeInsets.symmetric(vertical: 10),
             child: Divider(
               thickness: 1,
-              color: blue,
+              color: UniColor.primary,
             ),
           ),
           //Footer
@@ -393,15 +386,15 @@ class Receipt extends StatelessWidget {
             children: [
               Text(
                 "Thank you for choosing us! \nWe appreciate your support.",
-                style: TextStyle(fontSize: p1, fontWeight: FontWeight.bold),
+                style: UniTextStyles.body,
               ),
               Text(
                 "www.Unitnest.com",
-                style: TextStyle(color: blue, fontSize: p1),
+                style: UniTextStyles.body.copyWith(color: UniColor.primary),
               ),
               Text(
                 "unitnestoffical@gmail.com",
-                style: TextStyle(color: blue, fontSize: p1),
+                style: UniTextStyles.body.copyWith(color: UniColor.primary),
               ),
             ],
           )
@@ -440,7 +433,7 @@ class Receipt extends StatelessWidget {
     return Text(
       text,
       style: TextStyle(
-          fontSize: p1,
+          fontSize: 10,
           color: color,
           fontWeight: isBold ? FontWeight.bold : FontWeight.w400),
     );

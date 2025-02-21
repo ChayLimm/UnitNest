@@ -1,6 +1,9 @@
-import 'package:emonitor/domain/usecases/system.dart';
+import 'package:emonitor/data/model/system/system.dart';
+import 'package:emonitor/presentation/theme/theme.dart';
+import 'package:emonitor/presentation/view/Building/buildingNavigator.dart';
 import 'package:emonitor/presentation/view/dashboard/dashboardScreen.dart';
 import 'package:emonitor/presentation/view/dashboard/requestScreen.dart';
+import 'package:emonitor/presentation/view/setting/setting.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
 import 'package:flutter/material.dart';
 import '../Building/buildingScreen.dart';
@@ -93,7 +96,7 @@ class _MainScreenState extends State<MainScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 10),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: isSelected ? blue : Colors.transparent,
+                            color: isSelected ? UniColor.primary : Colors.transparent,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           height: 45,
@@ -118,7 +121,15 @@ class _MainScreenState extends State<MainScreen> {
                 ),
                 // Settings at the Bottom
                 const Spacer(),
-                const ListTile(
+                 ListTile(
+                  onTap: (){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Setting(landlord: widget.system.landlord),
+                        ),
+                      );                  
+                      },
                   leading: Icon(Icons.settings, color: Colors.black),
                   title: Text(
                     "Setting",
@@ -160,7 +171,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget _buildContentScreen() {
     switch (selectedIndex) {
       case 0: return  DashboardScreen();
-      case 1: return BuildingScreen(onNavigate: toggleRoomDetails);
+      case 1: return BuidlingNavigator();
       case 2: return NotificationListScreen();
       case 3: return  MonthlyReportScreen();
       default: return  DashboardScreen();

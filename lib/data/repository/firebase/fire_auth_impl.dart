@@ -22,19 +22,24 @@ class AuthRepoImpl extends AuthRepository {
   }
 
   @override
-  Future<User?> signIn({required String email,required String password}) async {
-    try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      return userCredential.user;
-    } catch (e) {
-      print("error in imple");
-      // Handle error (e.g., incorrect credentials)
-      throw Exception("Sign-in failed: $e");
-    }
+Future<User?> signIn({required String email, required String password}) async {
+  try {
+    UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    return userCredential.user;
+  } on FirebaseAuthException catch (e) {
+    // Specific Firebase exception
+    throw FirebaseAuthException(
+      code: e.code,
+      message: "Sign-in failed: ${e.message}",
+    );
+  } catch (e) {
+    // Catch any other general error
+    throw Exception("Sign-in failed: $e");
   }
+}
 
   @override
   Future<User?> signUp({ required String email, required String password}) async {
@@ -44,26 +49,37 @@ class AuthRepoImpl extends AuthRepository {
         password: password,
       );
       return userCredential.user;
-    } catch (e) {
-      // Handle error (e.g., sign-out failure)
-      throw Exception("Log-out failed: $e");
-    }
+    } on FirebaseAuthException catch (e) {
+    // Specific Firebase exception
+    throw FirebaseAuthException(
+      code: e.code,
+      message: "Sign-in failed: ${e.message}",
+    );
+  } catch (e) {
+    // Catch any other general error
+    throw Exception("Sign-in failed: $e");
+  }
   }
 
   @override
   Future<void> logOut() async {
     try {
       await _auth.signOut();
-    } catch (e) {
-      // Handle error (e.g., sign-out failure)
-      throw Exception("Log-out failed: $e");
-    }
+    } on FirebaseAuthException catch (e) {
+    // Specific Firebase exception
+    throw FirebaseAuthException(
+      code: e.code,
+      message: "Sign-in failed: ${e.message}",
+    );
+  } catch (e) {
+    // Catch any other general error
+    throw Exception("Sign-in failed: $e");
   }
 }
 
 
 
-
+}
 
 
 // class UnitNestAuth{
