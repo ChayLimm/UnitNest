@@ -46,8 +46,11 @@ class BakongKhqrImpl extends BakongRepository{
   'Content-Type': 'application/json', // Content-Type in headers
 };
     final body = json.encode({
-      'amount': amount,
-    });
+    'bakongAccount': {
+       ...bakongAccount.toJson(), // Converts BakongAccount object to JSON
+      'amount': amount, // Adds the amount field
+    }
+  });
 
     try {
       final response = await http.post(

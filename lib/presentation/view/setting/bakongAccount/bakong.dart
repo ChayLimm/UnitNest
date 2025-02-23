@@ -24,8 +24,8 @@ class _BakongState extends State<Bakong> {
     String newBakongAccountLocation = " ";
     String newBakongAccountName = " ";
 
-  Future<TransactionKHQR> requestKHQR (BakongAccount bakongAccount) async {
-    return  BakongKhqrImpl().requestKHQR(bakongAccount,0.1);
+  Future<TransactionKHQR> requestKHQR (BakongAccount bakongAccount,double amount) async {
+    return  BakongKhqrImpl().requestKHQR(bakongAccount,amount);
   }
 
   Future<void> onDone() async {
@@ -156,7 +156,7 @@ class _BakongState extends State<Bakong> {
               child: Padding(
                  padding:const EdgeInsets.only(top: 70,left: 20,right: 20,),
                   child:FutureBuilder<TransactionKHQR>(
-                      future: requestKHQR(bakongAccount),
+                      future: requestKHQR(bakongAccount,0.1),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting) {
                           return const Center(child: CircularProgressIndicator());
@@ -166,7 +166,7 @@ class _BakongState extends State<Bakong> {
                           return Center(
                           child: 
                           //Call bakong API
-                          BakongKhqrView(merchantName: bakongAccount.bakongID, amount: "0", qrString: snapshot.data!.qr),
+                          BakongKhqrView(merchantName: bakongAccount.username, amount: "0", qrString: snapshot.data!.qr),
                         );
                         } else {
                           return const Center(child: Text('No data available'));
