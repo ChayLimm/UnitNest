@@ -8,7 +8,6 @@ import 'package:emonitor/data/model/system/priceCharge.dart';
 import 'package:emonitor/data/model/system/system.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/view/authentication/authenPage.dart';
-import 'package:emonitor/presentation/view/receipt/receipt.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -61,7 +60,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
        theme: appTheme,
-      home: AuthenPage(),
+      home:  AuthenPage(),
     );
   }
 }

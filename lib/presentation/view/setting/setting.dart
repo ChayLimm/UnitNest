@@ -1,9 +1,11 @@
 import 'package:emonitor/data/model/stakeholder/landlord.dart';
-import 'package:emonitor/data/model/system/priceCharge.dart';
 import 'package:emonitor/data/model/system/system.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
+import 'package:emonitor/presentation/view/setting/bakongAccount/bakong.dart';
+import 'package:emonitor/presentation/view/setting/contactUs/contactUs.dart';
 import 'package:emonitor/presentation/view/setting/priceCharge/priceChargeSetting.dart';
 import 'package:emonitor/presentation/view/setting/profile/settingProfile.dart';
+import 'package:emonitor/presentation/view/setting/rules/rule.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -36,9 +38,9 @@ class _SettingState extends State<Setting> {
           children: [
             // drawer
             Expanded(
-              flex: 50,
+              flex: 3,
               child: Container(
-                padding: const EdgeInsets.only(top : 70,left: 200,right: 20),
+                padding: const EdgeInsets.only(top : 70,left: 100,right: 20),
                 color: UniColor.white,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -128,18 +130,18 @@ class _SettingState extends State<Setting> {
               ,
             // setting info
             Expanded(
-              flex: 90,
+              flex: 9,
               child: Container(
                 color: UniColor.white,
                 child: IndexedStack(
                   index: currentPage,
-                  children: [
+                  children: const [
                     SettingProfile(),
                     Center(child: Text("data2"),),
                     PriceChargeSetting(),
-                    Center(child: Text("data4"),),
-                    Center(child: Text("data5"),),
-                    Center(child: Text("data6"),),
+                    Bakong(),
+                    RulesPage(),
+                    ContactUs(),
                   ],
                 ),
                 )
@@ -160,19 +162,22 @@ class _SettingState extends State<Setting> {
   return ListTile(
         onTap: trigger,
         hoverColor: UniColor.backGroundColor,
-        leading: Icon(icon, size: 18),
+        leading: Icon(icon, size: 18,color: UniColor.iconNormal,),
         title: Text(title, style: UniTextStyles.body),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 13),
+        trailing:  Icon(Icons.arrow_forward_ios, size: 13,color: UniColor.iconNormal),
   );
 }
-
-
   Widget header(String title){
     return Column(
       children: [
         Row(
           children: [
-             Icon(Icons.arrow_back_ios,size: 16,color: UniColor.neutral,),
+             IconButton(
+              icon: Icon(Icons.arrow_back_ios,size: 16,color: UniColor.neutral),
+              onPressed: (){
+                Navigator.pop(context);
+              },
+             ),
             const SizedBox(width: 10,),
             Text(title,style: UniTextStyles.heading),
           ],

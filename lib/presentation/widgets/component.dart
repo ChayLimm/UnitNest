@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../theme/theme.dart';
 
+
+
 void showCustomSnackBar(
     BuildContext context,{ required String message, required Color backgroundColor,
     Duration duration = const Duration(seconds: 2)}) {
@@ -48,11 +50,16 @@ TextFormField buildTextFormField({
   String? label,
   String? initialValue,
   String suffix = " ",
+  bool? enabled = true,
+  int? maxLines = 1,
   required Function(String) onChanged,
   required String? Function(String?) validator,
   TextInputType keyboardType = TextInputType.text,
 }) {
   return TextFormField(
+      maxLines: maxLines,  // Limit input to 5 lines
+
+    enabled: enabled,
     initialValue: initialValue,
     onChanged: onChanged,
     validator: validator,
