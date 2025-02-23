@@ -166,7 +166,7 @@ class _BakongState extends State<Bakong> {
                           return Center(
                           child: 
                           //Call bakong API
-                          BakongKhqrView(merchantName: bakongAccount.bakongID, amount: "0", qrString: snapshot.data!.qr),
+                          BakongKhqrView(merchantName: bakongAccount.username, amount: "0", qrString: snapshot.data!.qr),
                         );
                         } else {
                           return const Center(child: Text('No data available'));
