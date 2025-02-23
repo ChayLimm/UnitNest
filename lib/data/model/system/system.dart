@@ -40,6 +40,11 @@ class System extends ChangeNotifier {
     await syncCloud();
   }
 
+  Future<void> updateBakongAccount(BakongAccount newBakongAccount) async{
+    landlord.settings!.bakongAccount = newBakongAccount;
+    await syncCloud();
+  }
+
   List<Map<String, dynamic>> listBuidlingToJson(List<Building> listBuildings) {
     return listBuildings.map((building) => building.toJson()).toList();
   }
@@ -213,11 +218,11 @@ class System extends ChangeNotifier {
     syncCloud();
   }
 
-  void addPriceCharge(PriceCharge pricecharge) {
+  Future<void> addPriceCharge(PriceCharge pricecharge) async {
     landlord.settings!.priceChargeList.last.endDate = DateTime.now();
     landlord.settings!.priceChargeList.add(pricecharge);
     notifyListeners();
-    syncCloud();
+    await syncCloud();
   }
 
   Future<bool> checkTransStatus(Payment payment) async {

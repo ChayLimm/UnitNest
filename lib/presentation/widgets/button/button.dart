@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 
 Widget secondaryButton(
         {required BuildContext context,
-        required VoidCallback trigger,
         required String label,
+         required VoidCallback trigger,
+
        }) =>
     InkWell(
       hoverColor: UniColor.white,
@@ -12,7 +13,7 @@ Widget secondaryButton(
       onTap:trigger
       ,
       child: Container(
-          height: 44,
+        height: 44,
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             border: Border.all(
@@ -36,10 +37,9 @@ Widget primaryButton(
     InkWell(
       hoverColor: UniColor.white,
       splashColor: UniColor.white,
-      onTap:trigger
-      ,
+      onTap:trigger,
       child: Container(
-          height: 44,
+        height: 44,
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
               color: color ?? UniColor.primary, borderRadius: BorderRadius.circular(10)),

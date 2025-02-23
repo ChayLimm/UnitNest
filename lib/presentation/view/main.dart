@@ -1,5 +1,6 @@
 import 'package:emonitor/data/model/system/system.dart';
 import 'package:emonitor/presentation/view/Main/mainScreen.dart';
+import 'package:emonitor/presentation/view/setting/setting.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

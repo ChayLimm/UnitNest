@@ -2,6 +2,7 @@ import 'package:emonitor/data/model/system/system.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/view/setting/profile/edit.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
+import 'package:emonitor/presentation/widgets/infoCard/infoCard.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -62,44 +63,10 @@ class SettingProfile extends StatelessWidget {
             ),
 
             //wrap profile info
-            Container(
-              decoration: BoxDecoration(
-                  color: UniColor.white,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(width: 1, color: UniColor.neutralLight)),
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-              margin: const EdgeInsets.symmetric(vertical: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                 Text("Username",style: UniTextStyles.body.copyWith(color: UniColor.neutral),),
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      system.landlord.username,
-                      style: UniTextStyles.body,
-                    ),
-                  ),
-                  Container(
-                      margin: const EdgeInsets.symmetric(vertical: 5),
-                      child: Divider(
-                        color: UniColor.neutralLight,
-                      )),
-                 Text("Phone number",style: UniTextStyles.body.copyWith(color: UniColor.neutral),),
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(system.landlord.phoneNumber,
-                        style: UniTextStyles.body),
-                  )
-                ],
-              ),
-            ),
+            InfoCard(items: [
+              InfoItem(label: "User", value: system.landlord.username),
+              InfoItem(label: "Phone Number", value: system.landlord.phoneNumber),
+            ]),
             const SizedBox(
               height: 10,
             ),

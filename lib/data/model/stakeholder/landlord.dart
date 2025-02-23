@@ -36,6 +36,15 @@ class LandlordSettings {
 
   factory LandlordSettings.fromJson(Map<String, dynamic> json) => _$LandlordSettingsFromJson(json);
   Map<String, dynamic> toJson() => _$LandlordSettingsToJson(this);
+
+  PriceCharge getPriceCharge(DateTime datetime){
+    for( var priceCharge in priceChargeList){
+      if(priceCharge.isValidDate(datetime)){
+        return priceCharge;
+      }
+    }
+    return PriceCharge(electricityPrice: 0, waterPrice: 0, hygieneFee: 0, finePerDay: 0, fineStartOn: 0, rentParkingPrice: 0, startDate: DateTime.now());
+  }
 }
 
 @JsonSerializable()

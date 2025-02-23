@@ -192,6 +192,12 @@ class _AuthenPageState extends  State<AuthenPage>  {
       system.syncCloud();
     }
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    // login("test2@gmail.com", "Team1234");
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -48,6 +48,7 @@ class UniTextStyles {
   static TextStyle heading = const TextStyle(fontSize: 28, fontWeight: FontWeight.bold);
 
   static TextStyle body =  const TextStyle(fontSize: 14, fontWeight: FontWeight.w400);
+  static TextStyle label =  const TextStyle(fontSize: 14, fontWeight: FontWeight.bold);
 
   static TextStyle button =  TextStyle(fontSize: 14, fontWeight: FontWeight.w500,color: UniColor.white);
 }
@@ -62,8 +63,8 @@ class UniSpacing {
   static const double xl = 32; 
   static const double xxl = 40; 
 
-  static const double radius = 16; 
-  static const double radiusLarge = 24; 
+  static const double radius = 10; 
+  static const double radiusLarge = 14; 
 }
 
 
@@ -73,4 +74,6 @@ class UniSpacing {
 ThemeData appTheme =  ThemeData(
   fontFamily: 'Roboto',
   scaffoldBackgroundColor: Colors.white,
+  primaryColor: UniColor.primary
 );
+
