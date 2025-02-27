@@ -89,7 +89,7 @@ class _SettingState extends State<Setting> {
                         borderRadius: BorderRadius.circular(10),
                         color: currentPage == 3 ? UniColor.backGroundColor : UniColor.white,
                       ),
-                      child: customListTile("Account Banking", Icons.qr_code_scanner, () {
+                      child: customListTile("Bakong Account", Icons.qr_code_scanner, () {
                         setState(() {
                           currentPage = 3;
                         });
