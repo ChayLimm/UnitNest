@@ -36,16 +36,7 @@ class Room{
    // Manually add fromJson and toJson
   factory Room.fromJson(Map<String, dynamic> json) => _$RoomFromJson(json);
   Map<String, dynamic> toJson() => _$RoomToJson(this);
-
-  // List<Consumption> getPeviousAndNewConsumption(DateTime dateTime){
-  //   List<Consumption> date=[];
-  //   // var newConumption = consumptionList.map(toElement.timeStamp) find the matching dateTime
-  //   // var preConsumtion = consumptionList.map(toElement.timeStamp) conditon if(toElement.timestamp.isBefore(newConumption.timestamp)){return toELement}
-  //   date.add(newConumption);
-  //   date.add(preConumption);
-  //   return data;
-  // }
-
+  
 }
 
 @JsonSerializable()

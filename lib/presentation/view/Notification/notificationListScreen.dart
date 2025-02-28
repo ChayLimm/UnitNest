@@ -1,5 +1,4 @@
 import 'package:emonitor/presentation/theme/theme.dart';
-import 'package:emonitor/presentation/widgets/component.dart';
 import 'package:flutter/material.dart';
 
 

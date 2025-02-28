@@ -45,61 +45,6 @@ class System extends ChangeNotifier {
     await syncCloud();
   }
 
-  List<Map<String, dynamic>> listBuidlingToJson(List<Building> listBuildings) {
-    return listBuildings.map((building) => building.toJson()).toList();
-  }
-
-  Future<TransactionKHQR> requestKHQR(double amount) async {
-    final url = Uri.parse('http://localhost:4040/khqr');
-    try {
-      var body = jsonEncode({
-        'contents': [
-          {
-            'parts': [
-              {'amount': amount}
-            ]
-          }
-        ]
-      });
-
-      var response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: body,
-      );
-
-      var jsonData = jsonDecode(response.body);
-
-      String md5 = jsonData['md5'] ?? '';
-      String qr = jsonData['qr'] ?? '';
-
-      return TransactionKHQR(md5: md5, qr: qr);
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<void> syncCloud() async {
-    try {
-      final FirebaseFirestore firestore = FirebaseFirestore.instance;
-      final User? user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        print("user is null");
-        return;
-      } else {
-        await firestore.collection('system').doc(user.uid).set({
-          'listBuilding': listBuidlingToJson(listBuilding),
-          'landlord': landlord.toJson(),
-        }, SetOptions(merge: true));
-        notifyListeners();
-        print("synce to cloud succesfully");
-      }
-    } catch (e) {
-      print(e);
-    }
-  }
 
   void registrationTenant(Tenant tenant, double deposit, Room room) {
     for (var building1 in listBuilding) {
@@ -254,79 +199,7 @@ class System extends ChangeNotifier {
     }
   }
 
-  //CRUD Buidlings
-  void addOrUpdateBuilding(Building building) {
-    for (var item in listBuilding) {
-      if (item.id == building.id) {
-        item = building;
-        syncCloud();
-        return;
-      }
-    }
-    //else just add the room
-    listBuilding.add(building);
-    syncCloud();
-  }
-
-  void removeBuilding(Building building) {
-    listBuilding.remove(building);
-    syncCloud();
-  }
-
-  //CRUD Rooms
-  void addOrUpdateRoom(Building? building, Room newRoom) {
-    if (building == null) {
-      for (var b in listBuilding) {
-        for (var i = 0; i < b.roomList.length; i++) {
-          if (b.roomList[i].id == newRoom.id) {
-            b.roomList[i] = newRoom; // Update the room in the list directly
-            syncCloud();
-            return;
-          }
-        }
-      }
-    } else {
-      if (building.roomList.any((item) => item.name == newRoom.name)) {
-        print("Room name must be unique");
-        syncCloud();
-        return;
-      } else {
-        building.roomList.add(newRoom);
-        syncCloud();
-      }
-    }
-  }
-
-  void updatePaymentStatus(Room newRoom, Payment newPayment) async {
-    if (await checkTransStatus(newPayment)) {
-      for (var building in listBuilding) {
-        for (var room in building.roomList) {
-          if (room.id == newRoom.id) {
-            for (var payment in room.paymentList) {
-              if (payment.timeStamp == newPayment.timeStamp) {
-                payment.paymentStatus = PaymentStatus.paid;
-                syncCloud();
-              }
-            }
-          }
-        }
-      }
-    } else {
-      print("Is not paid");
-    }
-  }
-
-  void removeRoom(Room roomToRemove) {
-    for (var building in listBuilding) {
-      for (var room in building.roomList) {
-        if (room.id == roomToRemove.id) {
-          building.roomList.remove(room);
-          syncCloud();
-        }
-      }
-    }
-  }
-
+ 
   //CRUD Tenants please use ID for all for of these
   void updateTenant(Tenant tenant) {
     for (var building in listBuilding) {
@@ -369,6 +242,7 @@ class System extends ChangeNotifier {
   }
 
   bool roomIsLeaving() {
+    /// need to implement
     return true;
   }
 }
