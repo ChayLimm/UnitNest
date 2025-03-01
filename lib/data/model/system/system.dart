@@ -46,18 +46,7 @@ class System extends ChangeNotifier {
   }
 
 
-  void registrationTenant(Tenant tenant, double deposit, Room room) {
-    for (var building1 in listBuilding) {
-      for (var room1 in building1.roomList) {
-        if (room1.id == room.id) {
-          room1.tenant = tenant;
-        }
-      }
-    }
-    proccessPayment(tenant.id);
-    notifyListeners();
-  }
-
+ 
   void sendMessageViaTelegramBot(String message, Tenant chatID) {
     // reqeuest API in nodejss
   }
@@ -81,86 +70,6 @@ class System extends ChangeNotifier {
     }
 
     // find package to generate reciept as png
-  }
-
-  Future<void> proccessPayment(String tenantID,
-      [Consumption? consumption, bool lastpayment = false]) async {
-    final DateTime timestamp =
-        consumption == null ? DateTime.now() : consumption.timestamp;
-    late PriceCharge priceCharge;
-    late Building building;
-    late Room room;
-    late Tenant tenant;
-    late double deposit;
-    double totalPrice;
-
-    //get valid pricecharge
-    for (var item in landlord.settings!.priceChargeList) {
-      if (item.isValidDate(timestamp)) {
-        priceCharge = item;
-      }
-    }
-    //find who is paying for which room
-    for (var building1 in listBuilding) {
-      for (var room1 in building1.roomList) {
-        if (room.tenant!.id == tenantID) {
-          building = building1;
-          room = room1;
-          tenant = room.tenant!;
-        }
-      }
-    }
-    //find deposit
-    if (tenant.deposit < room.price) {
-      deposit = room.price - tenant.deposit;
-    } else {
-      deposit = 0;
-    }
-
-    //calculate roomprice & rent parking if have
-    if (consumption == null) {
-      //first payment
-      totalPrice = room.price +
-          deposit +
-          (tenant.rentParking.toDouble() * priceCharge.rentParkingPrice);
-    } else {
-      Consumption lastCons = room.consumptionList.last;
-      final double elecTotalPrice =
-          (consumption.electricityMeter - lastCons.electricityMeter) *
-              priceCharge.electricityPrice;
-      final double waterPrice = (consumption.waterMeter - lastCons.waterMeter) *
-              priceCharge.waterPrice +
-          priceCharge.hygieneFee;
-      if (lastpayment) {
-        //last payment
-        totalPrice =
-            deposit + elecTotalPrice + waterPrice + priceCharge.hygieneFee;
-      } else {
-        //normal payment
-        totalPrice = room.price +
-            deposit +
-            (tenant.rentParking.toDouble() * priceCharge.rentParkingPrice) +
-            elecTotalPrice +
-            waterPrice +
-            priceCharge.hygieneFee;
-      }
-
-      room.consumptionList.add(consumption);
-    }
-
-    TransactionKHQR transaction = await requestKHQR(totalPrice);
-
-    Payment payment = Payment(
-      tenant: tenant,
-      room: room,
-      deposit: deposit,
-      transaction: transaction,
-    );
-    payment.paymentStatus = PaymentStatus.pending;
-
-    room.paymentList.add(payment);
-    //sync with cloud
-    syncCloud();
   }
 
   Future<void> addPriceCharge(PriceCharge pricecharge) async {
@@ -200,29 +109,7 @@ class System extends ChangeNotifier {
   }
 
  
-  //CRUD Tenants please use ID for all for of these
-  void updateTenant(Tenant tenant) {
-    for (var building in listBuilding) {
-      for (var room in building.roomList) {
-        if (room.tenant?.id == tenant.id) {
-          room.tenant = tenant;
-          syncCloud();
-        }
-      }
-    }
-  }
-
-  void removeTenant(Tenant tenant) {
-    for (var building in listBuilding) {
-      for (var room in building.roomList) {
-        if (room.tenant?.id == tenant.id) {
-          room.tenant = null;
-          syncCloud();
-        }
-      }
-    }
-  }
-
+ 
   //#############
   //clone from old system
   //####
