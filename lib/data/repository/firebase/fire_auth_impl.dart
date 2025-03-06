@@ -22,7 +22,7 @@ class AuthRepoImpl extends AuthRepository {
   }
 
   @override
-Future<User?> signIn({required String email, required String password}) async {
+Future<User?> login({required String email, required String password}) async {
   try {
     UserCredential userCredential = await _auth.signInWithEmailAndPassword(
       email: email,
@@ -42,7 +42,7 @@ Future<User?> signIn({required String email, required String password}) async {
 }
 
   @override
-  Future<User?> signUp({ required String email, required String password}) async {
+  Future<User?> register({ required String email, required String password}) async {
     try {
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
@@ -77,8 +77,12 @@ Future<User?> signIn({required String email, required String password}) async {
   }
 }
 
+  Future<void> sendPasswordResetEmail() async {
+  User? user = _auth.currentUser ;
+  // Get the current user
+  _auth.sendPasswordResetEmail(email: user!.email!);
 
-
+}
 }
 
 

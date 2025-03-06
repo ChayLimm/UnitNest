@@ -1,4 +1,4 @@
-import 'package:emonitor/Narong_screen_component/building_room/building/buildingScreen.dart';
+import 'package:emonitor/presentation/view/Building/building/buildingScreen.dart';
 import 'package:emonitor/presentation/view/dashboard/requestScreen.dart';
 import 'package:flutter/material.dart';
 class BuildingMain extends StatelessWidget {
@@ -19,8 +19,8 @@ class BuildingMain extends StatelessWidget {
               child: RequestScreen()
               ),
           ],
+        ),
       
-      ),
     );
   }
 }

@@ -1,4 +1,6 @@
-import 'package:emonitor/data/model/system/system.dart';
+import 'package:emonitor/domain/service/root_data.dart';
+import 'package:emonitor/domain/service/setting_service.dart';
+import 'package:emonitor/presentation/Provider/Setting/setting_provider.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/widgets/button/button.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
@@ -22,7 +24,7 @@ class _RulesPageState extends State<RulesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<System>(builder: (context,system, child){
+    return Consumer<SettingProvider>(builder: (context,settingProvider, child){
 
       return Padding(
         padding: const EdgeInsets.only(left: 40, right: 40, top: 70),
@@ -51,7 +53,7 @@ class _RulesPageState extends State<RulesPage> {
                   keyboardType: TextInputType.multiline,
                   maxLines: null,
                   enabled: isEditing,
-                  initialValue: system.landlord.settings!.rule,
+                  initialValue: settingProvider.setting.rule,
                   onChanged: (value){
                     rules = value;
                   }, 
@@ -72,16 +74,15 @@ class _RulesPageState extends State<RulesPage> {
               if(isEditing)... [Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  secondaryButton(context: context, label: "Cancel", trigger: (){
+                  UniButton(buttonType: ButtonType.secondary,context: context, label: "Cancel", trigger: (){
                     setState(() {
                       isEditing = false;
                     });
                   }),
                   const SizedBox(width: UniSpacing.s,),
-                  primaryButton(context: context, trigger: ()async{
+                  UniButton(buttonType: ButtonType.primary,context: context, trigger: ()async{
                     if(_formKey.currentState!.validate())  {
-                      system.landlord.settings!.rule = rules;
-                      await system.syncCloud();
+                      settingProvider.updateRules(rules);
                       setState(() {
                           isEditing = false;
                       });

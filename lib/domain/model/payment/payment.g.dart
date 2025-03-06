@@ -7,7 +7,11 @@ part of 'payment.dart';
 // **************************************************************************
 
 Payment _$PaymentFromJson(Map<String, dynamic> json) => Payment(
+      parkingAmount: json['parkingAmount'],
+      parkingFee: (json['parkingFee'] as num).toDouble(),
+      hygiene: (json['hygiene'] as num).toDouble(),
       tenant: Tenant.fromJson(json['tenant'] as Map<String, dynamic>),
+      totalPrice: (json['totalPrice'] as num).toDouble(),
       room: Room.fromJson(json['room'] as Map<String, dynamic>),
       deposit: (json['deposit'] as num).toDouble(),
       transaction:
@@ -22,11 +26,15 @@ Payment _$PaymentFromJson(Map<String, dynamic> json) => Payment(
 Map<String, dynamic> _$PaymentToJson(Payment instance) => <String, dynamic>{
       'tenant': instance.tenant.toJson(),
       'room': instance.room.toJson(),
-      'deposit': instance.deposit,
       'transaction': instance.transaction.toJson(),
+      'hygiene': instance.hygiene,
+      'parkingFee': instance.parkingFee,
+      'deposit': instance.deposit,
+      'fine': instance.fine,
+      'parkingAmount': instance.parkingAmount,
+      'totalPrice': instance.totalPrice,
       'paymentStatus': _$PaymentStatusEnumMap[instance.paymentStatus]!,
       'paymentApproval': _$PaymentApprovalEnumMap[instance.paymentApproval]!,
-      'fine': instance.fine,
     };
 
 const _$PaymentStatusEnumMap = {

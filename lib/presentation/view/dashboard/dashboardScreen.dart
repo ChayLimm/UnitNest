@@ -1,13 +1,21 @@
-import 'package:emonitor/data/model/system/system.dart';
+import 'package:emonitor/domain/model/system/system.dart';
+import 'package:emonitor/domain/service/root_data.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    ///
+    /// init provider
+    /// 
+    final rootData = context.read<RootDataService>().rootData;
+
+
     DateTime todayDate = DateTime.now();
     String formattedDate = DateFormat('MMMM dd, yyyy').format(todayDate);
     String dayOfWeek = DateFormat('EEEE').format(todayDate);
@@ -35,11 +43,11 @@ class DashboardScreen extends StatelessWidget {
                     children: [
                       CircleAvatar(radius: 15, backgroundColor: UniColor.neutralLight),
                       const SizedBox(width: 5),
-                      const Column(
+                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Cheng Chaylim", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                          Text("096 728 8086", style: TextStyle(fontSize: 12, color: Colors.grey)),
+                          Text("${rootData!.landlord.username}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          const Text("096 728 8086", style: TextStyle(fontSize: 12, color: Colors.grey)),
                         ],
                       ),
                     ],

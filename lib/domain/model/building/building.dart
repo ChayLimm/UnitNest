@@ -1,4 +1,4 @@
-import 'package:emonitor/data/model/building/room.dart';
+import 'package:emonitor/domain/model/building/room.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 
@@ -17,5 +17,15 @@ class Building {
 
   factory Building.fromJson(Map<String, dynamic> json) => _$BuildingFromJson(json);
   Map<String, dynamic> toJson() => _$BuildingToJson(this);
+
+ 
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Building && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 
 }

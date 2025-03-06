@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:emonitor/data/model/building/room.dart';
-import 'package:emonitor/data/model/payment/payment.dart';
+import 'package:emonitor/domain/model/building/room.dart';
+import 'package:emonitor/domain/model/payment/payment.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
 import 'package:flutter/material.dart';

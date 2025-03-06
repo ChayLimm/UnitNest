@@ -1,9 +1,9 @@
-import 'package:emonitor/data/model/system/priceCharge.dart';
-import 'package:emonitor/data/model/system/system.dart';
+import 'package:emonitor/domain/model/system/priceCharge.dart';
+import 'package:emonitor/presentation/Provider/Setting/setting_provider.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
-import 'package:emonitor/presentation/view/setting/priceCharge/form_PriceCharge.dart';
 import 'package:emonitor/presentation/widgets/button/button.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
+import 'package:emonitor/presentation/widgets/form/dialogForm.dart';
 import 'package:emonitor/presentation/widgets/infoCard/infoCard.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -22,20 +22,143 @@ class _PriceChargeSettingState extends State<PriceChargeSetting> {
   DateTime currentPriceCharge = DateTime.now();
   int? selectedIndex;
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
+
+  ///
+  /// Event trigger
+  /// 
+  Future<void> onDone() async{
+   
+    return;
   }
 
+  ///
+  /// Dialog 
+  /// 
+  Future<bool> showDialogForm(BuildContext context) async{
+      ///
+      /// Init data for add form;
+      ///
+      double electricityPrice = 0;
+      double waterPrice = 0;
+      double rentParkingPrice = 0;
+      double hygieneFee = 0;
+      double finePerDayPrice = 0;
+      double fineStartOn = 5;
+
+     final isFormTrue = await uniForm(
+        context: context, 
+        title: "Add New Price Charge", 
+        subtitle: "Set up your monthly price charge", 
+        onDone: onDone,
+        form: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            label("Electricity"),
+                    buildTextFormField(
+                       validator: (value){
+                         if (value == null || value.isEmpty) {
+                              return "Electricity per day Price is required";
+                            }
+                            if (double.tryParse(value) == null) {
+                              return "Must be digits";
+                            }
+                            return null; // Valid input
+                       },
+                      onChanged: (value){
+                             if(double.tryParse(value!) != null){
+                            electricityPrice = double.parse(value);
+                          }                       
+                      }
+                      ),
+                       label("Water"),
+                    buildTextFormField(
+                       validator: (value){
+                         if (value == null || value.isEmpty) {
+                              return "Water per day Price is required";
+                            }
+                            if (double.tryParse(value) == null) {
+                              return "Must be digits";
+                            }
+                            return null; //
+                       },
+                      onChanged: (value){
+                             if(double.tryParse(value!) != null){
+                            waterPrice = double.parse(value);
+                          }                       
+                      }
+                      ),
+                       label("Parking Fee"),
+                    buildTextFormField(
+                       validator: (value){
+                         if (value == null || value.isEmpty) {
+                              return "Parking fee Price is required";
+                            }
+                            if (double.tryParse(value) == null) {
+                              return "Must be digits";
+                            }
+                            return null; //
+                       },
+                      onChanged: (value){
+                             if(double.tryParse(value!) != null){
+                            rentParkingPrice = double.parse(value);
+                          }                       
+                      }
+                      ),
+                       label("Hygiene Fee"),
+                    buildTextFormField(
+                       validator: (value){
+                       if (value == null || value.isEmpty) {
+                              return "Hygiene fee price is required";
+                            }
+                            if (double.tryParse(value) == null) {
+                              return "Must be digits";
+                            }
+                            return null; //
+                       },
+                      onChanged: (value){
+                             if(double.tryParse(value!) != null){
+                            hygieneFee = double.parse(value);
+                          }                       
+                      }
+                      ), label("Fine per day"),
+                    buildTextFormField(
+                       validator: (value){
+                        if (value == null || value.isEmpty) {
+                              return "fine per day Price is required";
+                            }
+                            if (double.tryParse(value) == null) {
+                              return "Must be digits";
+                            }
+                            return null; //
+                       },
+                      onChanged: (value){
+                             if(double.tryParse(value!) != null){
+                           finePerDayPrice = double.parse(value);
+                          }                       
+               }
+            )
+          ],
+        ), 
+    );
+ 
+      if(isFormTrue){
+        PriceCharge pricecharge = PriceCharge(electricityPrice: electricityPrice, waterPrice: waterPrice, hygieneFee: hygieneFee, finePerDay: finePerDayPrice, fineStartOn: fineStartOn, rentParkingPrice: rentParkingPrice, startDate: DateTime.now());
+        final settingProvider = context.read<SettingProvider>();
+        await settingProvider.addPriceCharge(pricecharge);
+        return true;
+      }else{
+        return false;
+      }
+
+  }
   @override
   Widget build(BuildContext context) {
-    return Consumer<System>(builder: (context, system, child) {
+    return Consumer<SettingProvider>(builder: (context, settingProvider, child) {
 
       PriceCharge priceCharge = selectedIndex == null
-          ? system.landlord.settings!.priceChargeList
+          ? settingProvider.setting.priceChargeList
               .last // Default to latest price charge
-          : system.landlord.settings!.priceChargeList[selectedIndex!];
+          : settingProvider.setting.priceChargeList[selectedIndex!];
 
       bool isValid = priceCharge.endDate == null;
 
@@ -73,19 +196,13 @@ class _PriceChargeSettingState extends State<PriceChargeSetting> {
                         trailing: SizedBox(
                           width: 60,
                           height: 44,
-                          child: primaryButton(
+                          child: UniButton(
+                            buttonType: ButtonType.primary,
                               context: context,
                               trigger: () async {
-                                if (await showAddPriceCharge(context)) {
-                                  showCustomSnackBar(context,
-                                      message:
-                                          "New price charge added successfully!",
-                                      backgroundColor: UniColor.green);
-                                } else {
-                                  showCustomSnackBar(context,
-                                      message: "Action canceled.",
-                                      backgroundColor: UniColor.red);
-                                }
+                               final formIsTrue = await showDialogForm(context);
+                               formIsTrue ? showCustomSnackBar(context, message: "Updated Successfully", backgroundColor: UniColor.green)
+                                          : showCustomSnackBar(context, message: "Updated Failed", backgroundColor: UniColor.red);
                               },
                               label: "Add"),
                         ),
@@ -143,74 +260,76 @@ class _PriceChargeSettingState extends State<PriceChargeSetting> {
                   flex: 32,
                   child: Padding(
                     padding:
-                        const EdgeInsets.only(top: 70, left: 20, right: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "History",
-                          style: UniTextStyles.heading,
-                        ),
-                        const SizedBox(
-                          height: UniSpacing.s,
-                        ),
-                        DataTable(
-                          dataTextStyle: UniTextStyles.body,
-                          columns: [
-                            DataColumn(
-                                label: Text("Start",
-                                    style: UniTextStyles.label
-                                        .copyWith(color: UniColor.neutral))),
-                            DataColumn(
-                                label: Text("End",
-                                    style: UniTextStyles.label
-                                        .copyWith(color: UniColor.neutral))),
-                            DataColumn(
-                                label: Text("Status",
-                                    style: UniTextStyles.label
-                                        .copyWith(color: UniColor.neutral))),
-                          ],
-                          rows: List.generate(
-                              system.landlord.settings!.priceChargeList.length,
-                              (index) {
-                            int reversedIndex = system
-                                    .landlord.settings!.priceChargeList.length -
-                                1 -
-                                index;
-                            var item = system.landlord.settings!
-                                .priceChargeList[reversedIndex];
-
-                            return DataRow(
-                  
-                              selected: selectedIndex == reversedIndex, // Highlights selected row
-                              onSelectChanged: (value) {
-                                setState(() {
-                                  selectedIndex = reversedIndex;
-                                  currentPriceCharge = item.startDate; // Update selection
-                                  print("Selected date: $currentPriceCharge");
-                                });
-                              },
-                              cells: [
-                              
-                                DataCell(Text(DateFormat('dd/MM/yyyy')
-                                    .format(item.startDate))),
-                                DataCell(Text(
-                                  item.endDate == null ? "Null" : DateFormat('dd/MM/yyyy').format(item.endDate!),
-                                  style: UniTextStyles.body,
-                                )),
-                                DataCell(Text(
-                                  item.endDate == null ? "Valid" : "Invalid",
-                                  style: UniTextStyles.body.copyWith(
-                                      color: item.endDate == null ? UniColor.green : UniColor.red),
-                                )),
-                               
+                    const EdgeInsets.only(top: 70, left: 20, right: 20),
+                    child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "History",
+                              style: UniTextStyles.heading,
+                            ),
+                            const SizedBox(
+                              height: UniSpacing.s,
+                            ),
+                            DataTable(
+                              showCheckboxColumn: false,
+                              columnSpacing: 7,
+                              dataTextStyle: UniTextStyles.body,
+                              columns: [
+                                DataColumn(
+                                    label: Text("Start",
+                                        style: UniTextStyles.label
+                                            .copyWith(color: UniColor.neutral))),
+                                DataColumn(
+                                    label: Text("End",
+                                        style: UniTextStyles.label
+                                            .copyWith(color: UniColor.neutral))),
+                                DataColumn(
+                                    label: Text("Status",
+                                        style: UniTextStyles.label
+                                            .copyWith(color: UniColor.neutral))),
                               ],
-                            );
-                          }),
-                        )
-                      ],
+                              rows: List.generate(
+                                  settingProvider.setting.priceChargeList.length,
+                                  (index) {
+                                int reversedIndex = settingProvider.setting.priceChargeList.length - 1 - index;
+                                var item = settingProvider.setting .priceChargeList[reversedIndex];
+                        
+                                return DataRow(
+                                          
+                                  selected: selectedIndex == reversedIndex, // Highlights selected row
+                                  onSelectChanged: (value) {
+                                    setState(() {
+                                      selectedIndex = reversedIndex;
+                                      currentPriceCharge = item.startDate; // Update selection
+                                      print("Selected date: $currentPriceCharge");
+                                    });
+                                  },
+                                  cells: [
+                                  
+                                    DataCell(Text(DateFormat('dd/MM/yyyy')
+                                        .format(item.startDate))),
+                                    DataCell(Text(
+                                      item.endDate == null ? "Null" : DateFormat('dd/MM/yyyy').format(item.endDate!),
+                                      style: UniTextStyles.body,
+                                    )),
+                                    DataCell(Text(
+                                      item.endDate == null ? "Valid" : "Invalid",
+                                      style: UniTextStyles.body.copyWith(
+                                          color: item.endDate == null ? UniColor.green : UniColor.red),
+                                    )),
+                                   
+                                  ],
+                                );
+                              }),
+                            )
+                          ],
+                        ),
                     ),
-                  ))
+                  )
+                )
             ],
           ));
     });

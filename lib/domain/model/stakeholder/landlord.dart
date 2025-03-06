@@ -1,4 +1,4 @@
-import 'package:emonitor/data/model/system/priceCharge.dart';
+import 'package:emonitor/domain/model/system/priceCharge.dart';
 import 'package:uuid/uuid.dart';
 import 'package:json_annotation/json_annotation.dart';
 part 'landlord.g.dart';
