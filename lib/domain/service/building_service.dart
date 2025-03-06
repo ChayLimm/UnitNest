@@ -1,15 +1,31 @@
-import 'package:emonitor/data/model/building/building.dart';
+import 'package:emonitor/domain/model/building/building.dart';
 import 'package:emonitor/domain/service/root_data.dart';
-import 'package:flutter/material.dart';
 
-class BuildingService extends ChangeNotifier {
+class BuildingService  {
+  static BuildingService? _instance;
   // this is the root data that we will perform operation on 
   RootDataService repository;
-  BuildingService(this.repository);
+  BuildingService.internal(this.repository);
 
   ///
-  /// Render data
-  /// 
+  /// init
+  ///
+  static void initialize(RootDataService repository){
+    if(_instance == null){
+      _instance = BuildingService.internal(repository);
+    }else{
+      throw "Building service is already init";
+    }
+  } 
+
+  //single ton
+  static BuildingService get instance{
+    if(_instance == null){
+      throw "BuildingService must init first";
+    }else{
+      return _instance!;
+    }
+  }
 
 
   ///
@@ -25,8 +41,7 @@ class BuildingService extends ChangeNotifier {
     repository.rootData!.listBuilding.add(newBuilding);
     }
     //synce to cloud
-    repository.synceToCloud;
-    notifyListeners();
+    repository.synceToCloud();
     print("Added new building");
   }
   
@@ -34,8 +49,8 @@ class BuildingService extends ChangeNotifier {
   Future<void> removeBuilding(Building building) async {
     repository.rootData!.listBuilding.remove(building);
     //synce to cloud
-    repository.synceToCloud;
-    notifyListeners();
+    repository.synceToCloud();
+    
   }
 
   
@@ -58,10 +73,3 @@ class BuildingService extends ChangeNotifier {
   //     print("Is not paid");
   //   }
   }
-
-
-
-
-
-
-

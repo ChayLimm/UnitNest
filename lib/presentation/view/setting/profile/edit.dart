@@ -1,5 +1,5 @@
-import 'package:emonitor/data/model/stakeholder/landlord.dart';
-import 'package:emonitor/data/model/system/system.dart';
+import 'package:emonitor/domain/model/stakeholder/landlord.dart';
+import 'package:emonitor/presentation/Provider/Setting/setting_provider.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/widgets/button/button.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 Future<bool> showProfileEdit(BuildContext context, Landlord landlord) async {
-  final system = Provider.of<System>(context, listen: false);
+  final settingProvider = Provider.of<SettingProvider>(context, listen: false);
 
   // Show the dialog and wait for the result
   bool? result = await showDialog<bool>(
@@ -105,7 +105,8 @@ Future<bool> showProfileEdit(BuildContext context, Landlord landlord) async {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                secondaryButton(
+                UniButton(
+                  buttonType: ButtonType.secondary,
                   context: context,
                   trigger: () {
                     Navigator.pop(context, false); // Return false on cancel
@@ -114,11 +115,13 @@ Future<bool> showProfileEdit(BuildContext context, Landlord landlord) async {
                 ),
                 const SizedBox(width: 10),
 
-                primaryButton(
+                UniButton(
+                  buttonType: ButtonType.primary,
                   context: context,
                   trigger: () async {
                     if (editKey.currentState!.validate()) {
-                      await system.updateLandlord(userName, phoneNumber);
+                      
+                      settingProvider.updateProfile(userName, phoneNumber);
                       Navigator.pop(context, true); // Return true after success
                     } else {
                       Navigator.pop(context, false); // Return false if validation fails

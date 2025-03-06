@@ -1,22 +1,69 @@
-import 'package:emonitor/data/model/building/building.dart';
-import 'package:emonitor/data/model/building/room.dart';
-import 'package:emonitor/data/model/payment/payment.dart';
+import 'package:emonitor/domain/model/building/building.dart';
+import 'package:emonitor/domain/model/building/room.dart';
+import 'package:emonitor/domain/model/payment/payment.dart';
 import 'package:emonitor/domain/service/root_data.dart';
-import 'package:flutter/material.dart';
 
-class RoomService extends ChangeNotifier {
-  // this is the root data that we will perform operation on 
-  RootDataService repository;
-  RoomService(this.repository);
+class RoomService {
+  static RoomService? _instance;
 
+  // Dependency
+  final RootDataService repository;
+
+  RoomService._internal(this.repository);
+
+  ///
+  /// Initialization
+  ///
+  static void initialize(RootDataService repository) {
+    if (_instance == null) {
+      _instance = RoomService._internal(repository);
+    } else {
+      throw "RoomService is already initialized";
+    }
+  }
+
+  // Singleton getter
+  static RoomService get instance {
+    if (_instance == null) {
+      throw "RoomService must be initialized first";
+    } else {
+      return _instance!;
+    }
+  }
   ///
   ///render data
   ///
 
-  Iterable<Room> availableRoom(Building building) => building.roomList.where((item) => item.roomStatus == Availibility.available);
-  List<Room> unPaid(Building building)=>building.roomList.where((item) => item.paymentList.last.timeStamp.year != DateTime.now().year && item.paymentList.last.timeStamp.month != DateTime.now().month).toList();
-  List<Room> pending(Building building) => building.roomList.where((item) => item.paymentList.last.timeStamp.year == DateTime.now().year && item.paymentList.last.timeStamp.month == DateTime.now().month &&item.paymentList.last.paymentStatus == PaymentStatus.pending).toList();
-  List<Room> paid(Building building) => building.roomList.where((item) => item.paymentList.last.timeStamp.year == DateTime.now().year && item.paymentList.last.timeStamp.month == DateTime.now().month &&item.paymentList.last.paymentStatus == PaymentStatus.paid).toList();
+  Iterable<Room> availableRoom({required Building building, required DateTime dateTime}) => building.roomList.where((item) => item.roomStatus == Availibility.available);
+  List<Room> unPaid({required Building building, required DateTime dateTime})=>building.roomList.where((item) => item.paymentList.last.timeStamp.year != dateTime.year && item.paymentList.last.timeStamp.month != dateTime.month).toList();
+  List<Room> pending({required Building building, required DateTime dateTime}) => building.roomList.where((item) => item.paymentList.last.timeStamp.year == dateTime.year && item.paymentList.last.timeStamp.month == dateTime.month &&item.paymentList.last.paymentStatus == PaymentStatus.pending).toList();
+  List<Room> paid({required Building building, required DateTime dateTime}) => building.roomList.where((item) => item.paymentList.last.timeStamp.year == dateTime.year && item.paymentList.last.timeStamp.month == dateTime.month &&item.paymentList.last.paymentStatus == PaymentStatus.paid).toList();
+
+  Consumption? getConsumptionUsageFor(Room room, DateTime timeStamp){
+    for(var newConsumption in room.consumptionList){
+      if(newConsumption.timestamp.year == timeStamp.year && newConsumption.timestamp.month == timeStamp.month){
+        late Consumption preConsumption;
+        for(var consumption in room.consumptionList){
+          if(consumption.timestamp.isBefore(timeStamp)){
+            preConsumption = consumption;
+            return Consumption(
+              waterMeter: newConsumption.waterMeter - preConsumption.waterMeter, 
+              electricityMeter: newConsumption.electricityMeter - preConsumption.electricityMeter
+            );
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+    Payment? getPaymentFor(Room room,DateTime timeStamp){
+      for(var payment in room.paymentList ){
+        if(payment.timeStamp.year == timeStamp.year && payment.timeStamp.month == timeStamp.month){
+          return payment;
+        }
+      }
+    }
 
   ///
   ///CRUD Rooms
@@ -53,14 +100,23 @@ class RoomService extends ChangeNotifier {
 
     // Sync to cloud and notify listeners
     repository.synceToCloud();
-    notifyListeners();
+    
 }
- void removeRoom(Room roomToRemove) {
+  void removeRoom(Room roomToRemove) {
     for (var building in repository.rootData!.listBuilding) {
         building.roomList.removeWhere((room) => room.id == roomToRemove.id);
     }
     repository.synceToCloud();
-    notifyListeners();
+    
 }
+  bool roomIsLeaving() {
+    /// need to implement
+    return true;
+  }
+   double getDepositPrice(Room room) {
+    return room.tenant!.deposit < room.price
+        ? room.price - room.tenant!.deposit
+        : 0;
+  }
 
 }

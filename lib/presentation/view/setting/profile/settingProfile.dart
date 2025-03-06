@@ -1,17 +1,25 @@
-import 'package:emonitor/data/model/system/system.dart';
+import 'package:emonitor/domain/service/authentication_service.dart';
+import 'package:emonitor/domain/service/root_data.dart';
+import 'package:emonitor/presentation/Provider/Setting/setting_provider.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/view/setting/profile/edit.dart';
+import 'package:emonitor/presentation/widgets/button/button.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
+import 'package:emonitor/presentation/widgets/form/dialogForm.dart';
 import 'package:emonitor/presentation/widgets/infoCard/infoCard.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class SettingProfile extends StatelessWidget {
-  const SettingProfile({super.key});
+  
+
+  
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<System>(builder: (context, system, child) {
+
+    return Consumer<SettingProvider>(
+      builder: (context, settingProvider, child) {
       return Container(
         width: 600,
         color: UniColor.white,
@@ -36,7 +44,7 @@ class SettingProfile extends StatelessWidget {
                 InkWell(
                   hoverColor: UniColor.neutralLight,
                   onTap: () async {
-                    if (await showProfileEdit(context, system.landlord)) {
+                    if (await showProfileEdit(context, settingProvider.landlord)) {
                       showCustomSnackBar(context,
                           message: "message", backgroundColor: UniColor.green);
                     } else {
@@ -64,8 +72,8 @@ class SettingProfile extends StatelessWidget {
 
             //wrap profile info
             InfoCard(items: [
-              InfoItem(label: "User", value: system.landlord.username),
-              InfoItem(label: "Phone Number", value: system.landlord.phoneNumber),
+              InfoItem(label: "User", value: settingProvider.landlord.username),
+              InfoItem(label: "Phone Number", value: settingProvider.landlord.phoneNumber),
             ]),
             const SizedBox(
               height: 10,
@@ -73,7 +81,20 @@ class SettingProfile extends StatelessWidget {
             Text(
               "Your phone number will be display in your tenant's receipts",
               style: UniTextStyles.body,
-            )
+            ),
+            UniButton(
+              context: context, 
+              label: "reset password", 
+              trigger: (){
+                AuthenticationService.instance.sendPasswordResetEmail();
+                showCustomSnackBar(
+                context, 
+                message: "An email has been sent to your email address with instructions to reset your password. Please check your inbox (and spam folder) to proceed.",
+                backgroundColor: UniColor.primary);
+              }, 
+              buttonType: ButtonType.tertiary
+              )
+
           ],
         ),
       );

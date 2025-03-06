@@ -1,4 +1,4 @@
-import 'package:emonitor/data/model/system/system.dart';
+import 'package:emonitor/domain/model/system/system.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/view/dashboard/dashboardwidget.dart';
 import 'package:emonitor/presentation/widgets/component.dart';

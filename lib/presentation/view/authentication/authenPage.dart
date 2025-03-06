@@ -1,19 +1,20 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:emonitor/data/model/stakeholder/landlord.dart';
-import 'package:emonitor/data/model/system/priceCharge.dart';
-import 'package:emonitor/data/repository/firebase/fire_auth_impl.dart';
-import 'package:emonitor/data/repository/firebase/fire_store_impl.dart';
-import 'package:emonitor/data/model/system/system.dart';
+import 'package:emonitor/domain/model/stakeholder/landlord.dart';
+import 'package:emonitor/domain/model/system/priceCharge.dart';
+import 'package:emonitor/domain/model/system/system.dart';
+import 'package:emonitor/domain/service/authentication_service.dart';
+import 'package:emonitor/domain/service/root_data.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
-import 'package:emonitor/presentation/view/main.dart';
+import 'package:emonitor/presentation/view/Main/mainScreen.dart';
+import 'package:emonitor/presentation/view/setting/setting.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 
 class AuthenPage extends StatefulWidget {
-  const AuthenPage({super.key});
+  final RootDataService rootDataService;
+  const AuthenPage({super.key,required this.rootDataService});
 
   @override
   _AuthenPageState createState() => _AuthenPageState();
@@ -23,14 +24,11 @@ class _AuthenPageState extends  State<AuthenPage>  {
 
   final PageController _pageController = PageController();
 
-  final _auth = FirebaseAuth.instance;
-  final FirebaseFirestore firestore = FirebaseFirestore.instance;
-
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _keyPriceCharge = GlobalKey<FormState>();
   final GlobalKey<FormState> _keyBakong = GlobalKey<FormState>();
 
-  late System system;
+  // late System system;
   Landlord? newLandlord;
 
   bool isRegister = false;
@@ -62,7 +60,8 @@ class _AuthenPageState extends  State<AuthenPage>  {
    String location = ""; 
    String bakongName = ""; 
 
-  User? user;
+   User? user;
+   System? system;
 
     void switchPage() {
       setState(() {
@@ -83,7 +82,8 @@ class _AuthenPageState extends  State<AuthenPage>  {
     }
 
     Future<void> logout() async {
-      await _auth.signOut();
+      final authService = AuthenticationService.instance;
+      await authService.logOut();
       setState(() {
         user = null;
       });
@@ -93,15 +93,21 @@ class _AuthenPageState extends  State<AuthenPage>  {
     }
 
     void register(Landlord landlord,String email, String password) async {
+      ///
+      /// init the service
+      ///
+      final authService = AuthenticationService.instance;
+      // 
+
       try {
         toggleLoading();
-        User? tempUser = await AuthRepoImpl().signUp(email: email, password: password); 
+        User? tempUser = await authService.register(email, password); 
         if(tempUser != null){
+           final system = System(id: tempUser!.uid,landlord: landlord);
           setState((){
             user = tempUser;
-            system = System(id: tempUser!.uid,landlord: landlord);
           });       
-          DatabaseRepoImpl().synceToCloud(system);
+          await widget.rootDataService.initializeRootData(system);
         }else{
           setState(() {
             warning = "Email already exist.";
@@ -127,50 +133,56 @@ class _AuthenPageState extends  State<AuthenPage>  {
     }
 
     void login(String email, String password) async {
-  try {
-    toggleLoading();
-    print("signing in");
-    User? tempUser = await AuthRepoImpl().signIn(email: email, password: password);
+      ///
+      /// calling the service
+      ///
+      final authService = AuthenticationService.instance;
+      // 
 
-    if (tempUser != null) {
-      System tempSystem = await DatabaseRepoImpl().fetchSystem(tempUser.uid);
-      setState(() {
-        user = tempUser;
-        system = tempSystem;
-      });
-    } else {
-      setState(() {
-        warning = "The password is incorrect!";
-      });
-    }
-    toggleLoading();
-  } on FirebaseAuthException catch (e) {
-    toggleLoading();
-    String message = 'An error occurred';
-    if (e.code == 'user-not-found') {
-      message = 'No user found with this email.';
-    } else if (e.code == 'wrong-password') {
-      message = 'Incorrect password.';
-    } else if (e.code == 'invalid-email') {
-      message = 'The email address is not valid.';
-    } else if (e.code == 'user-disabled') {
-      message = 'This user account has been disabled.';
-    } else if (e.code == 'invalid-credential') {
-      message = 'Incorrect password.';
-    } else if (e.code == 'too-many-requests') {
-      message = 'We have blocked all requests from this device due to unusual activity. Please try again later.';
-    }
-    print(e.code);
-    setState(() {
-      warning = "Warning : $message";
-    });
-    return;
-  } catch (e) {
-    toggleLoading();
-    setState(() {
-      warning = "Unexpected error: $e";
-    });
-  }
+        try {
+          toggleLoading();
+          print("signing in");
+          User? tempUser = await authService.login( email, password);
+
+          if (tempUser != null) {
+            await widget.rootDataService.fetchRootData(tempUser);
+            setState(() {
+              user = tempUser;
+              system = widget.rootDataService.rootData;
+            });
+          } else {
+            setState(() {
+              warning = "The password is incorrect!";
+            });
+          }
+          toggleLoading();
+        } on FirebaseAuthException catch (e) {
+          toggleLoading();
+          String message = 'An error occurred';
+          if (e.code == 'user-not-found') {
+            message = 'No user found with this email.';
+          } else if (e.code == 'wrong-password') {
+            message = 'Incorrect password.';
+          } else if (e.code == 'invalid-email') {
+            message = 'The email address is not valid.';
+          } else if (e.code == 'user-disabled') {
+            message = 'This user account has been disabled.';
+          } else if (e.code == 'invalid-credential') {
+            message = 'Incorrect password.';
+          } else if (e.code == 'too-many-requests') {
+            message = 'We have blocked all requests from this device due to unusual activity. Please try again later.';
+          }
+          print(e.code);
+          setState(() {
+            warning = "Warning : $message";
+          });
+          return;
+        } catch (e) {
+          toggleLoading();
+          setState(() {
+            warning = "Unexpected error: $e";
+          });
+        }
 }
 
     void nextPage() {
@@ -182,29 +194,34 @@ class _AuthenPageState extends  State<AuthenPage>  {
     }
 
     void registerLandLord(){
+
+      /// init service
+      
+
       List<PriceCharge> priceChargeList = [PriceCharge(electricityPrice: electricityPrice, waterPrice: waterPrice, hygieneFee: hygieneFee, finePerDay: finePerDay, fineStartOn: double.parse(fineStartOn.day.toString()), rentParkingPrice: rentParkingPrice, startDate: startDate)];
       BakongAccount newBakongAccount = BakongAccount(bakongID: bakongID, username: bakongName, location: location);
       LandlordSettings newSetting = LandlordSettings(bakongAccount: newBakongAccount, priceChargeList: priceChargeList);
-
-      setState(() {
-        system.landlord.settings = newSetting;
+      widget.rootDataService.rootData!.landlord.settings = newSetting;
+    
+      widget.rootDataService.synceToCloud();
+        setState(() {
+        system = widget.rootDataService.rootData;
       });
-      system.syncCloud();
     }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    // login("test2@gmail.com", "Team1234");
+    login("chengchhaylim@gmail.com", "Team1234");
   }
 
   @override
   Widget build(BuildContext context) {
     
     //check if there is user and system fill in the form yet
-    return user != null && system.landlord.settings != null 
-    ? MyApp(system: system)
+    return user != null && system?.landlord.settings != null 
+    ?  Mainscreen()//MyApp()
     : Scaffold(
             resizeToAvoidBottomInset: false,
             backgroundColor: UniColor.backGroundColor,
@@ -536,7 +553,7 @@ class _AuthenPageState extends  State<AuthenPage>  {
                                                   .validate()) {
                                                 if (isRegister) {
                                                   newLandlord = Landlord(username: userName, phoneNumber: phoneNumber);
-                                                  register(newLandlord!,email, password);
+                                                  register(newLandlord!,email,password);
                                                 } else {
                                                   login(email, password);
                                                 }
@@ -602,6 +619,7 @@ class _AuthenPageState extends  State<AuthenPage>  {
   }
 
   Widget multiFormRegistration(){
+    
     return  PageView(
                         controller: _pageController,
                         physics: const NeverScrollableScrollPhysics(), 
@@ -611,7 +629,7 @@ class _AuthenPageState extends  State<AuthenPage>  {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              AutoSizeText("Hello, ${system.landlord.username}",style:  UniTextStyles.heading.copyWith(color: UniColor.neutralDark)
+                              AutoSizeText("Hello, ${widget.rootDataService.rootData!.landlord.username}",style:  UniTextStyles.heading.copyWith(color: UniColor.neutralDark)
                               ),
                               const SizedBox(height: 32,),
                               AutoSizeText("To provide you with the best experience and ensure our system functions smoothly, we require some basic information. This helps us personalize your account, process transactions securely, and offer tailored services. Rest assured, your data will be handled securely and used only for the purpose of improving your experience.",
@@ -635,7 +653,7 @@ class _AuthenPageState extends  State<AuthenPage>  {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             AutoSizeText("PriceCharge",style: UniTextStyles.heading.copyWith(color: UniColor.neutralDark)),
-                            AutoSizeText("Set up your Price Charge Form for future payments.",style:    UniTextStyles.heading.copyWith(color: UniColor.neutral)
+                            AutoSizeText("Set up your Price Charge Form for future payments.",style:    UniTextStyles.body.copyWith(color: UniColor.neutral)
                               ),
                             const SizedBox(height: 20,),
                             Form(

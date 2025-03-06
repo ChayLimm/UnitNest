@@ -1,6 +1,6 @@
-import 'package:emonitor/data/model/json/jsonconvertor.dart';
-import 'package:emonitor/data/model/payment/payment.dart';
-import 'package:emonitor/data/model/stakeholder/tenant.dart';
+import 'package:emonitor/domain/model/json/jsonconvertor.dart';
+import 'package:emonitor/domain/model/payment/payment.dart';
+import 'package:emonitor/domain/model/stakeholder/tenant.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:json_annotation/json_annotation.dart';

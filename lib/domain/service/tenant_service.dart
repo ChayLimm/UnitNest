@@ -1,11 +1,34 @@
-import 'package:emonitor/data/model/building/room.dart';
-import 'package:emonitor/data/model/stakeholder/tenant.dart';
+import 'package:emonitor/domain/model/building/room.dart';
+import 'package:emonitor/domain/model/stakeholder/tenant.dart';
 import 'package:emonitor/domain/service/root_data.dart';
-import 'package:flutter/material.dart';
 
-class TenantService extends ChangeNotifier {
+class TenantService {
+  static TenantService? _instance;
+
+  // Dependency
   final RootDataService repository;
-  TenantService(this.repository);
+
+  TenantService._internal(this.repository);
+
+  ///
+  /// Initialization
+  ///
+  static void initialize(RootDataService repository) {
+    if (_instance == null) {
+      _instance = TenantService._internal(repository);
+    } else {
+      throw "TenantService is already initialized";
+    }
+  }
+
+  // Singleton getter
+  static TenantService get instance {
+    if (_instance == null) {
+      throw "TenantService must be initialized first";
+    } else {
+      return _instance!;
+    }
+  }
 
   /// Helper method to find a room by tenant ID
   Room? _findRoomByTenantId(String tenantId) {
@@ -39,7 +62,6 @@ class TenantService extends ChangeNotifier {
       // Call payment processing service (ignored as per your request)
       // proccessPayment(tenant.id);
       repository.synceToCloud();
-      notifyListeners();
     } else {
       print('Room not found');
     }
@@ -51,7 +73,6 @@ class TenantService extends ChangeNotifier {
     if (targetRoom != null) {
       targetRoom.tenant = tenant;
       repository.synceToCloud();
-      notifyListeners();
     } else {
       print('Tenant not found');
     }
@@ -63,7 +84,6 @@ class TenantService extends ChangeNotifier {
     if (targetRoom != null) {
       targetRoom.tenant = null;
       repository.synceToCloud();
-      notifyListeners();
     } else {
       print('Tenant not found');
     }

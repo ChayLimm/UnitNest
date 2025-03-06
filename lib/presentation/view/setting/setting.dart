@@ -1,5 +1,3 @@
-import 'package:emonitor/data/model/stakeholder/landlord.dart';
-import 'package:emonitor/data/model/system/system.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/view/setting/bakongAccount/bakong.dart';
 import 'package:emonitor/presentation/view/setting/contactUs/contactUs.dart';
@@ -8,24 +6,24 @@ import 'package:emonitor/presentation/view/setting/profile/settingProfile.dart';
 import 'package:emonitor/presentation/view/setting/rules/rule.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class Setting extends StatefulWidget {
-  final Landlord landlord;
-  Setting({super.key, required this.landlord});
+  Setting({super.key,});
 
   @override
   State<Setting> createState() => _SettingState();
 }
 
 class _SettingState extends State<Setting> {
+
   int currentPage = 0;
 
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<System>(builder: (context,system,child){
-      return  Scaffold(
+
+
+    return  Scaffold(
       //background
      body: Container(
       color: UniColor.white,
@@ -135,7 +133,7 @@ class _SettingState extends State<Setting> {
                 color: UniColor.white,
                 child: IndexedStack(
                   index: currentPage,
-                  children: const [
+                  children:  [
                     SettingProfile(),
                     Center(child: Text("data2"),),
                     PriceChargeSetting(),
@@ -152,7 +150,7 @@ class _SettingState extends State<Setting> {
      )
     );
  
-    });
+   
     
     
    

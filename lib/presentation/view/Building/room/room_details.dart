@@ -1,5 +1,4 @@
 import 'package:emonitor/presentation/theme/theme.dart';
-import 'package:emonitor/presentation/widgets/component.dart';
 import 'package:flutter/material.dart';
 
 class RoomDetailScreen extends StatelessWidget {
@@ -10,7 +9,7 @@ class RoomDetailScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: UniColor.white,
       body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -25,24 +24,36 @@ class RoomDetailScreen extends StatelessWidget {
                         height: 30,
                         decoration: BoxDecoration(
                             color: UniColor.primary,
-                            borderRadius: BorderRadius.circular(8)
+                            borderRadius: BorderRadius.circular(8)),
+                        child: Icon(
+                          Icons.bed,
+                          color: UniColor.white,
                         ),
-                        child: Icon(Icons.bed,color: UniColor.white,),
                       ),
                       const SizedBox(width: 5),
                       const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Room Details",style: TextStyle(fontWeight: FontWeight.w700,fontSize: 16),),
-                          Text("View room details",style: TextStyle(color: Colors.grey,fontSize: 12),)
+                          Text(
+                            "Room Details",
+                            style: TextStyle(
+                                fontWeight: FontWeight.w700, fontSize: 16),
+                          ),
+                          Text(
+                            "View room details",
+                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                          )
                         ],
                       ),
                     ],
                   ),
                   IconButton(
-                      onPressed: (){},
-                      icon: const Icon(Icons.mode_edit_outlined,color: Colors.black,size: 24,)
-                  )
+                      onPressed: () {},
+                      icon: const Icon(
+                        Icons.mode_edit_outlined,
+                        color: Colors.black,
+                        size: 24,
+                      ))
                 ],
               ),
             ),

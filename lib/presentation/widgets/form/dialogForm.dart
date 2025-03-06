@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/widgets/button/button.dart';
 
-Future<bool> showFormDialog({
+Future<bool> uniForm({
   required BuildContext context,
   required String title,
   required String subtitle,
@@ -47,9 +47,8 @@ class _CustomDialogState extends State<CustomDialog> {
   void _handleDone() async {
    if(_formKey.currentState!.validate()){
      setState(() => _isLoading = true);
-      await widget.onDone(); 
-    
-      setState(() => _isLoading = false);
+    await widget.onDone();     
+    setState(() => _isLoading = false);
     Navigator.pop(context, true);
    }
   }
@@ -110,13 +109,15 @@ class _CustomDialogState extends State<CustomDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  secondaryButton(
+                  UniButton(
+                    buttonType: ButtonType.secondary,
                     context: context,
                     trigger: () => Navigator.pop(context, false),
                     label: "Cancel",
                   ),
                   const SizedBox(width: 10),
-                  primaryButton(
+                  UniButton(
+                    buttonType: ButtonType.primary,
                     context: context,
                     trigger: _handleDone,
                     label: "Done",

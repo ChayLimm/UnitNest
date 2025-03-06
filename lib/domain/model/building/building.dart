@@ -1,4 +1,4 @@
-import 'package:emonitor/data/model/building/room.dart';
+import 'package:emonitor/domain/model/building/room.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 

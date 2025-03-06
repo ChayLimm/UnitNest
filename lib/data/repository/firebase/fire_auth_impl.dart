@@ -77,8 +77,12 @@ Future<User?> login({required String email, required String password}) async {
   }
 }
 
+  Future<void> sendPasswordResetEmail() async {
+  User? user = _auth.currentUser ;
+  // Get the current user
+  _auth.sendPasswordResetEmail(email: user!.email!);
 
-
+}
 }
 
 

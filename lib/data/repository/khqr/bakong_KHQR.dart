@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:emonitor/data/model/payment/transaction.dart';
-import 'package:emonitor/data/model/stakeholder/landlord.dart';
+import 'package:emonitor/domain/model/payment/transaction.dart';
+import 'package:emonitor/domain/model/stakeholder/landlord.dart';
 import 'package:emonitor/domain/repository/repo.dart';
 import 'package:http/http.dart' as http;
 
