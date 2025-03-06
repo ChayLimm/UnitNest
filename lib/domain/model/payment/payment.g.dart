@@ -7,7 +7,7 @@ part of 'payment.dart';
 // **************************************************************************
 
 Payment _$PaymentFromJson(Map<String, dynamic> json) => Payment(
-      parkingAmount: json['parkingAmount'],
+      parkingAmount: (json['parkingAmount'] as num).toInt(),
       parkingFee: (json['parkingFee'] as num).toDouble(),
       hygiene: (json['hygiene'] as num).toDouble(),
       tenant: Tenant.fromJson(json['tenant'] as Map<String, dynamic>),
