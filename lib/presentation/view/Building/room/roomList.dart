@@ -66,7 +66,7 @@ class RoomlistScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // dummy data sample
+    
     return Consumer<RoomProvider>(builder: (context,roomProvider,child){
 
       final Building building = roomProvider.currentSelectedBuilding!; 
@@ -245,7 +245,7 @@ Widget buildTableData(BuildContext context, List<Room> rentalData) {
   return SingleChildScrollView(
     child: DataTable(
       showCheckboxColumn: false,
-      columnSpacing: 80, // Adjust spacing if needed
+      columnSpacing: 75, // Adjust spacing if needed
       columns: const [
         DataColumn(label: Text('Room')),
         DataColumn(label: Text('Tenant')),

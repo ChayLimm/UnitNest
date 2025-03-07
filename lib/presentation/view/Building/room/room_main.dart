@@ -7,9 +7,9 @@ class RoomMain extends StatelessWidget {
   // room = room list screen(74) + room detail screen(34)
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
           children: [
-            Expanded(
+            const Expanded(
               flex: 74,
               child: RoomlistScreen()
               ),

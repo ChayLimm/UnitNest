@@ -16,9 +16,16 @@ class RoomProvider extends ChangeNotifier {
     currentSelectedBuilding = building;
     notifyListeners();
   }
+
   void setCurrentSelectedRoom(Room room){
     currentSelectedRoom = room;
     notifyListeners();
+  }
+
+  // i just added for avoiding null problem when first run 
+  void setDefaultRoom() {
+      currentSelectedRoom =  currentSelectedBuilding!.roomList.isNotEmpty ? currentSelectedBuilding!.roomList.first : null;
+      notifyListeners();
   }
 
   Future<void> addOrUpdateRoom(Room newRoom) async{
