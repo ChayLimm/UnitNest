@@ -1,3 +1,4 @@
+import 'package:emonitor/domain/model/Notification/notification.dart';
 import 'package:emonitor/domain/model/payment/transaction.dart';
 import 'package:emonitor/domain/model/stakeholder/landlord.dart';
 import 'package:emonitor/domain/model/system/system.dart';
@@ -19,5 +20,14 @@ abstract class BakongRepository{
 
 abstract class DatabaseRepository{
   Future<System> fetchSystem (String systemID);
-  Future<void> synceToCloud (System system);
+  Future<void> synceToCloud (NotificationList notificationList,System system);
+  Future<NotificationList> fetchNotification (String systemId);
+  // Future<void> syncNotificationToCloud (NotificationList notificationList, System system);
 }
+
+
+abstract class ApiRepository {
+  Future<dynamic> get(String url, {Map<String, String>? headers});
+  Future<dynamic> post(String url, {Map<String, String>? headers, dynamic body});
+}
+

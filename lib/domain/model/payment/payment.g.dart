@@ -7,6 +7,7 @@ part of 'payment.dart';
 // **************************************************************************
 
 Payment _$PaymentFromJson(Map<String, dynamic> json) => Payment(
+      receipt: json['receipt'] as String?,
       parkingAmount: (json['parkingAmount'] as num).toInt(),
       parkingFee: (json['parkingFee'] as num).toDouble(),
       hygiene: (json['hygiene'] as num).toDouble(),
@@ -30,6 +31,7 @@ Map<String, dynamic> _$PaymentToJson(Payment instance) => <String, dynamic>{
       'hygiene': instance.hygiene,
       'parkingFee': instance.parkingFee,
       'deposit': instance.deposit,
+      'receipt': instance.receipt,
       'fine': instance.fine,
       'parkingAmount': instance.parkingAmount,
       'totalPrice': instance.totalPrice,

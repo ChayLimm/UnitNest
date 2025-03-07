@@ -1,6 +1,11 @@
+import 'dart:typed_data';
+
+import 'package:emonitor/domain/model/Notification/notification.dart';
+import 'package:emonitor/domain/model/payment/payment.dart';
 import 'package:emonitor/domain/model/system/system.dart';
 import 'package:emonitor/domain/repository/repo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 
 ///
@@ -11,16 +16,19 @@ class RootDataService  {
 
   // This is the root data source that we will perform CRUD and sync to the cloud
   System? _rootData;
+  NotificationList? _notificationList;
 
   // Getter for rootData
   System? get rootData => _rootData;
+  NotificationList? get notificationList => _notificationList;
+
 
   /// Fetches the root data from the database.
   /// This means that the user has to log in first and pass the User through the parameter.
-  Future<System?> fetchRootData(User user) async {
+  Future<void> fetchRootData(User user) async {
     try {
       _rootData = await databaseRepository.fetchSystem(user.uid); // Notify listeners after fetching data
-      return _rootData;
+      _notificationList = await databaseRepository.fetchNotification(_rootData!.id);
     } catch (e) {
       print("Error fetching root data: $e");
       rethrow; // Rethrow the error to handle it in the UI
@@ -28,13 +36,15 @@ class RootDataService  {
   }
 
   /// Initializes the root data for a new user and syncs it to the cloud.
-  Future<void> initializeRootData(System system) async {
+  Future<void> initializeRootData(System system,NotificationList notificationList) async {
     try {
-      if (system == null) {
-        throw "System data cannot be null";
-      }
+     
       _rootData = system;
-      await databaseRepository.synceToCloud(_rootData!); // Notify listeners after initializing data
+      _notificationList = notificationList;
+
+      await databaseRepository.synceToCloud(_notificationList!,_rootData!); // Notify listeners after initializing data
+
+
     } catch (e) {
       print("Error initializing root data: $e");
       rethrow; // Rethrow the error to handle it in the UI
@@ -47,10 +57,43 @@ class RootDataService  {
       if (_rootData == null) {
         throw "Root data is null. Fetch or initialize data before syncing.";
       }
-      await databaseRepository.synceToCloud(_rootData!); // Notify listeners after syncing data
+      await databaseRepository.synceToCloud(_notificationList!,_rootData!); // Notify listeners after syncing data
+      // await databaseRepository.syncNotificationToCloud(notificationList!,_rootData!);
+
     } catch (e) {
       print("Error syncing to cloud: $e");
       rethrow; // Rethrow the error to handle it in the UI
     }
   }
+
+  Future<NotificationList> fetchNotification() async{
+     try {
+      if (_rootData == null) {
+        throw "Root data is null. Fetch or initialize data before syncing.";
+      }
+        _notificationList = await databaseRepository.fetchNotification(_rootData!.id);
+       return _notificationList!;
+     } catch (e){
+       rethrow;
+     }
+  }
+
+
+    Future<String> uploadImageToFirebaseStorage(Uint8List imageBytes) async {
+      // Create a reference to the location you want to upload to
+      final storageRef = FirebaseStorage.instance.ref();
+      final imageRef = storageRef.child("receipts/${DateTime.now().millisecondsSinceEpoch}.png");
+
+      // Upload the file
+      final uploadTask = imageRef.putData(imageBytes);
+
+      // Wait for the upload to complete
+      final snapshot = await uploadTask.whenComplete(() => null);
+
+      // Get the download URL
+      final downloadURL = await snapshot.ref.getDownloadURL();
+
+      return downloadURL;
+    }
+
 }
