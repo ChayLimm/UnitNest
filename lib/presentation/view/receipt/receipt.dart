@@ -1,25 +1,25 @@
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:emonitor/domain/model/building/room.dart';
 import 'package:emonitor/domain/model/payment/payment.dart';
+import 'package:emonitor/domain/model/payment/transaction.dart';
+import 'package:emonitor/domain/service/khqr_service.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
-import 'package:emonitor/presentation/widgets/component.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bakong_khqr/view/bakong_khqr.dart';
 import 'package:intl/intl.dart';
 import 'dart:ui' as ui;
-import 'package:path_provider/path_provider.dart';
 
 
 class Receipt extends StatelessWidget {
   final Payment payment;
-  late String invoiceID = DateFormat('HH:mm:ss.SSS').format(payment.timeStamp);
   late Consumption newConsumption;
   late Consumption preConsumption;
   late DateTime lastPaidOn;
   GlobalKey repaintKey = GlobalKey();
   //need query of building
+
+
   Receipt({super.key, required this.payment}) {
     for (var item in payment.room.consumptionList) {
       if (item.timestamp == payment.timeStamp) {
@@ -35,41 +35,29 @@ class Receipt extends StatelessWidget {
       }
     }
   }
-
-  Future<String?> capturePngAndSave() async {
-  try {
-    // Capture PNG bytes
-    RenderRepaintBoundary boundary = repaintKey.currentContext!
-        .findRenderObject() as RenderRepaintBoundary;
-    ui.Image image = await boundary.toImage(pixelRatio: 3.0);
-    ByteData? byteData =
-        await image.toByteData(format: ui.ImageByteFormat.png);
-    Uint8List? pngBytes = byteData?.buffer.asUint8List();
-
-    if (pngBytes == null) {
-      print("❌ Failed to capture PNG.");
-      return null;
-    }
-
-    // Get app directory to save the file
-    Directory directory = await getApplicationDocumentsDirectory();
-    String folderPath = '${directory.path}/my_images';
-    Directory(folderPath).createSync(recursive: true);
-
-    // Define the file path
-    String filePath = '$folderPath/$invoiceID.png';
-
-    // Save the file
-    File file = File(filePath);
-    await file.writeAsBytes(pngBytes);
-
-    print('✅ Image saved at: $filePath');
-
-    return filePath;
-  } catch (e) {
-    print("❌ Error capturing or saving PNG: $e");
-    return null;
+  Future<TransactionKHQR> requestKHQR() async {
+    return KhqrService.instance.requestKHQR(payment.totalPrice);
   }
+
+  Future<Uint8List?> capturePNG() async {
+        try {
+          // Capture PNG bytes
+          RenderRepaintBoundary boundary = repaintKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+          ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+          ByteData? byteData =
+              await image.toByteData(format: ui.ImageByteFormat.png);
+          Uint8List? pngBytes = byteData?.buffer.asUint8List();
+
+          if (pngBytes == null) {
+            print("❌ Failed to capture PNG.");
+            return null;
+          }else{
+            return pngBytes;
+          }
+        } catch (e) {
+          print("❌ Error capturing or saving PNG: $e");
+          return null;
+        }
 }
 
   @override
@@ -126,9 +114,8 @@ class Receipt extends StatelessWidget {
                   ),
                 ),
               ElevatedButton(onPressed:()async{
-                 String? path = await capturePngAndSave();
-                 print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-                 print(path);
+                 Uint8List? pngBytes = await capturePNG();
+
               }, child: const Text("save pic"))
               ],
             ),
@@ -179,7 +166,7 @@ class Receipt extends StatelessWidget {
                     style: UniTextStyles.body
                   ),
                   Text(
-                    "#INV$invoiceID",
+                    "#INV${payment.timeStamp.millisecond}",
                     style: UniTextStyles.body
                   )
                 ],
@@ -360,16 +347,36 @@ class Receipt extends StatelessWidget {
                     ],
                   )),
               //KHQR
-              const Expanded(
-                  flex: 340,
-                  child: Center(
-                    child: BakongKhqrView(
-                      merchantName: 'ChayLim',
-                      amount: "0",
-                      qrString: "none",
-                      width: 200,
-                    ),
-                  ))
+              Expanded(
+              flex: 32,
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  top: 70,
+                  left: 20,
+                  right: 20,
+                ),
+                child: FutureBuilder<TransactionKHQR>(
+                  future: requestKHQR(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else if (snapshot.hasData) {
+                      return Center(
+                        child:
+                            //Call bakong API
+                            BakongKhqrView(
+                                merchantName: "UnitNest",
+                                amount: "${payment.totalPrice}",
+                                qrString: snapshot.data!.qr),
+                      );
+                    } else {
+                      return const Center(child: Text('No data available'));
+                    }
+                  },
+                ),
+              ))
             ],
           ),
           Container(
