@@ -28,6 +28,7 @@ class AuthenticationService  {
   //just the login part with no database impl
   Future<User?> login(String email, String password) async{
     final User? user = await repository.login(email: email, password: password);
+    
     return user?? null;
   }
 

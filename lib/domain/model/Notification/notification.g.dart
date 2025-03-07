@@ -9,23 +9,29 @@ part of 'notification.dart';
 NotificationList _$NotificationListFromJson(Map<String, dynamic> json) =>
     NotificationList(
       (json['listNotification'] as List<dynamic>)
-          .map((e) => Notification.fromJson(e as Map<String, dynamic>))
+          .map((e) => e == null
+              ? null
+              : Notification.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 
 Map<String, dynamic> _$NotificationListToJson(NotificationList instance) =>
     <String, dynamic>{
-      'listNotification': instance.listNotification,
+      'listNotification':
+          instance.listNotification.map((e) => e?.toJson()).toList(),
     };
 
 Notification _$NotificationFromJson(Map<String, dynamic> json) => Notification(
       chatID: json['chatID'] as String,
       systemID: json['systemID'] as String,
       notifyData: json['notifyData'],
-    )..dataType = $enumDecode(_$NotificationTypeEnumMap, json['dataType']);
+    )
+      ..id = json['id'] as String
+      ..dataType = $enumDecode(_$NotificationTypeEnumMap, json['dataType']);
 
 Map<String, dynamic> _$NotificationToJson(Notification instance) =>
     <String, dynamic>{
+      'id': instance.id,
       'chatID': instance.chatID,
       'systemID': instance.systemID,
       'dataType': _$NotificationTypeEnumMap[instance.dataType]!,

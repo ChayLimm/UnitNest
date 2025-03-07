@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:emonitor/domain/model/building/building.dart';
 import 'package:emonitor/domain/model/building/room.dart';
@@ -8,7 +9,7 @@ import 'package:emonitor/domain/model/stakeholder/tenant.dart';
 import 'package:emonitor/domain/model/system/priceCharge.dart';
 import 'package:emonitor/domain/service/khqr_service.dart';
 import 'package:emonitor/domain/service/root_data.dart';
-import 'package:flutter/material.dart';
+import 'package:emonitor/presentation/view/receipt/receipt.dart';
 import 'package:http/http.dart' as http;
 
 
@@ -42,9 +43,12 @@ class PaymentService {
   ///
   /// Proccess payment
   /// 
+  
+  
 
-  Future<void> proccessPayment(KhqrService khqrService,String tenantID,[Consumption? consumption, bool lastpayment = false]) async {
-    
+  Future<void> proccessPayment(String tenantID,[Consumption? consumption, bool lastpayment = false]) async {
+    print("in proccess apyment function assign payment ");
+
     // declare data
     final DateTime timestamp =consumption == null ? DateTime.now() : consumption.timestamp;
     late PriceCharge priceCharge;
@@ -60,16 +64,24 @@ class PaymentService {
         priceCharge = item;
       }
     }
+            print("in proccess apyment function assign payment 1");
+
     //find who is paying for which room
     for (var building1 in repository.rootData!.listBuilding) {
+                  print("#########1");
+
       for (var room1 in building1.roomList) {
+        print("########2");
         if (room.tenant!.id == tenantID) {
+          print("#########3");
           building = building1;
           room = room1;
           tenant = room.tenant!;
         }
       }
     }
+            print("in proccess apyment function assign payment 2");
+
     //find deposit
     if (tenant.deposit < room.price) {
       deposit = room.price - tenant.deposit;
@@ -107,8 +119,9 @@ class PaymentService {
       room.consumptionList.add(consumption);
     }
 
-    TransactionKHQR transaction = await khqrService.requestKHQR(totalPrice);
+    TransactionKHQR transaction = await KhqrService.instance.requestKHQR(totalPrice);
 
+    print("assign payment");
     Payment payment = Payment(
       tenant: tenant,
       room: room,
@@ -117,14 +130,31 @@ class PaymentService {
       totalPrice: totalPrice,
       hygiene: priceCharge.hygieneFee,
       parkingFee: (tenant.rentParking.toDouble() * priceCharge.rentParkingPrice),
-      parkingAmount : tenant.rentParking.toInt()
+      parkingAmount : tenant.rentParking.toInt(),
     );
-    payment.paymentStatus = PaymentStatus.pending;
+    print("assign payment Done");
 
+    ////
+    ///  get reciept
+    ///
+    
+    late String recieptURL;
+    Uint8List? receiptPNG = await Receipt(payment: payment).capturePNG();
+    try{
+      recieptURL = await repository.uploadImageToFirebaseStorage(receiptPNG!);
+      print("upload image to cloud");
+    }catch (e){
+      throw "Payment error : $e";
+    }
+    // add reciept to the database
+    payment.receipt = recieptURL;
+    print(recieptURL);
+
+    payment.paymentStatus = PaymentStatus.pending;
     room.paymentList.add(payment);
     //sync with cloud
     repository.synceToCloud();
-
+    print("done processing payment!!!!!!!!!!!");
   }
 
 

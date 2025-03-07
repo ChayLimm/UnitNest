@@ -1,11 +1,16 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:uuid/uuid.dart';
 
 part 'notification.g.dart'; // Include the generated file
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class NotificationList{
-  final List<Notification> listNotification;
+  final String id = Uuid().v4();
+  final List<Notification?> listNotification;
   NotificationList(this.listNotification);
+
+  factory NotificationList.fromJson(Map<String, dynamic> json) => _$NotificationListFromJson(json);
+  Map<String, dynamic> toJson() => _$NotificationListToJson(this);
 }
 
 @JsonEnum()
@@ -19,6 +24,7 @@ enum NotificationType {
 
 @JsonSerializable()
 class Notification {
+  String id = Uuid().v4();
   String chatID;
   String systemID;
   NotificationType dataType;
