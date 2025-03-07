@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:emonitor/domain/model/Notification/notification.dart';
 import 'package:emonitor/domain/model/stakeholder/landlord.dart';
 import 'package:emonitor/domain/model/system/priceCharge.dart';
 import 'package:emonitor/domain/model/system/system.dart';
@@ -6,7 +7,6 @@ import 'package:emonitor/domain/service/authentication_service.dart';
 import 'package:emonitor/domain/service/root_data.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/view/Main/mainScreen.dart';
-import 'package:emonitor/presentation/view/setting/setting.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -103,11 +103,12 @@ class _AuthenPageState extends  State<AuthenPage>  {
         toggleLoading();
         User? tempUser = await authService.register(email, password); 
         if(tempUser != null){
-           final system = System(id: tempUser!.uid,landlord: landlord);
+           final system = System(id: tempUser.uid,landlord: landlord);
+           final notificationList = NotificationList([]);
           setState((){
             user = tempUser;
           });       
-          await widget.rootDataService.initializeRootData(system);
+          await widget.rootDataService.initializeRootData(system,notificationList);
         }else{
           setState(() {
             warning = "Email already exist.";
@@ -213,7 +214,7 @@ class _AuthenPageState extends  State<AuthenPage>  {
   void initState() {
     // TODO: implement initState
     super.initState();
-    login("chengchhaylim@gmail.com", "Team1234");
+    // login("chengchhaylim@gmail.com", "Team1234");
   }
 
   @override
