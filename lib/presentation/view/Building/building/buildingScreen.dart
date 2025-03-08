@@ -21,15 +21,47 @@ class BuildingScreen extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: UniColor.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          title: Text(
-            'Edit Building?',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-            ),
+          // title: Text(
+          //   'Edit Building ${building?.name}?' ,
+          //   style: TextStyle(
+          //     fontWeight: FontWeight.bold,
+          //     fontSize: 18,
+          //   ),
+          // ),
+          title: Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: 'Edit Building',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: UniColor.neutralDark,
+                  )  
+                ),
+                const WidgetSpan(child: SizedBox(width: 5)),// just white spacing between text in text span 
+                TextSpan(
+                  text: building?.name,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: UniColor.primary
+                  )
+                ),
+                TextSpan(
+                  text: '?',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: UniColor.neutralDark
+                  )
+                ),
+              ]
+            )
           ),
           content: Text(
             'Do you want to edit or delete this building?',
@@ -125,8 +157,7 @@ class BuildingScreen extends StatelessWidget {
     final isFormTrue = await uniForm(
         context: context,
         title: building == null ? "Add Building" : "Edit Building",
-        subtitle:
-            building == null ? "Add new building" : "Edit building details",
+        subtitle:building == null ? "Add new building" : "Edit building details",
         form: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
