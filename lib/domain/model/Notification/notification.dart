@@ -3,6 +3,37 @@ import 'package:uuid/uuid.dart';
 
 part 'notification.g.dart'; // Include the generated file
 
+
+///
+/// declare enum
+///
+
+enum NotificationType {
+  @JsonValue("registration")
+  registration("registration"),
+
+  @JsonValue("paymentRequest")
+  paymentRequest("paymentRequest");
+
+  final String status;
+  const NotificationType(this.status);
+}
+
+enum NotificationStatus {
+  @JsonValue("pending")
+  pending("pending"),
+
+  @JsonValue("aprrove")
+  aprrove("aprrove"),
+
+  @JsonValue("reject")
+  reject("reject");
+
+  final String status;
+  const NotificationStatus(this.status);
+}
+
+
 @JsonSerializable(explicitToJson: true)
 class NotificationList{
   final String id = Uuid().v4();
@@ -13,42 +44,61 @@ class NotificationList{
   Map<String, dynamic> toJson() => _$NotificationListToJson(this);
 }
 
-@JsonEnum()
-enum NotificationType {
-  @JsonValue('registration')
-  registration,
-  @JsonValue('paymentRequest')
-  paymentRequest,
-}
+
 
 
 @JsonSerializable()
 class Notification {
-  String id = Uuid().v4();
-  String chatID;
-  String systemID;
-  NotificationType dataType;
-  dynamic notifyData;
+  late String id;
+  final String chatID;
+  final String systemID;
+  final NotificationType dataType;
+  NotificationStatus status;
+  final dynamic notifyData;
+  bool? read = false;
 
   Notification({
+    required this.id,
     required this.chatID,
     required this.systemID,
     required this.notifyData,
-  }) : dataType = notifyData is NotifyRegistration
-            ? NotificationType.registration
-            : NotificationType.paymentRequest;
+    required this.dataType,
+    required this.status,
+    this.read
+  });
 
   factory Notification.fromJson(Map<String, dynamic> json) {
-    final notifyData = json['dataType'] == 'registration'
-        ? NotifyRegistration.fromJson(json['notifyData'])
-        : NotifyPaymentRequest.fromJson(json['notifyData']);
+  // Parse the `dataType` field into the `NotificationType` enum
+  final dataTypeString = json['dataType'] as String;
 
-    return Notification(
-      chatID: json['chatID'],
-      systemID: json['systemID'],
-      notifyData: notifyData,
-    );
-  }
+  final dataType = NotificationType.values.firstWhere(
+    (type) => type.status == dataTypeString, // Use the `status` field for comparison
+    orElse: () => throw FormatException('Invalid dataType: $dataTypeString'),
+  );
+
+  //statu enum convert
+  final statusString = json['status'] as String;
+  final status = NotificationStatus.values.firstWhere(
+    (status) => statusString == status.status,
+    orElse: () => throw FormatException('Invalid status type: $dataTypeString'),
+
+  );
+
+  // Determine the type of `notifyData` based on the `dataType` enum
+  final notifyData = dataType == NotificationType.registration
+      ? NotifyRegistration.fromJson(json['notifyData'])
+      : NotifyPaymentRequest.fromJson(json['notifyData']);
+
+  return Notification(
+    id : "docId!",
+    chatID: json['chatID'],
+    systemID: json['systemID'],
+    notifyData: notifyData,
+    dataType: dataType, // Use the parsed enum value
+    read: json['read'],
+    status: status
+  );
+}
 
   Map<String, dynamic> toJson() {
     return {
@@ -56,6 +106,7 @@ class Notification {
       'systemID': systemID,
       'dataType': dataType.toString().split('.').last,
       'notifyData': notifyData.toJson(),
+      'read' : read
     };
   }
 }

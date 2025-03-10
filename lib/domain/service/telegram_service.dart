@@ -36,7 +36,7 @@ class TelegramService {
   /// Event handler
   /// 
 
-  void sendMessageViaTelegramBot(String chat_id, NetworkImage photo, String text){
+  void sendMessageViaTelegramBot(String chat_id, String photo, String text){
    final body = {
         "receipt": {
           "chat_id": chat_id,
@@ -50,6 +50,6 @@ class TelegramService {
       headers: {'Content-Type': 'application/json'},
       body: body,
     );
-
   }
+ 
 }

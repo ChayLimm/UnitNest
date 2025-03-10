@@ -44,8 +44,6 @@ class PaymentService {
   /// Proccess payment
   /// 
   
-  
-
   Future<void> proccessPayment(String tenantID,[Consumption? consumption, bool lastpayment = false]) async {
     print("in proccess apyment function assign payment ");
 
@@ -69,7 +67,6 @@ class PaymentService {
     //find who is paying for which room
     for (var building1 in repository.rootData!.listBuilding) {
                   print("#########1");
-
       for (var room1 in building1.roomList) {
         print("########2");
         if (room.tenant!.id == tenantID) {
@@ -157,7 +154,6 @@ class PaymentService {
     print("done processing payment!!!!!!!!!!!");
   }
 
-
   PaymentStatus getRoomPaymentStatus(Room room, DateTime dateTime){
     Payment? payment = getPaymentFor(room, dateTime);
     if(payment != null){
@@ -221,4 +217,21 @@ class PaymentService {
     return null;
   }
 
-}
+  void updatePaymentStatus(Room targetRoom, Payment targetPayment, PaymentStatus status) {
+    for (var building in repository.rootData!.listBuilding) {
+      for (var room in building.roomList) {
+        if (room.id == targetRoom.id) {
+          for (var payment in room.paymentList) {
+            if (payment.timeStamp == targetPayment.timeStamp) {
+              payment.paymentStatus = status;
+              return; 
+            }
+          }
+        }
+      }
+    }
+  }
+
+  }
+
+

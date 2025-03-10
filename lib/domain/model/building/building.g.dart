@@ -11,11 +11,13 @@ Building _$BuildingFromJson(Map<String, dynamic> json) => Building(
       address: json['address'] as String,
       floorCount: (json['floorCount'] as num?)?.toInt() ?? 0,
       parkingSpace: (json['parkingSpace'] as num?)?.toInt() ?? 0,
+      id: json['id'] as String?,
     )..roomList = (json['roomList'] as List<dynamic>)
         .map((e) => Room.fromJson(e as Map<String, dynamic>))
         .toList();
 
 Map<String, dynamic> _$BuildingToJson(Building instance) => <String, dynamic>{
+      'id': instance.id,
       'name': instance.name,
       'address': instance.address,
       'floorCount': instance.floorCount,

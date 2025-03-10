@@ -214,7 +214,7 @@ class _AuthenPageState extends  State<AuthenPage>  {
   void initState() {
     // TODO: implement initState
     super.initState();
-    // login("chengchhaylim@gmail.com", "Team1234");
+    login("test2@gmail.com", "Team1234");
   }
 
   @override

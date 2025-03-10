@@ -22,12 +22,14 @@ Map<String, dynamic> _$NotificationListToJson(NotificationList instance) =>
     };
 
 Notification _$NotificationFromJson(Map<String, dynamic> json) => Notification(
+      id: json['id'] as String,
       chatID: json['chatID'] as String,
       systemID: json['systemID'] as String,
       notifyData: json['notifyData'],
-    )
-      ..id = json['id'] as String
-      ..dataType = $enumDecode(_$NotificationTypeEnumMap, json['dataType']);
+      dataType: $enumDecode(_$NotificationTypeEnumMap, json['dataType']),
+      status: $enumDecode(_$NotificationStatusEnumMap, json['status']),
+      read: json['read'] as bool?,
+    );
 
 Map<String, dynamic> _$NotificationToJson(Notification instance) =>
     <String, dynamic>{
@@ -35,12 +37,20 @@ Map<String, dynamic> _$NotificationToJson(Notification instance) =>
       'chatID': instance.chatID,
       'systemID': instance.systemID,
       'dataType': _$NotificationTypeEnumMap[instance.dataType]!,
+      'status': _$NotificationStatusEnumMap[instance.status]!,
       'notifyData': instance.notifyData,
+      'read': instance.read,
     };
 
 const _$NotificationTypeEnumMap = {
   NotificationType.registration: 'registration',
   NotificationType.paymentRequest: 'paymentRequest',
+};
+
+const _$NotificationStatusEnumMap = {
+  NotificationStatus.pending: 'pending',
+  NotificationStatus.aprrove: 'aprrove',
+  NotificationStatus.reject: 'reject',
 };
 
 NotifyRegistration _$NotifyRegistrationFromJson(Map<String, dynamic> json) =>

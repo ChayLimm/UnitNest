@@ -1,11 +1,9 @@
 import 'package:emonitor/domain/service/authentication_service.dart';
-import 'package:emonitor/domain/service/root_data.dart';
 import 'package:emonitor/presentation/Provider/Setting/setting_provider.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/view/setting/profile/edit.dart';
 import 'package:emonitor/presentation/widgets/button/button.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
-import 'package:emonitor/presentation/widgets/form/dialogForm.dart';
 import 'package:emonitor/presentation/widgets/infoCard/infoCard.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

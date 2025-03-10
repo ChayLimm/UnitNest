@@ -8,10 +8,12 @@ environment:
 
 dependencies:
   auto_size_text: ^3.0.0
-  build_runner: ^2.4.14
+  build: ^2.4.2
+  build_runner: ^2.4.15
   cloud_firestore: ^5.6.2
   firebase_auth: ^5.4.1
   firebase_core: ^3.10.1
+  firebase_storage: ^12.4.4
   flutter:
     sdk: flutter
   flutter_bakong_khqr: ^0.0.1+3

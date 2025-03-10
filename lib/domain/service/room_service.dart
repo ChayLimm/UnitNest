@@ -1,6 +1,7 @@
 import 'package:emonitor/domain/model/building/building.dart';
 import 'package:emonitor/domain/model/building/room.dart';
 import 'package:emonitor/domain/model/payment/payment.dart';
+import 'package:emonitor/domain/service/payment_service.dart';
 import 'package:emonitor/domain/service/root_data.dart';
 
 class RoomService {
@@ -119,4 +120,19 @@ class RoomService {
         : 0;
   }
 
+  ///
+  ///this function will be use to handle refresh in roomlist.
+  ///
+  Future<void> refreshRoomsPayment(Building building) async{
+    for(var room in building.roomList){
+      Payment? thisMonthPayment = RoomService.instance.getPaymentFor(room, DateTime.now());
+      // reduce api call by checking only pending payment
+      if(thisMonthPayment != null && thisMonthPayment.paymentStatus == PaymentStatus.pending){
+        bool isPaid = await PaymentService.instance.checkTransStatus(thisMonthPayment);
+        if(isPaid){
+         PaymentService.instance.updatePaymentStatus(room,thisMonthPayment,PaymentStatus.paid);
+        }
+      }
+    }
+  }
 }

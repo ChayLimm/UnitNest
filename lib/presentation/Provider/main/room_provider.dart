@@ -12,6 +12,12 @@ class RoomProvider extends ChangeNotifier {
 
   Room? currentSelectedRoom;
 
+  //function should be call on start roomlist screen and refresh;
+  Future<void> refreshRoomsPayment() async{
+    await RoomService.instance.refreshRoomsPayment(currentSelectedBuilding!);
+    notifyListeners();
+  }
+
   void setCurrentSelectedBuilding(Building building){
     currentSelectedBuilding = building;
     notifyListeners();
@@ -25,6 +31,4 @@ class RoomProvider extends ChangeNotifier {
     RoomService.instance.updateOrAdd(currentSelectedBuilding!, newRoom);
     notifyListeners();
   }
-
-
 } 
