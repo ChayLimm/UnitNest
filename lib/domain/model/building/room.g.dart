@@ -16,6 +16,7 @@ Room _$RoomFromJson(Map<String, dynamic> json) => Room(
       tenant: json['tenant'] == null
           ? null
           : Tenant.fromJson(json['tenant'] as Map<String, dynamic>),
+      id: json['id'] as String?,
     )
       ..paymentList = (json['paymentList'] as List<dynamic>)
           .map((e) => Payment.fromJson(e as Map<String, dynamic>))
@@ -25,6 +26,7 @@ Room _$RoomFromJson(Map<String, dynamic> json) => Room(
           .toList();
 
 Map<String, dynamic> _$RoomToJson(Room instance) => <String, dynamic>{
+      'id': instance.id,
       'name': instance.name,
       'price': instance.price,
       'tenant': instance.tenant?.toJson(),
