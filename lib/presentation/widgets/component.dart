@@ -1,3 +1,5 @@
+import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:emonitor/domain/model/json/jsonconvertor.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/theme.dart';
@@ -57,8 +59,7 @@ TextFormField buildTextFormField({
   TextInputType keyboardType = TextInputType.text,
 }) {
   return TextFormField(
-      maxLines: maxLines,  // Limit input to 5 lines
-
+    maxLines: maxLines,  // Limit input to 5 lines
     enabled: enabled,
     initialValue: initialValue,
     onChanged: onChanged,
@@ -98,7 +99,7 @@ Widget customFloatingButton({required VoidCallback onPressed}) {
     height: 44,
     child: FloatingActionButton(
       onPressed: onPressed,
-      backgroundColor: Colors.blue,
+      backgroundColor: UniColor.primary,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8.0),
       ),
@@ -140,4 +141,81 @@ Widget notificationMessage(){
       ),
     ),
   );
+}
+
+Widget buildDropdownFormField({
+  required PaymentStatus? value,
+  required List<PaymentStatus> items,
+  required Function(PaymentStatus?) onChanged,
+}) {
+  return DropdownButtonFormField2<PaymentStatus>(
+    value: value,
+    onChanged: onChanged,
+    decoration: InputDecoration(
+      contentPadding: const EdgeInsets.symmetric(vertical: 16),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: UniColor.neutralLight, width: 1),
+      ),
+      focusedBorder:  OutlineInputBorder(
+        borderSide: BorderSide(color: UniColor.primary, width: 2.0),
+        borderRadius: BorderRadius.circular(10)
+      ),
+    ),
+    hint: const Text(
+      'Select Payment Status',
+      style: TextStyle(fontSize: 14),
+    ),
+    items: items
+        .map((item) => DropdownMenuItem<PaymentStatus>(
+              value: item,
+              child: Text(
+                item.toString().split('.').last,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: getPaymentStatusColor(item),
+                ),
+              ),
+            ))
+        .toList(),
+    validator: (value) {
+      if (value == null) {
+        return 'Please select a payment status.';
+      }
+      return null;
+    },
+    
+    buttonStyleData: const ButtonStyleData(
+      padding: EdgeInsets.only(right: 8),
+    ),
+    iconStyleData: IconStyleData(
+      icon: Icon(
+        Icons.arrow_drop_down,
+        color: UniColor.neutralLight,
+      ),
+      iconSize: 24,
+    ),
+    dropdownStyleData: DropdownStyleData(
+      decoration: BoxDecoration(
+        color: UniColor.white,
+        borderRadius: BorderRadius.circular(15),
+      ),
+    ),
+    menuItemStyleData: const MenuItemStyleData(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+    ),
+  );
+}
+// this i just use for changing the text color in the drop down depend on its status 
+Color getPaymentStatusColor(PaymentStatus status) {
+  switch (status) {
+    case PaymentStatus.unpaid:
+      return UniColor.red;
+    case PaymentStatus.pending:
+      return UniColor.yellow;
+    case PaymentStatus.paid:
+      return UniColor.green;
+    default:
+      return UniColor.neutralDark;
+  }
 }

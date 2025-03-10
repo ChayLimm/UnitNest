@@ -21,7 +21,7 @@ enum Availibility{
 
 @JsonSerializable(explicitToJson: true)
 class Room{
-  final String id = const Uuid().v4();
+  final String id;
   String name;
   double price;
   Tenant? tenant;
@@ -31,7 +31,7 @@ class Room{
 
   List<Payment> paymentList = [];
   List<Consumption> consumptionList = [];
-  Room({required this.name, required this.price,this.roomStatus= Availibility.available, this.tenant});
+  Room({required this.name, required this.price,this.roomStatus= Availibility.available, this.tenant,String? id}): id = id ?? const Uuid().v4();
 
    // Manually add fromJson and toJson
   factory Room.fromJson(Map<String, dynamic> json) => _$RoomFromJson(json);

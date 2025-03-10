@@ -46,8 +46,8 @@ class UniButton extends StatelessWidget {
       splashColor: UniColor.white,
       onTap: trigger,
       child: Container(
-        height: 44,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        height: 25,
+        padding: const EdgeInsets.symmetric(horizontal: 15),
         decoration: BoxDecoration(
           color: color ?? UniColor.primary,
           borderRadius: BorderRadius.circular(10),
@@ -69,8 +69,8 @@ class UniButton extends StatelessWidget {
       splashColor: UniColor.white,
       onTap: trigger,
       child: Container(
-        height: 44,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        height: 25,
+        padding: const EdgeInsets.symmetric(horizontal: 15),
         decoration: BoxDecoration(
           border: Border.all(
             color: UniColor.primary,
@@ -95,7 +95,8 @@ class UniButton extends StatelessWidget {
       splashColor: UniColor.white,
       onTap: trigger,
       child: Container(
-        height: 44,
+        padding: EdgeInsets.symmetric(horizontal: 12),
+        height: 25,
           child: Text(
             label,
             style: TextStyle(

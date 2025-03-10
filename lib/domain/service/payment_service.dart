@@ -221,4 +221,18 @@ class PaymentService {
     return null;
   }
 
+  void updatePaymentStatus(Room targetRoom, Payment targetPayment, PaymentStatus status) {
+    for (var building in repository.rootData!.listBuilding) {
+      for (var room in building.roomList) {
+        if (room.id == targetRoom.id) {
+          for (var payment in room.paymentList) {
+            if (payment.timeStamp == targetPayment.timeStamp) {
+              payment.paymentStatus = status;
+              return; 
+            }
+          }
+        }
+      }
+    }
+  }  
 }
