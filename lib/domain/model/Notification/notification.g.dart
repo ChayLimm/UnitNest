@@ -55,7 +55,6 @@ const _$NotificationStatusEnumMap = {
 
 NotifyRegistration _$NotifyRegistrationFromJson(Map<String, dynamic> json) =>
     NotifyRegistration(
-      chatID: json['chatID'] as String,
       name: json['name'] as String,
       phone: json['phone'] as String,
       idIdentification: json['idIdentification'] as String,
@@ -64,7 +63,6 @@ NotifyRegistration _$NotifyRegistrationFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$NotifyRegistrationToJson(NotifyRegistration instance) =>
     <String, dynamic>{
-      'chatID': instance.chatID,
       'name': instance.name,
       'phone': instance.phone,
       'idIdentification': instance.idIdentification,

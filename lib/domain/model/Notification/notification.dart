@@ -113,14 +113,12 @@ class Notification {
 
 @JsonSerializable()
 class NotifyRegistration {
-  String chatID;
   String name;
   String phone;
   String idIdentification;
   DateTime registerOnDate;
 
   NotifyRegistration({
-    required this.chatID,
     required this.name,
     required this.phone,
     required this.idIdentification,
