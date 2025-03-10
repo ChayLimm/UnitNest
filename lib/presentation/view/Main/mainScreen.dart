@@ -1,9 +1,9 @@
 // Main screen of the application
 import 'package:emonitor/Narong_screen_component/MonthlyReport/report.dart';
-import 'package:emonitor/Narong_screen_component/Notification/notification.dart';
 import 'package:emonitor/Narong_screen_component/dashboard/dashbaord.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/view/Building/buildingNavigator.dart';
+import 'package:emonitor/presentation/view/Notification/notification_main.dart';
 import 'package:flutter/material.dart';
 
 class Mainscreen extends StatefulWidget {

@@ -141,7 +141,10 @@ class RoomlistScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     // list of tab bars
-                   const TabBar(
+                  TabBar(
+                    indicatorColor: UniColor.primary,
+                    labelColor: UniColor.primary,
+                    unselectedLabelColor: UniColor.neutralDark,
                       tabs: [
                         Tab(text: 'All'),
                         Tab(text: 'Available'),
