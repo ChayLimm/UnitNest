@@ -1,9 +1,21 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:emonitor/domain/model/json/jsonconvertor.dart';
+import 'package:emonitor/domain/model/payment/payment.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../theme/theme.dart';
 
+
+Widget loading([bool color = true]) {
+  return Container(
+    alignment: Alignment.center,
+    color: color? Colors.black.withOpacity(0.2): null,
+    child: LoadingAnimationWidget.inkDrop(
+      color: UniColor.primary,
+      size: 36.0,
+    ),
+  );
+}
 
 
 void showCustomSnackBar(

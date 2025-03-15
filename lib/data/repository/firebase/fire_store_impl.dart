@@ -31,19 +31,21 @@ class DatabaseRepoImpl implements DatabaseRepository {
   Future<void> synceToCloud(NotificationList notificationList, System system) async {
     try {
       // Sync the main system document
+      print("awake synce system");
       await firestore.collection('system').doc(system.id).set(
         system.toJson(), SetOptions(merge: true)
       );
-
-      
+      print("awake synce Notification");
       /// sync notification
       for(var notification in notificationList.listNotification){
+        // print(notification!.id);
         await firestore.collection('system').doc(system.id)
           .collection('notificationList').doc(notification!.id).set(
           notification.toJson(), SetOptions(merge: true));
       ///
       }
-      
+      print("done");
+
 
     } catch (e) {
       print("Error syncing to cloud: $e");
@@ -72,11 +74,11 @@ class DatabaseRepoImpl implements DatabaseRepository {
         return notificationList;
       }
       ///
-      ///loop the docs
+      ///loop the docsx
       ///
       print("Converting to json");
       for(var doc in querySnapshot.docs){
-          final data = Notification.fromJson(doc.data() as Map<String, dynamic>);
+          final data = UniNotification.fromJson(doc.data() as Map<String, dynamic>);
           data.id = doc.id;
           notificationList.listNotification.add(data);
       }

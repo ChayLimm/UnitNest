@@ -1,142 +1,75 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:emonitor/domain/model/Notification/notification.dart';
+import 'package:emonitor/domain/model/stakeholder/tenant.dart';
+import 'package:emonitor/domain/service/tenant_service.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
-import 'package:emonitor/presentation/widgets/button/button.dart';
+import 'package:emonitor/presentation/view/utils/date_formator.dart';
 import 'package:flutter/material.dart';
 
-enum NotificationType {
-  registration,
-  paymentRequest
-}
+class UniNotify extends StatelessWidget {
+  final UniNotification notification;
+  final Function(UniNotification) onTap;
 
-class UniNotification extends StatelessWidget {
-  final NotificationType notificationType;
-  final String notificationMessage;
-  final String timeStamp;
-  final VoidCallback? onAcceptTrigger;
-  final VoidCallback? onDenyTrigger;
-  final VoidCallback? onTap;
-
-  const UniNotification({
-    required this.notificationType,
-    required this.notificationMessage,
-    required this.timeStamp,
-    this.onDenyTrigger,
-    this.onAcceptTrigger,
+  const UniNotify({
+    required this.notification,
     required this.onTap,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
-  @override
-  Widget build(BuildContext context) {
-    switch (notificationType) {
+   String _getNotificationMessage() {
+    switch (notification.dataType) {
       case NotificationType.registration:
-        return _buildRegisterNotification(context);
+        final request = notification.notifyData as NotifyRegistration;
+        return "${request.name} has registered as a tenant";
       case NotificationType.paymentRequest:
-        return _buildPaymentNotification();
+        final request = notification.notifyData as NotifyPaymentRequest;
+        final Tenant? tenant = TenantService.instance.getTenantByChatID(notification.chatID);
+        return "${tenant?.userName ?? "Unknown"} has requested a payment";
       default:
-        return Container(); // Return an empty container for unknown types
+        return "Unknown notification";
+    }
+  }
+  String _getTimeAgo() {
+    switch (notification.dataType) {
+      case NotificationType.registration:
+        return DateTimeUtils.timeAgo(notification.notifyData.registerOnDate);
+      case NotificationType.paymentRequest:
+        return DateTimeUtils.timeAgo(notification.notifyData.requestDateOn);
     }
   }
 
-// some widgets for the notification list screen
-// in this screen i have implemented and used following custom widget
-// 1. primaryButton(from button.dart)
-// 2. secondaryButton (from button.dart)
-// 3. tabViewAll[line 97] (in this file): for all notification tab view
-// 4. tabViwRequest [line 124] (in this file) : for request tab view
-// 5. registerNotification [line 150] (in this file) : for register notification type
-// 6. PaymentRequestNotification[line 182] (in this file)	: for payment request notification type
-// 7. paymentNotification [line 204] (in this file) : for payment notification type
-// 8. buildTabview [83] (in this file) : for testing only
-
-  // Helper method to build the registration notification
-  Widget _buildRegisterNotification(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
+      onTap:()=> onTap(notification),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 5),
         child: ListTile(
-          leading: CircleAvatar(radius: 15, backgroundColor: UniColor.iconNormal),
+          leading:  CircleAvatar(radius: 15, backgroundColor: UniColor.iconNormal),
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                notificationMessage,
-                style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: UniColor.neutral),
+                _getNotificationMessage(),
+                style:  UniTextStyles.body.copyWith(fontWeight: FontWeight.w500)
               ),
               Text(
-                '$timeStamp min ago',
-                style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: UniColor.neutralLight),
+                _getTimeAgo() ,
+                style:  UniTextStyles.label.copyWith(
+                  fontWeight: FontWeight.w500,fontSize: 12,
+                  color: !notification.read ? UniColor.primary : null
+                  )
               ),
-              Row(
-                children: [
-                  UniButton(
-                    context: context,
-                    label: "Accept",
-                    trigger: onAcceptTrigger ?? () {},
-                    buttonType: ButtonType.primary,
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  UniButton(
-                    context: context,
-                    label: "Deny",
-                    trigger: onDenyTrigger ?? () {},
-                    buttonType: ButtonType.secondary,
-                  ),
-                ],
-              )
             ],
           ),
-          trailing: Icon(
-            Icons.arrow_forward_ios,
-            color: UniColor.iconNormal,
-          ),
+          // trailing:  Icon(
+          //   Icons.arrow_forward_ios,
+          //   color: UniColor.iconLight,
+          //   size: 16,
+          // ),
         ),
       ),
     );
   }
 
-  // Helper method to build the payment notification
-  Widget _buildPaymentNotification() {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 5),
-        child: ListTile(
-          leading: CircleAvatar(radius: 15, backgroundColor: UniColor.iconNormal),
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                notificationMessage,
-                style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: UniColor.neutral),
-              ),
-              Text(
-                '$timeStamp min ago',
-                style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: UniColor.neutralLight),
-              ),
-            ],
-          ),
-          trailing: Icon(
-            Icons.arrow_forward_ios,
-            color: UniColor.iconNormal,
-          ),
-        ),
-      ),
-    );
-  }
+ 
 }

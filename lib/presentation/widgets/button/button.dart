@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:flutter/material.dart';
 
@@ -13,11 +15,11 @@ enum ButtonType {
 class UniButton extends StatelessWidget {
   final BuildContext context;
   final String label;
-  final VoidCallback trigger;
+  FutureOr<void> Function() trigger;
   final ButtonType buttonType;
   final Color? color;
 
-  const UniButton({
+  UniButton({
     required this.context,
     required this.label,
     required this.trigger,
@@ -46,7 +48,7 @@ class UniButton extends StatelessWidget {
       splashColor: UniColor.white,
       onTap: trigger,
       child: Container(
-        height: 25,
+        height: 36,
         padding: const EdgeInsets.symmetric(horizontal: 15),
         decoration: BoxDecoration(
           color: color ?? UniColor.primary,
@@ -69,7 +71,7 @@ class UniButton extends StatelessWidget {
       splashColor: UniColor.white,
       onTap: trigger,
       child: Container(
-        height: 25,
+        height: 36,
         padding: const EdgeInsets.symmetric(horizontal: 15),
         decoration: BoxDecoration(
           border: Border.all(
@@ -95,8 +97,8 @@ class UniButton extends StatelessWidget {
       splashColor: UniColor.white,
       onTap: trigger,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12),
-        height: 25,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        height: 36,
           child: Text(
             label,
             style: TextStyle(

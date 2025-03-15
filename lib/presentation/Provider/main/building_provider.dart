@@ -27,6 +27,10 @@ class BuildingProvider extends ChangeNotifier {
   ///
   /// Data processing
   ///
+  ///
+  void refresh(){
+    notifyListeners();
+  }
   
   void setCurrentBuilding(Building building){
     currentSelectedBuilding = building;

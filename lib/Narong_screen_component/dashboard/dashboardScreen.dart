@@ -1,6 +1,5 @@
 import 'package:emonitor/domain/model/system/system.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
-import 'package:emonitor/presentation/view/dashboard/dashboardwidget.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';

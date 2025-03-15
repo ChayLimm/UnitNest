@@ -35,7 +35,7 @@ class RoomService {
   ///render data
   ///
 
-  Iterable<Room> availableRoom({required Building building, required DateTime dateTime}) => building.roomList.where((item) => item.roomStatus == Availibility.available);
+  List<Room> availableRoom({required Building building, required DateTime dateTime}) => building.roomList.where((item) => item.roomStatus == Availibility.available || item.tenant == null).toList();
   List<Room> unPaid({required Building building, required DateTime dateTime})=>building.roomList.where((item) => item.paymentList.last.timeStamp.year != dateTime.year && item.paymentList.last.timeStamp.month != dateTime.month).toList();
   List<Room> pending({required Building building, required DateTime dateTime}) => building.roomList.where((item) => item.paymentList.last.timeStamp.year == dateTime.year && item.paymentList.last.timeStamp.month == dateTime.month &&item.paymentList.last.paymentStatus == PaymentStatus.pending).toList();
   List<Room> paid({required Building building, required DateTime dateTime}) => building.roomList.where((item) => item.paymentList.last.timeStamp.year == dateTime.year && item.paymentList.last.timeStamp.month == dateTime.month &&item.paymentList.last.paymentStatus == PaymentStatus.paid).toList();
@@ -58,14 +58,19 @@ class RoomService {
     return null;
   }
 
-    Payment? getPaymentFor(Room room,DateTime timeStamp){
+  Payment? getPaymentFor(Room room,DateTime timeStamp){
       for(var payment in room.paymentList ){
         if(payment.timeStamp.year == timeStamp.year && payment.timeStamp.month == timeStamp.month){
+          print("found payment ${payment.timeStamp}");
           return payment;
         }
       }
+                print("not found payment");
+
+      return null;
     }
 
+  
   ///
   ///CRUD Rooms
   ///
@@ -114,7 +119,7 @@ class RoomService {
     /// need to implement
     return true;
   }
-   double getDepositPrice(Room room) {
+  double getDepositPrice(Room room) {
     return room.tenant!.deposit < room.price
         ? room.price - room.tenant!.deposit
         : 0;
@@ -125,7 +130,7 @@ class RoomService {
       Payment? thisMonthPayment = RoomService.instance.getPaymentFor(room, DateTime.now());
       // reduce api call by checking only pending payment
       if(thisMonthPayment != null && thisMonthPayment.paymentStatus == PaymentStatus.pending){
-        bool isPaid = await PaymentService.instance.checkTransStatus(thisMonthPayment);
+        bool isPaid = await PaymentService.instance.checkTransStatus(thisMonthPayment);      
         if(isPaid){
          PaymentService.instance.updatePaymentStatus(room,thisMonthPayment,PaymentStatus.paid);
         }

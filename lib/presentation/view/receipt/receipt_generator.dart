@@ -2,7 +2,10 @@ import 'dart:typed_data';
 import 'package:emonitor/domain/model/building/room.dart';
 import 'package:emonitor/domain/model/payment/payment.dart';
 import 'package:emonitor/domain/model/payment/transaction.dart';
+import 'package:emonitor/domain/model/system/priceCharge.dart';
+import 'package:emonitor/domain/service/finder_service.dart';
 import 'package:emonitor/domain/service/khqr_service.dart';
+import 'package:emonitor/domain/service/payment_service.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -11,71 +14,83 @@ import 'package:intl/intl.dart';
 import 'dart:ui' as ui;
 
 
-class Receipt extends StatelessWidget {
+class ShowReceiptDialog extends StatelessWidget {
   final Payment payment;
-  late Consumption newConsumption;
-  late Consumption preConsumption;
-  late DateTime lastPaidOn;
+  Consumption? newConsumption;
+  Consumption? preConsumption;
+  DateTime? lastPaidOn;
+  Room? room;
   GlobalKey repaintKey = GlobalKey();
   //need query of building
+  ShowReceiptDialog({super.key, required this.payment}) {
 
-
-  Receipt({super.key, required this.payment}) {
-    for (var item in payment.room.consumptionList) {
+    preConsumption ??= Consumption(waterMeter: 0, electricityMeter: 0);
+    newConsumption ??= Consumption(waterMeter: 0, electricityMeter: 0);
+    lastPaidOn = DateTime.now();
+    // payment = FinderService.instance.findRoomByID("1590243306")!.paymentList.last;
+    print("find room");
+    room = FinderService.instance.findRoomByID(payment.roomID);
+    if(room == null){
+      throw "room can not be found in RECEIPT dialog";
+    }
+    print("find new consumption");
+    for (var item in room!.consumptionList) {
       if (item.timestamp == payment.timeStamp) {
         newConsumption = item;
         break;
       }
     }
-    for (var item in payment.room.consumptionList) {
-      if (item.timestamp.isBefore(newConsumption.timestamp)) {
-        preConsumption = item;
-        lastPaidOn = item.timestamp;
-        break;
+    if(newConsumption != null){
+       for (var item in room!.consumptionList) {
+        if (item.timestamp.isBefore(newConsumption!.timestamp)) {
+          preConsumption = item;
+          lastPaidOn = item.timestamp;
+          break;
+        }
       }
-    }
+    } 
+   
   }
   Future<TransactionKHQR> requestKHQR() async {
     return KhqrService.instance.requestKHQR(payment.totalPrice);
   }
 
-  Future<Uint8List?> capturePNG() async {
-        try {
-          // Capture PNG bytes
-          RenderRepaintBoundary boundary = repaintKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-          ui.Image image = await boundary.toImage(pixelRatio: 3.0);
-          ByteData? byteData =
-              await image.toByteData(format: ui.ImageByteFormat.png);
-          Uint8List? pngBytes = byteData?.buffer.asUint8List();
-
-          if (pngBytes == null) {
-            print("❌ Failed to capture PNG.");
-            return null;
-          }else{
-            return pngBytes;
-          }
-        } catch (e) {
-          print("❌ Error capturing or saving PNG: $e");
-          return null;
-        }
+ Future<Uint8List?> capturePNG() async {
+    print("capturePNG() started");
+    try {
+        print("repaintKey: ${repaintKey.currentState}"); // Check if the key is valid
+        print("repaintKey.currentContext: ${repaintKey.currentContext}");
+        final boundary = repaintKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+        print("boundary: $boundary");
+        print("Calling toImage()");
+        final image = await boundary.toImage(pixelRatio: 3.0);
+        print("toImage() successful");
+        final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+        final pngBytes = byteData?.buffer.asUint8List();
+        print("capturePNG() finished successfully");
+        return pngBytes;
+    } on Exception catch (e) {
+        print("Error in capturePNG(): $e"); // Print the full exception
+        return null;
+    }
 }
+
+
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return  Scaffold(
       body: Container(
         width: double.infinity,
         color: UniColor.backGroundColor,
         child: Center(
-          child: SingleChildScrollView(
-            child: 
-            Column(
+          child:  Row(
               children: [
-                RepaintBoundary(
+               RepaintBoundary(
                   key: repaintKey,
                   child: Container(
-                    height: 1000,
-                    width: 800,
+                    height: 700,
+                    width: 500,
                     color: UniColor.white,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -95,16 +110,18 @@ class Receipt extends StatelessWidget {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Expanded(flex: 300, child: header()),
                                 Expanded(
-                                  flex: 110,
+                                  flex: 300, child: header()),
+                                Expanded(
+                                  flex: 150,
                                   child: tenantInfo(),
                                 ),
                                 Expanded(
                                     flex: 600,
                                     child: Container(
                                       child: body(),
-                                    ))
+                                    )
+                                )
                               ],
                             ),
                           ),
@@ -113,16 +130,31 @@ class Receipt extends StatelessWidget {
                     ),
                   ),
                 ),
-              ElevatedButton(onPressed:()async{
+               Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton(
+                onPressed:()async{
+                 Navigator.pop(context,null);
+              }, 
+              child: const Text("Reject")),
+                  ElevatedButton(
+                onPressed:()async{
                  Uint8List? pngBytes = await capturePNG();
-
-              }, child: const Text("save pic"))
+                 Navigator.pop(context,pngBytes);
+              }, 
+              child: const Text("Approve"))
+                ],
+               )
               ],
             ),
-          ),
+        
         ),
-      ),
+      )
+  ,
     );
+    
+    
   }
 
   Widget header() {
@@ -187,8 +219,8 @@ class Receipt extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      customeText("Building : Need to be done"),
-                      customeText("Room : ${payment.room.name}")
+                      customeText("Building : "),
+                      customeText("Room : ${room!.name}")
                     ],
                   ),
                   Column(
@@ -210,7 +242,7 @@ class Receipt extends StatelessWidget {
                 ],
               )),
         ),
-        customeDivider(),
+        // customeDivider(),
       ],
     );
   }
@@ -225,20 +257,18 @@ class Receipt extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              customeText("Tenant's Name :\t${payment.tenant.userName}"),
-              customeText("Phone Number  :\t${payment.tenant.contact}"),
-              customeText("IdentifyID    :\t${payment.tenant.identifyID}"),
+              customeText("Tenant's Name :\t${room!.tenant!.userName}"),
+              customeText("Phone Number  :\t${room!.tenant!.contact}"),
+              customeText("IdentifyID    :\t${room!.tenant!.identifyID}"),
             ],
           ),
           Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              customeText("Tenant's ID  :\t${payment.tenant.id}"),
-              customeText(
-                  "Last Paid On :\t dummyData"), //${DateFormat('DD/MM/YYY').format(lastPaidOn)}
-              customeText(
-                  "Issue Date   :\t${DateFormat('dd/MM/yyyy').format(payment.timeStamp)}"),
+              customeText("Tenant's ID  :\t${room!.tenant!.id}"),
+              customeText("Last Paid On :\t ${DateFormat('dd/MM/yyyy').format(preConsumption!.timestamp)}"), //${DateFormat('DD/MM/YYY').format(lastPaidOn)}
+              customeText("Issue Date   :\t${DateFormat('dd/MM/yyyy').format(payment.timeStamp)}"),
             ],
           ),
         ],
@@ -247,27 +277,28 @@ class Receipt extends StatelessWidget {
   }
 
   Widget body() {
+     ///
+    /// Render data
+    /// 
+    PriceCharge? priceCharge = PaymentService.instance.getPriceChargeFor(payment.timeStamp);
+
+    double waterUsage = newConsumption!.waterMeter - preConsumption!.waterMeter;
+    double electricityUsage = newConsumption!.electricityMeter - preConsumption!.electricityMeter;
+
+    double waterTotal = priceCharge!.waterPrice * waterUsage;
+    double electricityTotal = priceCharge.electricityPrice * electricityUsage;
+    
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          customeDivider(),
-          //title
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "Tax Invoice",
-                style: UniTextStyles.heading,
-              )
-            ],
-          ),
           Row(
             children: [
               //calculation
               Expanded(
-                  flex: 600,
+                flex: 5,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -293,8 +324,8 @@ class Receipt extends StatelessWidget {
                       customeDivider(),
                       Table(
                         children: [
-                          build4CellRow("Water", "110", "100", "10 m3"),
-                          build4CellRow("Electricity", "110", "100", "10 Kwh"),
+                          build4CellRow(1,"Water", newConsumption!.waterMeter.toString(), preConsumption!.waterMeter.toString(), "${newConsumption!.waterMeter - preConsumption!.waterMeter}"),
+                          build4CellRow(2,"Electricity", newConsumption!.electricityMeter.toString(), preConsumption!.electricityMeter.toString(), "${newConsumption!.electricityMeter - preConsumption!.electricityMeter}"),
                         ],
                       ),
                       customeDivider(),
@@ -322,19 +353,17 @@ class Receipt extends StatelessWidget {
                       customeDivider(),
                       Table(
                         children: [
-                          build5CellRow("1", "Water", "10", "\$2", "\$20"),
-                          build5CellRow(
-                              "2", "Electricity", "10", "\$2", "\$20"),
-                          build5CellRow("3", "Hygiene", "1", "\$1", "\$1"),
-                          build5CellRow(
-                              "4", "Rent Parking", "\$1", "\$10", "\$10"),
-                          build5CellRow("5", "Room", "1", "\$100", "\$100"),
+                          build5CellRow(1,"1", "Water", "$waterUsage m³", "\$ ${priceCharge.waterPrice}", "\$ $waterTotal"),
+                          build5CellRow(1,"2", "Electricity", "$electricityUsage m³", "\$ ${priceCharge.electricityPrice}", "\$ $electricityTotal"),
+                          build5CellRow(3,"3", "Hygiene","1", "\$ ${priceCharge.hygieneFee}", "\$ ${priceCharge.hygieneFee}"),
+                          build5CellRow(4,"4", "Parking space", "${payment.parkingAmount}", "\$ ${priceCharge.rentParkingPrice}", "\$10"),
+                          build5CellRow(5,"5", "Room", "1", "\$ ${payment.roomPrice}", "\$100"),
                         ],
                       ),
                       customeDivider(),
                       Table(children: [
-                        build5CellRow(" ", " ", " ", "SUB TOTAL", "\$151"),
-                        build5CellRow(" ", " ", " ", "TAX (10%)", "\$15.1"),
+                        build5CellRow(6," ", " ", " ", "SUB TOTAL", "\$ ${payment.totalPrice}"),
+                        build5CellRow(7," ", " ", " ", "FINE ", "\$ ${payment.fine}"),
                       ]),
                       Divider(
                         color:  UniColor.primary,
@@ -342,41 +371,21 @@ class Receipt extends StatelessWidget {
                         indent: 250,
                       ),
                       Table(children: [
-                        build5CellRow(" ", " ", " ", "TOTAL", "\$166.1"),
+                        build5CellRow(8," ", " ", " ", "TOTAL", "\$ ${ payment.totalPrice + payment.fine}"),
                       ]),
                     ],
                   )),
               //KHQR
               Expanded(
-              flex: 32,
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  top: 70,
-                  left: 20,
-                  right: 20,
-                ),
-                child: FutureBuilder<TransactionKHQR>(
-                  future: requestKHQR(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
-                    } else if (snapshot.hasData) {
-                      return Center(
-                        child:
-                            //Call bakong API
-                            BakongKhqrView(
-                                merchantName: "UnitNest",
-                                amount: "${payment.totalPrice}",
-                                qrString: snapshot.data!.qr),
-                      );
-                    } else {
-                      return const Center(child: Text('No data available'));
-                    }
-                  },
-                ),
-              ))
+                flex: 3,
+              child: 
+                  BakongKhqrView(
+                      width: 150,
+                      merchantName: "UnitNest",
+                      amount: "${payment.totalPrice}",
+                      qrString: payment.transaction.qr),
+              
+              )
             ],
           ),
           Container(
@@ -386,7 +395,6 @@ class Receipt extends StatelessWidget {
               color: UniColor.primary,
             ),
           ),
-          //Footer
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -410,35 +418,35 @@ class Receipt extends StatelessWidget {
     );
   }
 
-  TableRow build4CellRow(String col1, String col2, String col3, String col4,
-      {Color color = Colors.black, bool isBold = false}) {
-    return TableRow(
-      children: [
-        TableCell(child: customeText(col1, color: color, isBold: isBold)),
-        TableCell(child: customeText(col2, color: color, isBold: isBold)),
-        TableCell(child: customeText(col3, color: color, isBold: isBold)),
-        TableCell(child: customeText(col4, color: color, isBold: isBold)),
-      ],
-    );
-  }
+  TableRow build4CellRow(int index, String col1, String col2, String col3, String col4,
+    {Color color = Colors.black, bool isBold = false}) {
+  return TableRow(
+    key: ValueKey(index), // Unique key for each row (using index)
+    children: [
+      TableCell(key: ValueKey('$index-col1'), child: customeText(col1, color: color, isBold: isBold)),
+      TableCell(key: ValueKey('$index-col2'), child: customeText(col2, color: color, isBold: isBold)),
+      TableCell(key: ValueKey('$index-col3'), child: customeText(col3, color: color, isBold: isBold)),
+      TableCell(key: ValueKey('$index-col4'), child: customeText(col4, color: color, isBold: isBold)),
+    ],
+  );
+}
 
-  TableRow build5CellRow(
-      String col1, String col2, String col3, String col4, String col5,
-      {Color color = Colors.black, bool isBold = false}) {
-    return TableRow(
-      children: [
-        TableCell(child: customeText(col1, color: color, isBold: isBold)),
-        TableCell(child: customeText(col2, color: color, isBold: isBold)),
-        TableCell(child: customeText(col3, color: color, isBold: isBold)),
-        TableCell(child: customeText(col4, color: color, isBold: isBold)),
-        TableCell(child: customeText(col5, color: color, isBold: isBold)),
-      ],
-    );
-  }
+TableRow build5CellRow(int index, String col1, String col2, String col3, String col4, String col5,
+    {Color color = Colors.black, bool isBold = false}) {
+  return TableRow(
+    key: ValueKey(index), // Unique key for each row (using index)
+    children: [
+      TableCell(key: ValueKey('$index-col1'), child: customeText(col1, color: color, isBold: isBold)),
+      TableCell(key: ValueKey('$index-col2'), child: customeText(col2, color: color, isBold: isBold)),
+      TableCell(key: ValueKey('$index-col3'), child: customeText(col3, color: color, isBold: isBold)),
+      TableCell(key: ValueKey('$index-col4'), child: customeText(col4, color: color, isBold: isBold)),
+      TableCell(key: ValueKey('$index-col5'), child: customeText(col5, color: color, isBold: isBold)),
+    ],
+  );
+}
 
   Widget customeText(String text, {Color color = Colors.black, isBold = true}) {
-    return Text(
-      text,
+    return Text(text,
       style: TextStyle(
           fontSize: 10,
           color: color,

@@ -7,13 +7,14 @@ part of 'payment.dart';
 // **************************************************************************
 
 Payment _$PaymentFromJson(Map<String, dynamic> json) => Payment(
+      roomPrice: (json['roomPrice'] as num).toDouble(),
       receipt: json['receipt'] as String?,
       parkingAmount: (json['parkingAmount'] as num).toInt(),
       parkingFee: (json['parkingFee'] as num).toDouble(),
       hygiene: (json['hygiene'] as num).toDouble(),
-      tenant: Tenant.fromJson(json['tenant'] as Map<String, dynamic>),
+      tenantChatID: json['tenantChatID'] as String,
       totalPrice: (json['totalPrice'] as num).toDouble(),
-      room: Room.fromJson(json['room'] as Map<String, dynamic>),
+      roomID: json['roomID'] as String,
       deposit: (json['deposit'] as num).toDouble(),
       transaction:
           TransactionKHQR.fromJson(json['transaction'] as Map<String, dynamic>),
@@ -25,9 +26,10 @@ Payment _$PaymentFromJson(Map<String, dynamic> json) => Payment(
           $enumDecode(_$PaymentApprovalEnumMap, json['paymentApproval']);
 
 Map<String, dynamic> _$PaymentToJson(Payment instance) => <String, dynamic>{
-      'tenant': instance.tenant.toJson(),
-      'room': instance.room.toJson(),
+      'tenantChatID': instance.tenantChatID,
+      'roomID': instance.roomID,
       'transaction': instance.transaction.toJson(),
+      'roomPrice': instance.roomPrice,
       'hygiene': instance.hygiene,
       'parkingFee': instance.parkingFee,
       'deposit': instance.deposit,

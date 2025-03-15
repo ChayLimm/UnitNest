@@ -9,7 +9,6 @@ import 'package:emonitor/domain/model/stakeholder/tenant.dart';
 import 'package:emonitor/domain/model/system/priceCharge.dart';
 import 'package:emonitor/domain/service/khqr_service.dart';
 import 'package:emonitor/domain/service/root_data.dart';
-import 'package:emonitor/presentation/view/receipt/receipt.dart';
 import 'package:http/http.dart' as http;
 
 
@@ -46,7 +45,7 @@ class PaymentService {
   
   
 
-  Future<void> proccessPayment(String tenantID,[Consumption? consumption, bool lastpayment = false]) async {
+  Future<Payment> proccessPayment(String tenantID,[Consumption? consumption, bool lastpayment = false]) async {
     print("in proccess apyment function assign payment ");
 
     // declare data
@@ -64,24 +63,35 @@ class PaymentService {
         priceCharge = item;
       }
     }
-            print("in proccess apyment function assign payment 1");
+    print("in proccess apyment function assign payment 1");
 
     //find who is paying for which room
-    for (var building1 in repository.rootData!.listBuilding) {
-                  print("#########1");
+    bool found = false;
 
-      for (var room1 in building1.roomList) {
-        print("########2");
-        if (room.tenant!.id == tenantID) {
-          print("#########3");
-          building = building1;
-          room = room1;
-          tenant = room.tenant!;
-        }
+    for (var building1 in repository.rootData!.listBuilding) {
+    print("Checking Building: ${building1.name}");
+    for (var room1 in building1.roomList) {
+      print("Checking Room: ${room1.name}, Tenant: ${room1.tenant}");
+
+      if (room1.tenant != null) {
+        print("Tenant to find ! : $tenantID");
+        print("Tenant chatID ! : ${room1.tenant!.chatID}");
+      }
+      if (room1.tenant != null && room1.tenant!.chatID == tenantID) {
+        print("Tenant found in room ${room1.name}");
+        building = building1;
+        room = room1;
+        tenant = room1.tenant!;
+        found = true;
+        break;
       }
     }
-            print("in proccess apyment function assign payment 2");
+    if (found) break;
+  }
 
+    
+    
+    print("in proccess apyment function assign payment 2");
     //find deposit
     if (tenant.deposit < room.price) {
       deposit = room.price - tenant.deposit;
@@ -118,13 +128,16 @@ class PaymentService {
 
       room.consumptionList.add(consumption);
     }
+    print("requestiing  transaction qr");
 
     TransactionKHQR transaction = await KhqrService.instance.requestKHQR(totalPrice);
-
+    print("Qr : ${transaction.qr}");
+    print(transaction.md5);
     print("assign payment");
     Payment payment = Payment(
-      tenant: tenant,
-      room: room,
+      roomPrice: room.price,
+      tenantChatID: tenant.chatID,
+      roomID: room.id,
       deposit: deposit,
       transaction: transaction,
       totalPrice: totalPrice,
@@ -132,38 +145,28 @@ class PaymentService {
       parkingFee: (tenant.rentParking.toDouble() * priceCharge.rentParkingPrice),
       parkingAmount : tenant.rentParking.toInt(),
     );
-    print("assign payment Done");
+    print("assign payment Done ${payment.totalPrice}");
 
-    ////
-    ///  get reciept
-    ///
-    
-    late String recieptURL;
-    Uint8List? receiptPNG = await Receipt(payment: payment).capturePNG();
-    try{
-      recieptURL = await repository.uploadImageToFirebaseStorage(receiptPNG!);
-      print("upload image to cloud");
-    }catch (e){
-      throw "Payment error : $e";
-    }
-    // add reciept to the database
-    payment.receipt = recieptURL;
-    print(recieptURL);
 
     payment.paymentStatus = PaymentStatus.pending;
     room.paymentList.add(payment);
     //sync with cloud
-    repository.synceToCloud();
+    // repository.synceToCloud();
     print("done processing payment!!!!!!!!!!!");
+    return payment;
   }
 
 
-  PaymentStatus getRoomPaymentStatus(Room room, DateTime dateTime){
+  PaymentStatus? getRoomPaymentStatus(Room room, DateTime dateTime){
     Payment? payment = getPaymentFor(room, dateTime);
     if(payment != null){
       return payment.paymentStatus;
+    }else
+    if(room.tenant == null ){
+      return null;
+    }else {
+      return PaymentStatus.unpaid;
     }
-    return PaymentStatus.unpaid;
   }
 
   Payment? getPaymentFor(Room room, DateTime dateTime) {

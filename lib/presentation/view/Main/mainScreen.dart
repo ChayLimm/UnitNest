@@ -4,6 +4,7 @@ import 'package:emonitor/Narong_screen_component/dashboard/dashbaord.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/view/Building/buildingNavigator.dart';
 import 'package:emonitor/presentation/view/Notification/notification_main.dart';
+import 'package:emonitor/presentation/view/setting/setting.dart';
 import 'package:flutter/material.dart';
 
 class Mainscreen extends StatefulWidget {
@@ -14,12 +15,13 @@ class Mainscreen extends StatefulWidget {
 }
 
 class _MainscreenState extends State<Mainscreen> {
-  int currentPage = 0;
+  int currentPage =1;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+     body:
+    Container(
         color: UniColor.white,
         child: Row(
           children: [
@@ -98,7 +100,9 @@ class _MainscreenState extends State<Mainscreen> {
                     // Settings at the Bottom
                     const Spacer(),
                     buildListTile("Setting", Icons.settings, () {
-                      setState(() {});
+                      setState(() {
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=>Setting()));
+                      });
                     }, false),
                   ],
                 ),
@@ -111,11 +115,11 @@ class _MainscreenState extends State<Mainscreen> {
                 color: UniColor.neutralLight,
                 child: IndexedStack(
                   index: currentPage,
-                  children: [
-                    dashboard(),         // dashboard (dashboard screen + request screen)
-                    BuidlingNavigator(), // building& room (building: buidling screen + request screen)+(room: room screen +  room details screen)
-                    notification(),      // notification (notification screen+notification details screen)
-                    report()             // monthly report (monthly report screen+ request screen)
+                  children: const [
+                     Dashboard(),         // dashboard (dashboard screen + request screen)
+                     BuidlingNavigator(), // building& room (building: buidling screen + request screen)+(room: room screen +  room details screen)
+                     NotificationMain(),      // notification (notification screen+notification details screen)
+                     Report(),             // monthly report (monthly report screen+ request screen)
                   ],
                 ),
               )

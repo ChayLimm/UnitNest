@@ -11,7 +11,7 @@ NotificationList _$NotificationListFromJson(Map<String, dynamic> json) =>
       (json['listNotification'] as List<dynamic>)
           .map((e) => e == null
               ? null
-              : Notification.fromJson(e as Map<String, dynamic>))
+              : UniNotification.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 
@@ -21,23 +21,26 @@ Map<String, dynamic> _$NotificationListToJson(NotificationList instance) =>
           instance.listNotification.map((e) => e?.toJson()).toList(),
     };
 
-Notification _$NotificationFromJson(Map<String, dynamic> json) => Notification(
+UniNotification _$UniNotificationFromJson(Map<String, dynamic> json) =>
+    UniNotification(
+      isApprove: json['isApprove'] as bool,
       id: json['id'] as String,
       chatID: json['chatID'] as String,
       systemID: json['systemID'] as String,
       notifyData: json['notifyData'],
       dataType: $enumDecode(_$NotificationTypeEnumMap, json['dataType']),
       status: $enumDecode(_$NotificationStatusEnumMap, json['status']),
-      read: json['read'] as bool?,
+      read: json['read'] as bool? ?? false,
     );
 
-Map<String, dynamic> _$NotificationToJson(Notification instance) =>
+Map<String, dynamic> _$UniNotificationToJson(UniNotification instance) =>
     <String, dynamic>{
       'id': instance.id,
       'chatID': instance.chatID,
       'systemID': instance.systemID,
       'dataType': _$NotificationTypeEnumMap[instance.dataType]!,
       'status': _$NotificationStatusEnumMap[instance.status]!,
+      'isApprove': instance.isApprove,
       'notifyData': instance.notifyData,
       'read': instance.read,
     };

@@ -2,6 +2,7 @@ import 'package:emonitor/domain/model/building/building.dart';
 import 'package:emonitor/presentation/Provider/main/building_provider.dart';
 import 'package:emonitor/presentation/Provider/main/room_provider.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
+import 'package:emonitor/presentation/view/Building/building/widget/building_card.dart';
 import 'package:emonitor/presentation/widgets/button/button.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
 import 'package:emonitor/presentation/widgets/form/dialogForm.dart';
@@ -14,8 +15,7 @@ class BuildingScreen extends StatelessWidget {
   });
   
   // this funciton will return the dialog for deleting anf editing the building
-  Future<void> onEditorDeleteDialog(
-      BuildContext context, Building? building) async {
+  Future<void> onEditorDeleteDialog(BuildContext context, Building? building) async {
     final buildingProvider = context.read<BuildingProvider>();
     showDialog(
       context: context,
@@ -25,13 +25,7 @@ class BuildingScreen extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          // title: Text(
-          //   'Edit Building ${building?.name}?' ,
-          //   style: TextStyle(
-          //     fontWeight: FontWeight.bold,
-          //     fontSize: 18,
-          //   ),
-          // ),
+        
           title: Text.rich(
             TextSpan(
               children: [
@@ -63,7 +57,7 @@ class BuildingScreen extends StatelessWidget {
               ]
             )
           ),
-          content: Text(
+          content: const Text(
             'Do you want to edit or delete this building?',
             style: TextStyle(fontSize: 14),
           ),
@@ -105,7 +99,7 @@ class BuildingScreen extends StatelessWidget {
                 InkWell(
                   onTap: () async {
                     final bool isEditSuccessful =
-                        await addOrEditRoom(context, building);
+                        await addOrEditBuilding(context, building);
                     if (isEditSuccessful) {
                       showCustomSnackBar(context,
                           message: "Edit building successfully!",
@@ -145,7 +139,7 @@ class BuildingScreen extends StatelessWidget {
   }
 
   // function to add or edit room
-  Future<bool> addOrEditRoom(BuildContext context, Building? building) async {
+  Future<bool> addOrEditBuilding(BuildContext context, Building? building) async {
     // call provider
     final buildingProvider = context.read<BuildingProvider>();
     // declare variable for the edit form
@@ -225,19 +219,16 @@ class BuildingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<BuildingProvider>(
-        builder: (context, buildingProvider, child) {
+    return Consumer<BuildingProvider>(builder: (context, buildingProvider, child) {
       return Scaffold(
-        backgroundColor: UniColor.white,
+        backgroundColor: UniColor.backGroundColor,
         floatingActionButton: customFloatingButton(
-          onPressed: () {}, // place your function here
+          onPressed: () {
+
+          }, // place your function here
         ),
-        body: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          decoration: BoxDecoration(
-              border: Border(
-                  left: BorderSide(color: UniColor.neutralLight, width: 1),
-                  right: BorderSide(color: UniColor.neutralLight, width: 1))),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -246,7 +237,7 @@ class BuildingScreen extends StatelessWidget {
                   context: context,
                   ontrigger: () async {
                     // open dialog forn to add building
-                    final isFromTrue = await addOrEditRoom(context, null);
+                    final isFromTrue = await addOrEditBuilding(context, null);
                     if (isFromTrue) {
                       showCustomSnackBar(context,
                           message: "Add building succesfully!",
@@ -263,25 +254,24 @@ class BuildingScreen extends StatelessWidget {
               Expanded(
                 child: SingleChildScrollView(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    padding: const EdgeInsets.symmetric(vertical: 20),
                     child: GridView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 75),
-                      gridDelegate:
-                          const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent:
-                            560, // Maximum width of each grid item
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent:380, // Maximum width of each grid item
                         crossAxisSpacing: 10,
                         mainAxisSpacing: 10,
-                        childAspectRatio: 1 /
-                            0.8, // 1 refer to width and o.75 refer to 75% of total width
+                        childAspectRatio: 1 / 0.6, // 1 refer to width and o.75 refer to 75% of total width
                       ),
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: buildingProvider.buildingList.length,
                       itemBuilder: (context, index) {
+
+                        /// render data
                         final building = buildingProvider.buildingList[index];
-                        BuildingInfo buildingInfo =
-                            buildingProvider.buildingInfo(building);
+                        BuildingInfo buildingInfo = buildingProvider.buildingInfo(building);
+
                         return InkWell(
                           onTap: () {
                             // Change the current selected building in RoomProvider in order for the room screeen rebuild with new building
@@ -291,19 +281,13 @@ class BuildingScreen extends StatelessWidget {
                             // note that /building/room the room widget will show roomProvider.currentSelectedBuilding to for data
                             Navigator.pushNamed(context, "/building/room");
                           },
-                          child: _buildBuildingCard(
-                              image: 'assets/images/Bulidng.jpg',
-                              buildingTitle: building.name,
-                              location: building.address,
-                              availableRoom: buildingInfo.availableRoom,
-                              totalRoom: building.roomList.length,
-                              name: building.name,
-                              address: building.address,
-                              floorCount: building.floorCount.toString(),
-                              parkingSpace: building.parkingSpace.toString(),
+                          child: BuildingCard(
+                              building: building,
+                              buildingInfo: buildingInfo,
                               onPressed: () {
                                 onEditorDeleteDialog(context, building);
-                              }),
+                              }
+                          ),
                         );
                       },
                     ),
@@ -328,176 +312,32 @@ class BuildingScreen extends StatelessWidget {
 // i turned all function widget to private just to prevent calling outside of this file
 // if you want to use it outside of this file, just remove the underscore(_) before the function name
 // header section for building screen
-Widget _buildTopSection(
-    {required BuildContext context, required VoidCallback ontrigger}) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Building list",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            "View all of your buildings here",
-            style: TextStyle(color: UniColor.neutralLight, fontSize: 12),
-          ),
-        ],
-      ),
-      UniButton(
-          context: context,
-          label: "Add building",
-          trigger: ontrigger,
-          buttonType: ButtonType.primary)
-    ],
-  );
-}
-
-// Building info card widget
-Widget _buildBuildingCard({
-  required String image,
-  required String buildingTitle,
-  required String location,
-  required int availableRoom,
-  required int totalRoom,
-  required String name,
-  required String address,
-  required String floorCount,
-  required String parkingSpace,
-  required void Function() onPressed,
-}) {
-  return Container(
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(8),
-      border: Border.all(color: UniColor.neutralLight),
-    ),
-    padding: const EdgeInsets.all(8),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                image,
-                width: 90,
-                height: 90,
-                fit: BoxFit.cover,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          buildingTitle,
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: IconButton(
-                          onPressed: onPressed,
-                          icon: Icon(Icons.more_vert_sharp, size: 15),
-                        ),
-                      ),
-                    ],
-                  ),
-                  // const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Icon(Icons.location_on,
-                          color: UniColor.primary, size: 16),
-                      const SizedBox(width: 4),
-                      Text(location,
-                          style: TextStyle(
-                              fontSize: 12, color: UniColor.neutralDark)),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Container(
-                        width: 90,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          border: Border.all(color: UniColor.primary),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Center(
-                          child: Text(
-                            availableRoom.toString() + " " + "available",
-                            style: TextStyle(
-                                color: UniColor.primary,
-                                fontWeight: FontWeight.w400,
-                                fontSize: 12),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        width: 85,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: UniColor.primary,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Center(
-                          child: Text(
-                            totalRoom.toString() + " " + "Rooms",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w400,
-                                fontSize: 12),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 12),
-        _buildDetailRow("Name", name),
-        _buildDetailRow("Address", address),
-        _buildDetailRow("Floor count", floorCount),
-        _buildDetailRow("Parking space", parkingSpace),
-      ],
-    ),
-  );
-}
-
-// Building info card detail row
-Widget _buildDetailRow(String title, String value) {
+Widget _buildTopSection({required BuildContext context, required VoidCallback ontrigger}) {
   return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+    padding: const EdgeInsets.symmetric(horizontal: 20.0),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text("$title :",
-            style: TextStyle(
-                fontWeight: FontWeight.w500,
-                color: UniColor.neutralDark,
-                fontSize: 12)),
-        Text(value,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Building list",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            Text(
+              "View all of your buildings here",
+              style: TextStyle(color: UniColor.neutral, fontSize: 12),
+            ),
+          ],
+        ),
+        UniButton(
+            context: context,
+            label: "Add building",
+            trigger: ontrigger,
+            buttonType: ButtonType.primary)
       ],
     ),
   );
 }
+

@@ -30,8 +30,20 @@ class System extends ChangeNotifier {
   }
   void generateReceipt(Payment payment) {
     // retrieve newConumption which newConumption's timestamp == payment.timestamp and the previoseConsumption is after newConumption timestamp
+   late Room targetRoom;
+   bool isFound = false;
+   for(var building in listBuilding){
+    if(!isFound){
+    for(var room in building.roomList){
+      if(room.id == payment.roomID){
+        targetRoom = room;
+        isFound = true;
+      }
+    }}
+   }
+   
     DateTime timestamp = payment.timeStamp;
-    List<Consumption> consumptionList = payment.room.consumptionList;
+    List<Consumption> consumptionList = targetRoom.consumptionList;
     late Consumption newConsumption;
     late Consumption preConsumption;
     for (var item in consumptionList) {

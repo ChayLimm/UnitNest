@@ -1,3 +1,8 @@
+import 'package:emonitor/domain/service/telegram_service.dart';
+
+void main(){
+}
+
 // enum DataType{
 //   requestPayment,
 //   requestRegistration,

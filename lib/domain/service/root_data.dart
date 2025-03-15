@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:emonitor/domain/model/Notification/notification.dart';
-import 'package:emonitor/domain/model/payment/payment.dart';
 import 'package:emonitor/domain/model/system/system.dart';
 import 'package:emonitor/domain/repository/repo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -21,6 +20,15 @@ class RootDataService  {
   // Getter for rootData
   System? get rootData => _rootData;
   NotificationList? get notificationList => _notificationList;
+
+  void updateNotificationList(List<UniNotification?> newNoti) {
+  if (newNoti == null) {
+    print("Warning: _notificationList is null!");
+    return;
+  }
+  _notificationList!.listNotification = newNoti;
+  print(_notificationList!.listNotification.length);
+}
 
 
   /// Fetches the root data from the database.
@@ -57,6 +65,7 @@ class RootDataService  {
       if (_rootData == null) {
         throw "Root data is null. Fetch or initialize data before syncing.";
       }
+
       await databaseRepository.synceToCloud(_notificationList!,_rootData!); // Notify listeners after syncing data
       // await databaseRepository.syncNotificationToCloud(notificationList!,_rootData!);
 
@@ -79,21 +88,30 @@ class RootDataService  {
   }
 
 
-    Future<String> uploadImageToFirebaseStorage(Uint8List imageBytes) async {
-      // Create a reference to the location you want to upload to
+    static Future<String?> uploadImageToFirebaseStorage(Uint8List imageBytes) async {
+     try{
+       // Create a reference to the location you want to upload to
+      //  print(imageBytes);
+       print("trigger starting uploading image");
       final storageRef = FirebaseStorage.instance.ref();
       final imageRef = storageRef.child("receipts/${DateTime.now().millisecondsSinceEpoch}.png");
+       print("1");
 
       // Upload the file
       final uploadTask = imageRef.putData(imageBytes);
+      print("2");
 
       // Wait for the upload to complete
       final snapshot = await uploadTask.whenComplete(() => null);
-
+      print("3");
       // Get the download URL
-      final downloadURL = await snapshot.ref.getDownloadURL();
+      final String downloadURL = await snapshot.ref.getDownloadURL();
+      // print(downloadURL);
 
       return downloadURL;
+     }catch (e){
+      print("Error uploading image to Firebase Storage: $e");
+      throw e; // Rethrow the error after printing
     }
-
+    }
 }

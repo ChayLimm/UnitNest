@@ -41,7 +41,7 @@ class BuildingService  {
     repository.rootData!.listBuilding.add(newBuilding);
     }
     //synce to cloud
-    repository.synceToCloud();
+    await repository.synceToCloud();
     print("Added new building");
   }
   
@@ -49,7 +49,7 @@ class BuildingService  {
   Future<void> removeBuilding(Building building) async {
     repository.rootData!.listBuilding.remove(building);
     //synce to cloud
-    repository.synceToCloud();
+    await repository.synceToCloud();
     
   }
 
