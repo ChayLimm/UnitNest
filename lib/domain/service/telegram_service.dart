@@ -35,27 +35,40 @@ class TelegramService {
   /// Event handler
   ///
 
-  void sendReceipt(String chat_id, String photo, String text) {
+  Future<void> sendReceipt(String chat_id, String photo, String text)async {
     final body = {
       "receipt": {"chat_id": chat_id, "photo": photo, "caption": text}
     };
 
-    repository.post(
+    await repository.post(
       'https://unitnest-api.vercel.app/telegram',
       headers: {'Content-Type': 'application/json'},
       body: body,
     );
   }
 
-  void sendMesage(int chat_id, String text) {
+  Future<void> sendMesage(int chat_id, String text) async{
     final body = {
       "flutter_call": {"chat_id": chat_id, "text": text}
     };
 
-    repository.post(
+   await repository.post(
       'https://unitnest-api.vercel.app/telegram',
       headers: {'Content-Type': 'application/json'},
       body: body,
     );
+  }
+
+  Future<void> sendReminder(int chat_id, String text)async{
+    final body = {
+      "reminder": {"chat_id": chat_id, "text": text}
+    };
+
+     await repository.post(
+      'https://unitnest-api.vercel.app/telegram',
+      headers: {'Content-Type': 'application/json'},
+      body: body,
+    );
+
   }
 }

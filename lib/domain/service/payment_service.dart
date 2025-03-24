@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:emonitor/domain/model/building/building.dart';
 import 'package:emonitor/domain/model/building/room.dart';
@@ -49,7 +48,7 @@ class PaymentService {
     print("in proccess apyment function assign payment ");
 
     // declare data
-    final DateTime timestamp =consumption == null ? DateTime.now() : consumption.timestamp;
+    final DateTime timestamp = consumption == null ? DateTime.now() : consumption.timestamp;
     late PriceCharge priceCharge;
     late Building building;
     late Room room;
@@ -88,31 +87,37 @@ class PaymentService {
     }
     if (found) break;
   }
-
-    
-    
-    print("in proccess apyment function assign payment 2");
+   
+    print("in proccess payment function assign payment 2");
+    print(room.consumptionList.last.electricityMeter);
     //find deposit
     if (tenant.deposit < room.price) {
       deposit = room.price - tenant.deposit;
     } else {
       deposit = 0;
     }
-
+    print("done check deposit");
     //calculate roomprice & rent parking if have
     if (consumption == null) {
       //first payment
-      totalPrice = room.price +
-          deposit +
-          (tenant.rentParking.toDouble() * priceCharge.rentParkingPrice);
+      totalPrice = room.price + priceCharge.hygieneFee + deposit +(tenant.rentParking.toDouble() * priceCharge.rentParkingPrice);
     } else {
+
       Consumption lastCons = room.consumptionList.last;
-      final double elecTotalPrice =
-          (consumption.electricityMeter - lastCons.electricityMeter) *
-              priceCharge.electricityPrice;
-      final double waterPrice = (consumption.waterMeter - lastCons.waterMeter) *
-              priceCharge.waterPrice +
-          priceCharge.hygieneFee;
+      print("last consumption checked");
+      if (room.consumptionList.isNotEmpty) {
+      print("process function");
+      for (var item in room.consumptionList) {
+        if (item.timestamp.isBefore(consumption.timestamp)) {
+          lastCons = item;
+          break;
+        }
+      }
+    }
+      
+      final double elecTotalPrice =(consumption.electricityMeter - lastCons.electricityMeter) * priceCharge.electricityPrice;
+      final double waterPrice = (consumption.waterMeter - lastCons.waterMeter) *priceCharge.waterPrice + priceCharge.hygieneFee;
+    
       if (lastpayment) {
         //last payment
         totalPrice =deposit + elecTotalPrice + waterPrice + priceCharge.hygieneFee;
@@ -125,16 +130,17 @@ class PaymentService {
             waterPrice +
             priceCharge.hygieneFee;
       }
-
       room.consumptionList.add(consumption);
     }
-    print("requestiing  transaction qr");
+          //convert total price
+    totalPrice = double.parse(totalPrice.toStringAsFixed(2));
+    print("requestiing  transaction qr for ${totalPrice}");
 
     TransactionKHQR transaction = await KhqrService.instance.requestKHQR(totalPrice);
-    print("Qr : ${transaction.qr}");
-    print(transaction.md5);
+    
     print("assign payment");
     Payment payment = Payment(
+      lastPayment: lastpayment,
       roomPrice: room.price,
       tenantChatID: tenant.chatID,
       roomID: room.id,
@@ -149,7 +155,7 @@ class PaymentService {
 
 
     payment.paymentStatus = PaymentStatus.pending;
-    room.paymentList.add(payment);
+    // room.paymentList.add(payment);
     //sync with cloud
     // repository.synceToCloud();
     print("done processing payment!!!!!!!!!!!");
@@ -181,17 +187,12 @@ class PaymentService {
 
   Future<bool> checkTransStatus(Payment payment) async {
     String md5 = payment.transaction.md5;
-    final url = Uri.parse('http://localhost:4040/khqrkhqrstatus');
+    final url = Uri.parse('https://unitnest-api.vercel.app/khqrstatus');
     try {
       var body = jsonEncode({
-        'contents': [
-          {
-            'parts': [
-              {'md5': md5}
-            ]
-          }
-        ]
-      });
+        'md5': md5
+      }
+      );
 
       var response = await http.post(
         url,
@@ -200,7 +201,22 @@ class PaymentService {
         },
         body: body,
       );
-      return true;
+      ///
+      ///check condition
+      ///
+      if (response.statusCode == 200) {
+        var jsonResponse = jsonDecode(response.body);
+        if (jsonResponse['data'] != null) {
+          print("Data exists: ${jsonResponse['data']}");
+          return true;
+        } else {
+          print("Data is null.");
+          return false;
+        }
+      } else {
+        print("Request failed with status: ${response.statusCode}");
+        return false;
+      }
       // check (reposone ?= null) true;
     } catch (e) {
       print(e);
@@ -238,4 +254,10 @@ class PaymentService {
       }
     }
   }  
+  void paymentHistory(){
+    
+  }
+
+
+
 }

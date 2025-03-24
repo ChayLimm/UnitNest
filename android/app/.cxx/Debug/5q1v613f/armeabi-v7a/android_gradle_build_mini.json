@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/Users/chaylim/Developer/Mobile Dev/flutter/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/chaylim/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/chaylim/Developer/Mobile Dev/UnitNest/android/app/.cxx/Debug/5q1v613f/armeabi-v7a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/chaylim/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/chaylim/Developer/Mobile Dev/UnitNest/android/app/.cxx/Debug/5q1v613f/armeabi-v7a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}

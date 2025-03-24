@@ -12,12 +12,13 @@ class BuildingProvider extends ChangeNotifier {
   ///
   /// Attribute
   ///
+  ///
   Building? currentSelectedBuilding;
 
   List<Building> get buildingList => repository.rootData!.listBuilding;
 
   BuildingInfo buildingInfo(Building building){
-    final availableRoom = RoomService.instance.availableRoom(building: building,dateTime: DateTime.now()).length;
+    final availableRoom = RoomService.instance.availableRoom(building: building,dateTime: DateTime.now())?.length?? 0;
     final totalRoom = building.roomList.length;
     final parkingSpace = building.parkingSpace;
     final floorCount = building.floorCount;

@@ -4,8 +4,9 @@ import 'package:emonitor/domain/model/stakeholder/tenant.dart';
 import 'package:emonitor/domain/service/room_service.dart';
 import 'package:emonitor/presentation/Provider/main/room_provider.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
-import 'package:emonitor/presentation/view/receipt/receipt_generator.dart';
+import 'package:emonitor/presentation/view/Building/room/room_history.dart';
 import 'package:emonitor/presentation/view/receipt/receipt_view.dart';
+import 'package:emonitor/presentation/view/utils/date_formator.dart';
 import 'package:emonitor/presentation/widgets/button/button.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
 import 'package:emonitor/presentation/widgets/form/dialogForm.dart';
@@ -30,6 +31,8 @@ class RoomDetailScreen extends StatelessWidget {
     String tenant_name = room?.tenant?.userName ?? '';
     String tenant_phoneNumber = room?.tenant?.contact ?? '';
     int rentParking = room?.tenant?.rentParking ?? 0;
+
+    String chatid = room?.tenant?.chatID?? " ";
 
     final isFormTrue = await uniForm(
         context: context,
@@ -83,7 +86,9 @@ class RoomDetailScreen extends StatelessWidget {
                   return null;
                 }),
             label("Deposit"),
-            buildTextFormField(onChanged: (value) {
+            buildTextFormField(
+              initialValue: deposit.toString(),
+              onChanged: (value) {
               deposit = double.parse(value);
             }, validator: (value) {
               if (value == null || value.isEmpty) {
@@ -92,7 +97,9 @@ class RoomDetailScreen extends StatelessWidget {
               return null;
             }),
             label("Vehicle"),
-            buildTextFormField(onChanged: (value) {
+            buildTextFormField(
+              initialValue: rentParking.toString(),
+              onChanged: (value) {
               rentParking = int.parse(value);
             }, validator: (value) {
               if (value == null || value.isEmpty) {
@@ -105,6 +112,18 @@ class RoomDetailScreen extends StatelessWidget {
                 initialValue: tenantID,
                 onChanged: (value) {
                   tenantID = value;
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Tenant ID is required";
+                  }
+                  return null;
+                }),
+             label("Tenant Chat ID"),
+            buildTextFormField(
+                initialValue: chatid,
+                onChanged: (value) {
+                  chatid = value;
                 },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -155,8 +174,9 @@ class RoomDetailScreen extends StatelessWidget {
               id: room?.id,
               name: room_number,
               price: monthly,
+              roomStatus: room!.roomStatus,
               tenant: Tenant(
-                chatID: chatID,
+                chatID: chatid,
                 identifyID: tenantID,
                 userName: tenant_name,
                 contact: tenant_phoneNumber,
@@ -188,9 +208,11 @@ class RoomDetailScreen extends StatelessWidget {
 
       final Room? room = roomProvider.currentSelectedRoom;
       Payment? thisMonthPayment;
+
       if(room !=null && room.tenant != null ){
         thisMonthPayment= RoomService.instance.getPaymentFor(room, DateTime.now());
       }
+
       return Scaffold(
         backgroundColor: UniColor.backGroundColor2,
         body: Container(
@@ -199,84 +221,107 @@ class RoomDetailScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // top section
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
+             if(room != null)...[
+              ListTile(
+                contentPadding:  EdgeInsets.zero,
+                leading: Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: UniColor.primary,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.bed,
+                    color: UniColor.white,
+                  ),
+                ),
+                title: const Text(
+                  "Room Details",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                  ),
+                ),
+                subtitle: Text(
+                  "View room details",
+                  style: TextStyle(
+                    color: UniColor.neutral,
+                    fontSize: 12,
+                  ),
+                ),
+                trailing: Container(
+                  width: 100,
+                  child: Row(
                     children: [
-                      Container(
-                        width: 30,
-                        height: 30,
-                        decoration: BoxDecoration(
-                            color: UniColor.primary,
-                            borderRadius: BorderRadius.circular(8)),
-                        child: Icon(
-                          Icons.bed,
-                          color: UniColor.white,
-                        ),
-                      ),
-                      const SizedBox(width: 5),
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Room Details",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w700, fontSize: 16),
-                          ),
-                          Text(
-                            "View room details",
-                            style: TextStyle(color: Colors.grey, fontSize: 12),
-                          )
-                        ],
-                      ),
+                      IconButton(onPressed: () async{ 
+                        await showDialog(context: context, builder: (context){
+                          return showRoomHistory(context);
+                        });
+                      }, icon: Icon(Icons.history,color: UniColor.iconNormal,)),
+                      IconButton(
+                    onPressed: () async {
+                      final isFormTrue = await onEditRoom(
+                          context, roomProvider.currentSelectedRoom);
+                      if (isFormTrue == true) {
+                        showCustomSnackBar(context,
+                            message:
+                                "Room ${roomProvider.currentSelectedRoom!.name} is Edited successfully!",
+                            backgroundColor: UniColor.green);
+                      } else if (isFormTrue == false) {
+                        showCustomSnackBar(context,
+                            message:
+                                "Room ${roomProvider.currentSelectedRoom!.name} is failed to edit!",
+                            backgroundColor: UniColor.red);
+                      }
+                    },
+                    icon:  Icon(
+                      Icons.mode_edit_outlined,color: UniColor.iconNormal,
+                      size: 24,
+                    ),
+                  ),
                     ],
                   ),
-                  IconButton(
-                      onPressed: () async {
-                        final isFormTrue = await onEditRoom(
-                            context, roomProvider.currentSelectedRoom);
-                        if (isFormTrue == true) {
-                          showCustomSnackBar(context,
-                              message:
-                                  "Room ${roomProvider.currentSelectedRoom!.name} is Edited successfully!",
-                              backgroundColor: UniColor.green);
-                        } else if (isFormTrue == false) {
-                          showCustomSnackBar(context,
-                              message:
-                                  "Room ${roomProvider.currentSelectedRoom!.name} is failed to edit!",
-                              backgroundColor: UniColor.red);
-                        }
-                      },
-                      icon: const Icon(
-                        Icons.mode_edit_outlined,
-                        color: Colors.black,
-                        size: 24,
-                      ))
-                ],
-              ),
+                )
+                
+              )],
               const SizedBox(
                 height: 15,
               ),
 
               // ignore: unnecessary_null_comparison
-              room == null
-                  ? Center(
-                      child: Text(
-                        'No room available, Please add one',
-                        style: UniTextStyles.body,
-                      ),
-                    )
+            room == null ? SizedBox(
+            height: 700,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children:[ 
+                   ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.asset(
+                      'assets/images/emptyRoom.png',
+                      scale: 0.9,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  const SizedBox(height: 32,),
+                  Text("Start by selecting room",style: UniTextStyles.label,),
+                  const SizedBox(height: 10,),
+                  Text("Click on a room for more details",style: UniTextStyles.body,)
+                  ],
+              ),
+            ),
+          )
                   : Expanded(
                       child: SingleChildScrollView(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             // spacing around divider te nah
-                            const Padding(
+                            Padding(
                               padding: const EdgeInsets.symmetric(vertical: 10),
                               child:
-                                  const Divider(height: 1, color: Colors.grey),
+                                  Divider(height: 1, color: UniColor.neutralLight),
                             ),
                             _buildDetailinfoRow('Room Number',
                                 roomProvider.currentSelectedRoom!.name),
@@ -284,15 +329,16 @@ class RoomDetailScreen extends StatelessWidget {
                                 'Floor',
                                 roomProvider.currentSelectedBuilding!.floorCount
                                     .toString()),
-                            const Padding(
+                            Padding(
                               padding: const EdgeInsets.symmetric(vertical: 10),
                               child:
-                                  const Divider(height: 1, color: Colors.grey),
+                                  Divider(height: 1, color: UniColor.neutralLight),
                             ),
+                          const SizedBox(height: 10,),
                             Text('Rental Information',
                                 style: UniTextStyles.label),
                             _buildDetailinfoRow(
-                                'Payment Status',
+                                'Room Status',
                                 roomProvider
                                     .currentSelectedRoom!.roomStatus.status
                                     .toString()),
@@ -306,31 +352,43 @@ class RoomDetailScreen extends StatelessWidget {
                                         .currentSelectedRoom!.tenant?.deposit
                                         .toString() ??
                                     '0'),
-                            _buildDetailinfoRow('Vehicle', '20'),
-                            const Padding(
+                            Padding(
                               padding: const EdgeInsets.symmetric(vertical: 10),
                               child:
-                                  const Divider(height: 1, color: Colors.grey),
+                                  Divider(height: 1, color: UniColor.neutralLight),
                             ),
-                            Text('Tenant Information',
-                                style: UniTextStyles.label),
-                            _buildDetailinfoRow(
-                                'Identity ID',
-                                roomProvider.currentSelectedRoom!.tenant
-                                        ?.identifyID ??
-                                    'NA'),
-                            _buildDetailinfoRow(
-                                'Name',
-                                roomProvider.currentSelectedRoom!.tenant
-                                        ?.userName ??
-                                    'NA'),
-                            _buildDetailinfoRow(
-                                'Phone number',
-                                roomProvider
-                                        .currentSelectedRoom!.tenant?.contact ??
-                                    'NA'),
-                            _buildDetailinfoRow('Move In Date',
-                                '20 oct (fixed)'), // plij lbeab dak date time na
+                             if(room.tenant != null)...[
+                            Text('Tenant Information',style: UniTextStyles.label),
+                            _buildDetailinfoRow('Vehicle', roomProvider.currentSelectedRoom!.tenant!.rentParking.toString()),
+                            _buildDetailinfoRow('Identity ID',roomProvider.currentSelectedRoom!.tenant?.identifyID ??'NA'),
+                            _buildDetailinfoRow('Name',roomProvider.currentSelectedRoom!.tenant?.userName ??'NA'),
+                            _buildDetailinfoRow('Phone number',roomProvider.currentSelectedRoom!.tenant?.contact ??'NA'),
+                            _buildDetailinfoRow('Move In Date',roomProvider.currentSelectedRoom!.tenant != null ? DateTimeUtils.formatDateTime(roomProvider.currentSelectedRoom!.tenant!.registeredOn) : 'NA'), // plij lbeab dak date time na]
+                             ],
+                             if(room.tenant == null)...[
+                             const SizedBox(height: 20,),
+                             SizedBox(
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children:[ 
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Image.asset(
+                                        'assets/images/noTenant.png',
+                                        scale: 0.9,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 32,),
+                                    Text("Room is current available",style: UniTextStyles.label,),
+                                    const SizedBox(height: 10,),
+                                    Text("Register via telegram bot to assign tenant",style: UniTextStyles.body,)
+                                    ],
+                                ),
+                              ),
+                            )
+                             ],
                             const SizedBox(
                               height: 40,
                             ), // just a white space
@@ -339,9 +397,7 @@ class RoomDetailScreen extends StatelessWidget {
                                 context: context, 
                               label: "View Receipt",
                               trigger: ()async{
-                                Navigator.push(context, MaterialPageRoute(builder: (context){
-                                  return  ReceiptView(imageURL: thisMonthPayment!.receipt!);
-                                }));
+                                showReceiptDialog(context, thisMonthPayment!.receipt!);
                               }, 
                               buttonType: ButtonType.secondary
                               )

@@ -10,11 +10,11 @@ class RoomMain extends StatelessWidget {
     return Row(
           children: [
             const Expanded(
-              flex: 74,
+              flex: 60,
               child: RoomlistScreen()
               ),
             Expanded(
-              flex: 34,
+              flex: 40,
               child:RoomDetailScreen()
               ),
           ],

@@ -11,8 +11,8 @@ part 'system.g.dart';
 @JsonSerializable(explicitToJson: true)
 class System extends ChangeNotifier {
   final String id;
-  static int num = 0;
   Landlord landlord;
+  int currentMonth = 3;
 
   ////Convert this into JSON
   List<Building> listBuilding = [];

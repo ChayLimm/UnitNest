@@ -2,10 +2,15 @@
 import 'package:emonitor/domain/model/Notification/notification.dart';
 import 'package:emonitor/domain/model/building/building.dart';
 import 'package:emonitor/domain/model/building/room.dart';
+import 'package:emonitor/domain/model/payment/payment.dart';
+import 'package:emonitor/domain/service/finder_service.dart';
+import 'package:emonitor/domain/service/payment_service.dart';
+import 'package:emonitor/domain/service/room_service.dart';
 import 'package:emonitor/presentation/Provider/main/notification_provider.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/widgets/button/button.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
+import 'package:emonitor/presentation/widgets/dialog/image_dialog.dart';
 import 'package:emonitor/presentation/widgets/dialog/show_confirmation_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -32,10 +37,12 @@ class PaymentDetail extends StatelessWidget {
     final Room? room = notiProvider.room;
     final Building? building = notiProvider.building;
 
+    final Consumption preConsumption = room!.consumptionList.last;
+
     double? water = data.water;
     double? electricity = data.electricity;
 
-    return room !=null && building !=null && room.tenant!= null ?
+    return building !=null && room.tenant!= null ?
      Expanded(
       child: SingleChildScrollView(
         child: Column(
@@ -67,25 +74,45 @@ class PaymentDetail extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child:Image(
-                        image: NetworkImage(data.photo1URL), // Replace with your image URL
-                        fit: BoxFit.cover, // Adjust the image fit
-                        width: 100, // Optional: Set width
-                        height: 100, // Optional: Set height
-                      ),
-                  ),
-                  const SizedBox(width: 10),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image(
-                        image: NetworkImage(data.photo2URL), // Replace with your image URL
-                        fit: BoxFit.cover, // Adjust the image fit
-                        width: 100, // Optional: Set width
-                        height: 100, // Optional: Set height
-                      ),
-                  ),
+                  GestureDetector(
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return ImageDialog(imageUrl: data.photo1URL);
+              },
+            );
+          },
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image(
+              image: NetworkImage(data.photo1URL),
+              fit: BoxFit.cover,
+              width: 100,
+              height: 100,
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        GestureDetector(
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return ImageDialog(imageUrl: data.photo2URL);
+              },
+            );
+          },
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image(
+              image: NetworkImage(data.photo2URL),
+              fit: BoxFit.cover,
+              width: 100,
+              height: 100,
+            ),
+          ),
+        ),
                   const SizedBox(width: 10),
                 ],
               ),
@@ -104,7 +131,10 @@ class PaymentDetail extends StatelessWidget {
                   initialValue: electricity.toString(),
                   validator:(value) {
                     if(value == null || value.isEmpty){
-                      return "Electricity metter is required";
+                      return "Electricity meter is required";
+                    }
+                    if(double.parse(value) < preConsumption.electricityMeter){
+                      return "New meter can not be less than the previous one";
                     }
                     return null;
                   },
@@ -119,6 +149,9 @@ class PaymentDetail extends StatelessWidget {
                     if(value == null || value.isEmpty){
                       return "Water metter is required";
                     }
+                    if(double.parse(value) < preConsumption.waterMeter){
+                      return "New meter can not be less than the previous one";
+                    }
                     return null;
                   },
                 ),
@@ -129,21 +162,12 @@ class PaymentDetail extends StatelessWidget {
              const SizedBox(
               height: UniSpacing.l,
             )}
-            ,
+            , if(notification.read == false)...{
+             
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                UniButton(
-                  context: context,
-                  label: 'View Receipt',
-                  trigger: () {
-
-                  }, // passed function here
-                  buttonType: ButtonType.secondary),
-               if(notification.read == false)...{
-                Row(
-                  children: [
-                    UniButton(
+            UniButton(
                       context: context,
                       label: 'Reject',
                       trigger: () async {
@@ -157,7 +181,7 @@ class PaymentDetail extends StatelessWidget {
                     const SizedBox(width: 10),
                     UniButton(
                       context: context,
-                      label: 'Approve',
+                      label: 'View receipt',
                       trigger: () async {
                         if(_formKey.currentState!.validate()){
 
@@ -171,18 +195,16 @@ class PaymentDetail extends StatelessWidget {
                              status: notification.status
                              );
 
-                          // await notiProvider.approve(context,newNoti,null,null);
+                          await notiProvider.approve(context,newNoti,null,null,null);
                         
                         }
                       }, // passed function here
                       buttonType: ButtonType.primary),
-                    const SizedBox(width: 10),
-                  ],
-                )}
+              
              
               ],
             )
-          ],
+          } ],
         ),
       ),
     ) 
@@ -209,3 +231,4 @@ class PaymentDetail extends StatelessWidget {
     );
   }
 }
+

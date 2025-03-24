@@ -11,6 +11,7 @@ import 'package:emonitor/domain/service/telegram_service.dart';
 import 'package:emonitor/domain/service/tenant_service.dart';
 import 'package:emonitor/presentation/Provider/main/building_provider.dart';
 import 'package:emonitor/presentation/view/receipt/receipt_generator.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -38,9 +39,9 @@ class NotificationService {
     } return _instance!;
   }
 
-Future<bool> approve({required BuildContext context,required UniNotification notification,Room? room,double deposit =0}) async {
+Future<bool> approve({required BuildContext context,required UniNotification notification,Room? room,double deposit =0,int tenantRentParking = 0}) async {
    print("Appoving in notification service ");
-   final buildingProvider = Provider.of<BuildingProvider>(context,listen: false);//context.read<BuildingProvider>();
+   final buildingProvider = context.read<BuildingProvider>();
    switch(notification.dataType){
       case NotificationType.paymentRequest:
         /// Convert data first
@@ -54,20 +55,19 @@ Future<bool> approve({required BuildContext context,required UniNotification not
                     waterMeter: notiData.water, 
                     electricityMeter: notiData.electricity
                   );
-                  Payment payment =  await PaymentService.instance.proccessPayment(room.tenant!.id,newConsumption);
+
+                  Payment payment =  await PaymentService.instance.proccessPayment(room.tenant!.chatID,newConsumption);
 
                     // generating reciept and get the pngbyte
                     final Uint8List? pngbyte = await Navigator.push(context, MaterialPageRoute(builder: (context){
                       return ShowReceiptDialog(payment: payment
                       );
                     }));
-
-
                     // Null checker
                     if(pngbyte == null || pngbyte.isEmpty){
-                      
-                      return false;
-                     
+                      // room.roomStatus = Availibility.available;
+                      // room.tenant = null;
+                      return false;                   
                     }else{
                       // approve
                       String? recieptURL = await RootDataService.uploadImageToFirebaseStorage(pngbyte);
@@ -76,11 +76,12 @@ Future<bool> approve({required BuildContext context,required UniNotification not
                       // approve legit tenant
                       notification.read = true;
                       notification.isApprove = true;
+                      payment.paymentStatus = PaymentStatus.paid;
                       room.paymentList.add(payment);
                       print("approve payment success");
                       TelegramService.instance.sendReceipt(notification.chatID, payment.receipt!, "Payment is due on 5/${DateTime.now().month}/${DateTime.now().year}");
                       buildingProvider.refresh();
-                      await repository.synceToCloud();
+                      // await repository.synceToCloud();
                       return true;
                       }else{
                         print("In Notification service, reciept url is null");
@@ -105,7 +106,8 @@ Future<bool> approve({required BuildContext context,required UniNotification not
           identifyID: notiData.idIdentification , 
           userName: notiData.name, 
           contact: notiData.phone, 
-          deposit: deposit
+          deposit: deposit,
+          rentParking: tenantRentParking
           );
         Payment? payment =  await TenantService.instance.registrationTenant(newTenant, room!);
 
@@ -118,26 +120,24 @@ Future<bool> approve({required BuildContext context,required UniNotification not
               if(room.tenant != null && room.tenant!.chatID == newTenant.chatID){
                   // Payment payment =  await PaymentService.instance.proccessPayment(room.tenant!.id);
                   print("check context");
-                  //  if (!context.mounted) return false; // Check if the context is still valid
-
                   print("contintue to receipt");
 
-                   if(payment != null) {
+                   if(payment != null){
                       final Uint8List? pngbyte = await Navigator.push(context, MaterialPageRoute(builder: (context){
                       return ShowReceiptDialog(payment: payment
                       );
-                    }
-                  )
-                );
+                    }));
                     // Null checker
                     if(pngbyte == null || pngbyte.isEmpty){
+                      room.roomStatus = Availibility.available;
+                      room.tenant = null;
                       return false;
                     }else{
                       // approve
                       print("Upladoing image to cloude");
                       String? recieptURL = await RootDataService.uploadImageToFirebaseStorage(pngbyte);
                       if(recieptURL != null){
-                        print("Reciept URL = $recieptURL");
+                      print("Reciept URL = $recieptURL");
                       payment.receipt = recieptURL;
                       notification.read = true;
                       notification.isApprove = true;
@@ -171,10 +171,7 @@ Future<void> reject(UniNotification notification) async{
         int.parse(notification.chatID),
         "Request rejected!, please contact landlord for more info"
       );
-      repository.notificationList!.listNotification.firstWhere(
-          (item) => item!.id == notification.id,
-          orElse: () => null,
-        )?.read = true;
+      notification.read = true;
       print("reject sync to cloud");
       //
       repository.synceToCloud();

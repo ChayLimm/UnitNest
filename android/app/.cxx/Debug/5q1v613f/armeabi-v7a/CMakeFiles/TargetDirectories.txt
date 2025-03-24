@@ -1,0 +1,2 @@
+/Users/chaylim/Developer/Mobile Dev/UnitNest/android/app/.cxx/Debug/5q1v613f/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/chaylim/Developer/Mobile Dev/UnitNest/android/app/.cxx/Debug/5q1v613f/armeabi-v7a/CMakeFiles/rebuild_cache.dir

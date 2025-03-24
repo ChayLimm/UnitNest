@@ -13,7 +13,7 @@ class NotificationProvider extends ChangeNotifier {
 
   get rootData => rootDataService.rootData;
 
-  get notiList => rootDataService.notificationList?.listNotification ?? [];
+  List<UniNotification?> get notiList => sortNotificationsByMostRecent(rootDataService.notificationList!.listNotification);
   UniNotification? currentNotifyDetails;
   
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -51,16 +51,62 @@ class NotificationProvider extends ChangeNotifier {
     }
   }
 
+    List<UniNotification?> sortNotificationsByMostRecent(List<UniNotification?> notifications) {
+     
+  // Sort the list based on the date extracted from `notifyData`
+  notifications.sort((a, b) {
+    DateTime dateA;
+    DateTime dateB;
+
+    // Extract the date for notification A
+    if (a!.dataType == NotificationType.registration) {
+      dateA = (a.notifyData as NotifyRegistration).registerOnDate;
+    } else {
+      dateA = (a.notifyData as NotifyPaymentRequest).requestDateOn;
+    }
+
+    // Extract the date for notification B
+    if (b!.dataType == NotificationType.registration) {
+      dateB = (b.notifyData as NotifyRegistration).registerOnDate;
+    } else {
+      dateB = (b.notifyData as NotifyPaymentRequest).requestDateOn;
+    }
+
+    // Sort in descending order (most recent first)
+    return dateB.compareTo(dateA);
+  });
+
+  return notifications;
+}
+  
+
+  Future<void> removeNotification(UniNotification notification) async{
+    try{
+      toggleLoading();
+            notiList.remove(notification);
+      await firestore
+        .collection('system')
+        .doc(notification.systemID)
+        .collection('notificationList')
+        .doc(notification.id).delete();
+      toggleLoading();
+
+    }catch (e){
+      throw"error in remove notification";
+    }
+  }
+
   void setCurrentNotifyDetails(UniNotification? notification){
     currentNotifyDetails = notification;
     notifyListeners();
   }
 
-  Future<bool> approve(BuildContext context,UniNotification notification, Room? room, double? deposit, ) async{
+  Future<bool> approve(BuildContext context,UniNotification notification, Room? room, double? deposit, int? tenantRentParking ) async{
     toggleLoading();
     // approving the payment or registration and PROCESS payment
-    final isApprove = await NotificationService.instance.approve(context: context ,notification: notification,room:  room,deposit: deposit?? 0);
+    final isApprove = await NotificationService.instance.approve(context: context ,notification: notification,room:  room,deposit: deposit?? 0, tenantRentParking: tenantRentParking??0);
     toggleLoading();
+    print("set curretn notification to null");
     setCurrentNotifyDetails(null);
     return isApprove;
   } 
@@ -68,12 +114,13 @@ class NotificationProvider extends ChangeNotifier {
     toggleLoading();
     // NotificationService.instance.
     NotificationService.instance.reject(notification);
-    setCurrentNotifyDetails(null);
+    currentNotifyDetails = null;
     toggleLoading();  
     } 
 
   Future<void> refreshNotification() async {
   final systemId = rootDataService.rootData!.id;
+  currentNotifyDetails = null;
   print("Refreshing notification list");
   print(systemId);
   

@@ -1,3 +1,4 @@
+import 'package:emonitor/domain/model/building/building.dart';
 import 'package:emonitor/domain/model/building/room.dart';
 import 'package:emonitor/domain/model/stakeholder/tenant.dart';
 import 'package:emonitor/domain/service/root_data.dart';
@@ -27,13 +28,29 @@ class FinderService {
     return _instance!;
   }
  }
+ Building? findBuildingByRoomID(String roomID){
+    bool isFound =false;
+    for(var building in rootDataService.rootData!.listBuilding){
+      if(!isFound){
+      for(var room in building.roomList){
+        if(room.id == roomID){
+          isFound= true;
+          return building;
+        }
+      }}
+    }
+    return null;
+  }
 
   Room? findRoomByID(String roomID){
     bool isFound =false;
     for(var building in rootDataService.rootData!.listBuilding){
       if(!isFound){
       for(var room in building.roomList){
-        return room;
+        if(room.id == roomID){
+          isFound= true;
+          return room;
+        }
       }}
     }
     return null;

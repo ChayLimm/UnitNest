@@ -8,6 +8,7 @@ import 'package:emonitor/presentation/Provider/main/room_provider.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/widgets/button/button.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
+import 'package:emonitor/presentation/widgets/dialog/show_confirmation_dialog.dart';
 import 'package:emonitor/presentation/widgets/form/dialogForm.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -66,17 +67,11 @@ class RoomlistScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final refresh = context.read<RoomProvider>();
-    refresh.refreshRoomsPayment();
     return Consumer<RoomProvider>(builder: (context, roomProvider, child) {
       final Building building = roomProvider.currentSelectedBuilding!;
       return Scaffold(
         backgroundColor: UniColor.backGroundColor,
-        floatingActionButton: customFloatingButton(
-          onPressed: () {
-            // Place your function here
-          },
-        ),
+       
         body: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
           child: Column(
@@ -132,8 +127,7 @@ class RoomlistScreen extends StatelessWidget {
               const SizedBox(height: 20),
               // Display the room list directly
               Expanded(
-                child:roomProvider.isLoading? loading(false): buildFilterInfo(
-                    context, roomProvider.currentSelectedBuilding!.roomList),
+                child:roomProvider.isLoading? loading(Colors.transparent): FilterInfoWidget(rentalData: roomProvider.currentSelectedBuilding!.roomList),
               ),
             ],
           ),
@@ -144,52 +138,107 @@ class RoomlistScreen extends StatelessWidget {
 }
 
 // The whole widget which contains the table of tenants for the 'all' tab
-Widget buildFilterInfo(BuildContext context, List<Room> rentalData) {
-  final roomProvider = context.read<RoomProvider>();
-  return Container(
-    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(10),
-      border: Border(
-        top: BorderSide(color: UniColor.neutralLight, width: 1),
-        bottom: BorderSide(color: UniColor.neutralLight, width: 1),
-        left: BorderSide(color: UniColor.neutralLight, width: 1),
-        right: BorderSide(color: UniColor.neutralLight, width: 1),
-      ),
-    ),
-    child: Column(
-      children: [
-        // Top section
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Room Lists",
-                style: UniTextStyles.label,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(onPressed: roomProvider.refreshRoomsPayment, icon: const Icon(Icons.refresh)),
-                  Text("data"),
-                ],
-              )
-            ],
-          ),
-        ),
-        // Table data content
-        buildTableData(context, rentalData),
-      ],
-    ),
-  );
+class FilterInfoWidget extends StatefulWidget {
+  final List<Room> rentalData;
+
+  const FilterInfoWidget({super.key, required this.rentalData});
+
+  @override
+  State<FilterInfoWidget> createState() => _FilterInfoWidgetState();
 }
 
+class _FilterInfoWidgetState extends State<FilterInfoWidget> {
+  PaymentStatus selectedStatus = PaymentStatus.unpaid; // Selected status in dropdown
+  List<Room> sortedList = []; // Sorted list of rooms
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize sortedList with the initial rentalData
+    sortedList = widget.rentalData;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<RoomProvider>(builder: (context, roomProvider, child) {
+      return Container(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: UniColor.neutralLight, width: 1),
+        ),
+        child: Column(
+          children: [
+            // Top section
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                 Text(
+                      "Room Lists",
+                      style: UniTextStyles.label,
+                    ),
+                  
+              Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                      
+                        DropdownButton<PaymentStatus>(
+                          focusColor: UniColor.primary,
+                          value: selectedStatus, // Currently selected value
+                          hint:  Text("Select Payment Status",style: UniTextStyles.body,), // Placeholder text
+                          onChanged: (PaymentStatus? newValue) {
+                            if (newValue != null) {
+                             setState(() {
+                                selectedStatus = newValue; // Update selected status
+                                // Sort the list based on the selected status
+                                sortedList = roomProvider.sortRoomsByLastPaymentStatus(
+                                    widget.rentalData, selectedStatus);
+                              });
+                            }
+                          },
+                          items: PaymentStatus.values.map((PaymentStatus status) {
+                            return DropdownMenuItem<PaymentStatus>(
+                              value: status,
+                              child: Text(status.status,style: UniTextStyles.body,), // Display the status text
+                            );
+                          }).toList(),
+                            
+                            isDense: true,
+                            icon: null,
+                            underline: const SizedBox(),
+                            dropdownColor: Colors.white, 
+                            style: UniTextStyles.body.copyWith(color: UniColor.primary), 
+
+                        ),
+                          IconButton(
+                          onPressed: () async {
+                            await roomProvider.refreshRoomsPayment();
+                          },
+                          icon: const Icon(Icons.refresh),
+                        ),
+                      ],
+                    ),
+                  
+                ],
+              ),
+            ),
+            // Table data content
+            buildTableData(context, sortedList), // Pass the sorted list to the table
+          ],
+        ),
+      );
+    });
+  }
+}
 // Widget for table data as row (1 row of DataTable)
 Widget buildTableData(BuildContext context, List<Room> rentalData) {
+  
+  final roomProvider = context.read<RoomProvider>();
+
   return SingleChildScrollView(
-    child: Container(
+    child: SizedBox(
       width: double.infinity,
       child: DataTable(
         showCheckboxColumn: false,
@@ -223,8 +272,14 @@ Widget buildTableData(BuildContext context, List<Room> rentalData) {
 
           return DataRow(
             onSelectChanged: (value) {
-              final roomProvider = context.read<RoomProvider>();
               roomProvider.setCurrentSelectedRoom(room);
+            },
+            onLongPress: () async {
+              final isRemove = await showConfirmationDialog(context: context, title: "Confirmation", content: "Are you sure you want to delete room : ${room.name}?");
+              if(isRemove){
+                roomProvider.removeRoom(room);
+                showCustomSnackBar(context, message: "Remove ${room.name} successfully", backgroundColor: UniColor.green);
+              }
             },
             cells: [
               DataCell(

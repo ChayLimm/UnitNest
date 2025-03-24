@@ -1,27 +1,52 @@
 // Main screen of the application
-import 'package:emonitor/Narong_screen_component/MonthlyReport/report.dart';
-import 'package:emonitor/Narong_screen_component/dashboard/dashbaord.dart';
+import 'package:emonitor/domain/model/building/room.dart';
+import 'package:emonitor/domain/model/system/priceCharge.dart';
+import 'package:emonitor/domain/service/payment_service.dart';
+import 'package:emonitor/domain/service/telegram_service.dart';
+import 'package:emonitor/presentation/Provider/main/room_provider.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/view/Building/buildingNavigator.dart';
+import 'package:emonitor/presentation/view/MonthlyReport/monthlyReportScreen.dart';
 import 'package:emonitor/presentation/view/Notification/notification_main.dart';
+import 'package:emonitor/presentation/view/dashboard/dashboardScreen.dart';
 import 'package:emonitor/presentation/view/setting/setting.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Mainscreen extends StatefulWidget {
   const Mainscreen({super.key});
 
   @override
-  State<Mainscreen> createState() => _MainscreenState();
+  State<Mainscreen> createState() => _MainscreenState(); 
 }
 
 class _MainscreenState extends State<Mainscreen> {
-  int currentPage =1;
+  int currentPage =0;
+  
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    final roomProvider = context.read<RoomProvider>();
+    final PriceCharge? priceCharge = PaymentService.instance.getPriceChargeFor(DateTime.now());
+
+    if(roomProvider.repository.rootData!.currentMonth != DateTime.now().month){
+      for(var building in roomProvider.repository.rootData!.listBuilding){
+        for(Room room in building.roomList){
+          if(room.tenant != null){
+            TelegramService.instance.sendReminder(int.parse(room.tenant!.chatID), 
+            "Hello ${room.tenant!.userName}, your rent payment is due on ${priceCharge!.fineStartOn}/${DateTime.now().month}/${DateTime.now().year}. Please make the payment on time to avoid late fees.");
+          }
+        }
+      }
+     roomProvider.repository.rootData!.currentMonth = DateTime.now().month;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     body:
-    Container(
+     body: Container(
         color: UniColor.white,
         child: Row(
           children: [
@@ -29,7 +54,7 @@ class _MainscreenState extends State<Mainscreen> {
             Expanded(
               flex: 22,
               child: Container(
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                 color: UniColor.white,
                 child: Column(
                   children: [
@@ -48,7 +73,7 @@ class _MainscreenState extends State<Mainscreen> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 10,),
+                    const SizedBox(height: 10,),
                     // Dashboard
                     Container(
                       decoration: BoxDecoration(
@@ -116,10 +141,10 @@ class _MainscreenState extends State<Mainscreen> {
                 child: IndexedStack(
                   index: currentPage,
                   children: const [
-                     Dashboard(),         // dashboard (dashboard screen + request screen)
+                     DashboardScreen(),         // dashboard (dashboard screen + request screen)
                      BuidlingNavigator(), // building& room (building: buidling screen + request screen)+(room: room screen +  room details screen)
                      NotificationMain(),      // notification (notification screen+notification details screen)
-                     Report(),             // monthly report (monthly report screen+ request screen)
+                     MonthlyReportScreen()             // monthly report (monthly report screen+ request screen)
                   ],
                 ),
               )

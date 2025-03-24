@@ -219,6 +219,7 @@ class BuildingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Consumer<BuildingProvider>(builder: (context, buildingProvider, child) {
       return Scaffold(
         backgroundColor: UniColor.backGroundColor,
@@ -228,7 +229,7 @@ class BuildingScreen extends StatelessWidget {
           }, // place your function here
         ),
         body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -277,7 +278,6 @@ class BuildingScreen extends StatelessWidget {
                             // Change the current selected building in RoomProvider in order for the room screeen rebuild with new building
                             final roomProvider = context.read<RoomProvider>();
                             roomProvider.setCurrentSelectedBuilding(building);
-                            roomProvider.setDefaultRoom();
                             // note that /building/room the room widget will show roomProvider.currentSelectedBuilding to for data
                             Navigator.pushNamed(context, "/building/room");
                           },
@@ -335,7 +335,7 @@ Widget _buildTopSection({required BuildContext context, required VoidCallback on
             context: context,
             label: "Add building",
             trigger: ontrigger,
-            buttonType: ButtonType.primary)
+            buttonType: ButtonType.secondary)
       ],
     ),
   );

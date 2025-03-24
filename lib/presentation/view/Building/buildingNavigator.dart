@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 class BuidlingNavigator extends StatelessWidget {
   const BuidlingNavigator({super.key});
-  // your code .....
   @override
   Widget build(BuildContext context) {
     return Navigator(

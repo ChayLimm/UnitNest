@@ -24,9 +24,7 @@ class NotificationListScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-             
-              // Notifications List
-              // place need to change
+            
               Expanded(
                 child: DefaultTabController(
                   length: 2,
@@ -72,7 +70,7 @@ class NotificationListScreen extends StatelessWidget {
 
 // widget for testing
 Widget buildAchive(BuildContext context) {
-  final notiProvider = context.watch<NotificationProvider>();
+  final notiProvider = context.read<NotificationProvider>();// change from watch
 
   return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
@@ -81,7 +79,7 @@ Widget buildAchive(BuildContext context) {
           border: Border.all(color: UniColor.neutralLight, width: 1,)),
       child: ListView(
   children: [
-    ...notiProvider.notiList!
+    ...notiProvider.notiList
         .where((noti) => noti != null && noti.read == true)
         .map((noti) {
           return UniNotify(
@@ -124,7 +122,7 @@ Widget tabViewAll(BuildContext context) {
           top: 0,
           right: 0,
           child: IconButton(
-            icon: Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
             onPressed: () {
               // Add your refresh logic here
               notiProvider.refreshNotification();

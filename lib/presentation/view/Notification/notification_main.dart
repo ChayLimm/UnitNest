@@ -11,19 +11,17 @@ class NotificationMain extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final notiProvider = context.watch<NotificationProvider>();
-    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
     return Scaffold(
-      key: _scaffoldKey,
       body: Stack(
         children: [
           Row(
             children: [
               Expanded(
-                flex: 53,
+                flex: 60,
                 child: NotificationListScreen()
                 ),
               const Expanded(
-                flex: 55,
+                flex: 40,
                 child: NotificationDetailScreen()
                 ),
             ],

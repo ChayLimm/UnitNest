@@ -1,4 +1,6 @@
 import 'dart:typed_data';
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:emonitor/domain/model/building/building.dart';
 import 'package:emonitor/domain/model/building/room.dart';
 import 'package:emonitor/domain/model/payment/payment.dart';
 import 'package:emonitor/domain/model/payment/transaction.dart';
@@ -7,6 +9,7 @@ import 'package:emonitor/domain/service/finder_service.dart';
 import 'package:emonitor/domain/service/khqr_service.dart';
 import 'package:emonitor/domain/service/payment_service.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
+import 'package:emonitor/presentation/widgets/button/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bakong_khqr/view/bakong_khqr.dart';
@@ -18,38 +21,49 @@ class ShowReceiptDialog extends StatelessWidget {
   final Payment payment;
   Consumption? newConsumption;
   Consumption? preConsumption;
-  DateTime? lastPaidOn;
+  String? lastPaidOn;
   Room? room;
+  Building? building;
   GlobalKey repaintKey = GlobalKey();
-  //need query of building
-  ShowReceiptDialog({super.key, required this.payment}) {
 
-    preConsumption ??= Consumption(waterMeter: 0, electricityMeter: 0);
-    newConsumption ??= Consumption(waterMeter: 0, electricityMeter: 0);
-    lastPaidOn = DateTime.now();
-    // payment = FinderService.instance.findRoomByID("1590243306")!.paymentList.last;
+  ShowReceiptDialog({super.key, required this.payment}) {
+    // Find the room by ID
     print("find room");
     room = FinderService.instance.findRoomByID(payment.roomID);
-    if(room == null){
-      throw "room can not be found in RECEIPT dialog";
+    if (room == null) {
+      throw "Room cannot be found in RECEIPT dialog";
     }
+
+    // Find new consumption
     print("find new consumption");
-    for (var item in room!.consumptionList) {
-      if (item.timestamp == payment.timeStamp) {
-        newConsumption = item;
-        break;
-      }
-    }
-    if(newConsumption != null){
-       for (var item in room!.consumptionList) {
+    newConsumption = (room!.consumptionList.isNotEmpty)
+        ? room!.consumptionList.last
+        : Consumption(waterMeter: 0, electricityMeter: 0);
+
+    // Find previous consumption
+    // print("find pre consumption");
+    // print("Room payemtn id : ${payment.roomID}");
+    // print("Room: ${room!.name}");
+    // print("Room: ${room!.id}");
+    // print("Consumption List: ${room?.consumptionList}");
+    // print("New Consumption: ${newConsumption!.electricityMeter}");
+    if (room!.consumptionList.isNotEmpty) {
+      print("process function");
+      for (var item in room!.consumptionList) {
         if (item.timestamp.isBefore(newConsumption!.timestamp)) {
           preConsumption = item;
-          lastPaidOn = item.timestamp;
+          lastPaidOn = DateFormat('dd/MM/yyyy').format(item.timestamp);
           break;
         }
       }
-    } 
-   
+    }
+
+    building = FinderService.instance.findBuildingByRoomID(payment.roomID);
+
+    // Ensure preConsumption and newConsumption are not null
+    lastPaidOn =room!.consumptionList.isNotEmpty? DateFormat('dd/MM/yyyy').format(preConsumption!.timestamp): "---";
+    preConsumption ??= Consumption(waterMeter: 0, electricityMeter: 0);
+    newConsumption ??= Consumption(waterMeter: 0, electricityMeter: 0);
   }
   Future<TransactionKHQR> requestKHQR() async {
     return KhqrService.instance.requestKHQR(payment.totalPrice);
@@ -85,12 +99,14 @@ class ShowReceiptDialog extends StatelessWidget {
         color: UniColor.backGroundColor,
         child: Center(
           child:  Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
               children: [
                RepaintBoundary(
                   key: repaintKey,
                   child: Container(
                     height: 700,
-                    width: 500,
+                    width: 600,
                     color: UniColor.white,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -103,7 +119,7 @@ class ShowReceiptDialog extends StatelessWidget {
                             color: UniColor.primary,
                           ),
                         ),
-                        //Content
+                        // Receipt
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -111,13 +127,13 @@ class ShowReceiptDialog extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Expanded(
-                                  flex: 300, child: header()),
+                                  flex: 3, child: header()),
                                 Expanded(
-                                  flex: 150,
+                                  flex: 2,
                                   child: tenantInfo(),
                                 ),
                                 Expanded(
-                                    flex: 600,
+                                    flex: 8,
                                     child: Container(
                                       child: body(),
                                     )
@@ -130,20 +146,17 @@ class ShowReceiptDialog extends StatelessWidget {
                     ),
                   ),
                 ),
-               Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton(
-                onPressed:()async{
-                 Navigator.pop(context,null);
-              }, 
-              child: const Text("Reject")),
-                  ElevatedButton(
-                onPressed:()async{
-                 Uint8List? pngBytes = await capturePNG();
-                 Navigator.pop(context,pngBytes);
-              }, 
-              child: const Text("Approve"))
+                  const SizedBox(width: 10,), 
+                  UniButton(context: context, label: "Cancel", trigger: (){Navigator.pop(context);}, buttonType: ButtonType.secondary),
+                  const SizedBox(width: 10,), 
+                  UniButton(context: context, label: "Confirm", 
+                  trigger: () async{
+                    Uint8List? pngBytes = await capturePNG();
+                    Navigator.pop(context,pngBytes);
+               }, buttonType: ButtonType.primary)
                 ],
                )
               ],
@@ -182,27 +195,9 @@ class ShowReceiptDialog extends StatelessWidget {
                         style:UniTextStyles.heading)
                     ],
                   ),
-                  Text(
-                    "${payment.timeStamp.day}/${payment.timeStamp.month}/${payment.timeStamp.year}",
-                    style: UniTextStyles.body,
-                  )
                 ],
               ),
-              //Invoice Code
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Invoice",
-                    style: UniTextStyles.body
-                  ),
-                  Text(
-                    "#INV${payment.timeStamp.millisecond}",
-                    style: UniTextStyles.body
-                  )
-                ],
-              )
+             
             ],
           ),
         ),
@@ -219,7 +214,7 @@ class ShowReceiptDialog extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      customeText("Building : "),
+                      customeText("Building : ${building!.name} "),
                       customeText("Room : ${room!.name}")
                     ],
                   ),
@@ -227,18 +222,11 @@ class ShowReceiptDialog extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      customeText("Floor count : 6"),
-                      customeText("Floor : 2")
+                      customeText("Floor count : ${building!.floorCount}"),
+                      customeText("Address     : ${building!.address}")
                     ],
                   ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      customeText("Address : Toul Kork, PhnomPenh, Cambodia"),
-                      customeText("Room Type : Null")
-                    ],
-                  )
+                
                 ],
               )),
         ),
@@ -257,9 +245,9 @@ class ShowReceiptDialog extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              customeText("IdentifyID    :\t${room!.tenant!.identifyID}"),
               customeText("Tenant's Name :\t${room!.tenant!.userName}"),
               customeText("Phone Number  :\t${room!.tenant!.contact}"),
-              customeText("IdentifyID    :\t${room!.tenant!.identifyID}"),
             ],
           ),
           Column(
@@ -267,7 +255,7 @@ class ShowReceiptDialog extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               customeText("Tenant's ID  :\t${room!.tenant!.id}"),
-              customeText("Last Paid On :\t ${DateFormat('dd/MM/yyyy').format(preConsumption!.timestamp)}"), //${DateFormat('DD/MM/YYY').format(lastPaidOn)}
+              customeText("Last Paid On :\t $lastPaidOn"), //${DateFormat('DD/MM/YYY').format(lastPaidOn)}
               customeText("Issue Date   :\t${DateFormat('dd/MM/yyyy').format(payment.timeStamp)}"),
             ],
           ),
@@ -353,17 +341,20 @@ class ShowReceiptDialog extends StatelessWidget {
                       customeDivider(),
                       Table(
                         children: [
-                          build5CellRow(1,"1", "Water", "$waterUsage m³", "\$ ${priceCharge.waterPrice}", "\$ $waterTotal"),
-                          build5CellRow(1,"2", "Electricity", "$electricityUsage m³", "\$ ${priceCharge.electricityPrice}", "\$ $electricityTotal"),
-                          build5CellRow(3,"3", "Hygiene","1", "\$ ${priceCharge.hygieneFee}", "\$ ${priceCharge.hygieneFee}"),
-                          build5CellRow(4,"4", "Parking space", "${payment.parkingAmount}", "\$ ${priceCharge.rentParkingPrice}", "\$10"),
-                          build5CellRow(5,"5", "Room", "1", "\$ ${payment.roomPrice}", "\$100"),
-                        ],
+                          build5CellRow(3,"1", "Water", "$waterUsage m³", "\$ ${priceCharge.waterPrice}", "\$ $waterTotal"),
+                          build5CellRow(4,"2", "Electricity", "$electricityUsage kwh", "\$ ${priceCharge.electricityPrice}", "\$ $electricityTotal"),
+                          build5CellRow(5,"3", "Hygiene","1", "\$ ${priceCharge.hygieneFee}", "\$ ${priceCharge.hygieneFee}"),
+                          build5CellRow(7,"4", "Deposit", "${payment.deposit}", "---", "\$ ${payment.deposit}"),
+                          if(!payment.lastPayment)...[
+                            build5CellRow(8,"5", "Room","1" ,"\$ ${payment.roomPrice}", "\$ ${payment.roomPrice}",),
+                             build5CellRow(6,"4", "Parking space", "${payment.parkingAmount}", "\$ ${priceCharge.rentParkingPrice}", "\$ ${payment.parkingFee}"),
+                             
+                        ],]
                       ),
                       customeDivider(),
                       Table(children: [
-                        build5CellRow(6," ", " ", " ", "SUB TOTAL", "\$ ${payment.totalPrice}"),
-                        build5CellRow(7," ", " ", " ", "FINE ", "\$ ${payment.fine}"),
+                        build5CellRow(10," ", " ", " ", "SUB TOTAL", "\$ ${payment.totalPrice}"),
+                        build5CellRow(11," ", " ", " ", "FINE ", "\$ ${payment.fine}"),
                       ]),
                       Divider(
                         color:  UniColor.primary,
@@ -371,15 +362,18 @@ class ShowReceiptDialog extends StatelessWidget {
                         indent: 250,
                       ),
                       Table(children: [
-                        build5CellRow(8," ", " ", " ", "TOTAL", "\$ ${ payment.totalPrice + payment.fine}"),
-                      ]),
+                        build5CellRow(11," ", " ", " ", "TOTAL", "\$ ${ payment.totalPrice + payment.fine}"),
+                      ]
+                     ),
                     ],
-                  )),
+                  )
+                ),
               //KHQR
               Expanded(
                 flex: 3,
               child: 
                   BakongKhqrView(
+
                       width: 150,
                       merchantName: "UnitNest",
                       amount: "${payment.totalPrice}",
@@ -399,17 +393,17 @@ class ShowReceiptDialog extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
+              AutoSizeText(
                 "Thank you for choosing us! \nWe appreciate your support.",
-                style: UniTextStyles.body,
+                style: UniTextStyles.body.copyWith(fontSize: 8),
               ),
-              Text(
+              AutoSizeText(
                 "www.Unitnest.com",
-                style: UniTextStyles.body.copyWith(color: UniColor.primary),
+                style: UniTextStyles.body.copyWith(fontSize: 8,color: UniColor.primary),
               ),
-              Text(
+              AutoSizeText(
                 "unitnestoffical@gmail.com",
-                style: UniTextStyles.body.copyWith(color: UniColor.primary),
+                style: UniTextStyles.body.copyWith(fontSize: 8,color: UniColor.primary),
               ),
             ],
           )
@@ -421,7 +415,8 @@ class ShowReceiptDialog extends StatelessWidget {
   TableRow build4CellRow(int index, String col1, String col2, String col3, String col4,
     {Color color = Colors.black, bool isBold = false}) {
   return TableRow(
-    key: ValueKey(index), // Unique key for each row (using index)
+    key: ValueKey(index),
+    
     children: [
       TableCell(key: ValueKey('$index-col1'), child: customeText(col1, color: color, isBold: isBold)),
       TableCell(key: ValueKey('$index-col2'), child: customeText(col2, color: color, isBold: isBold)),
