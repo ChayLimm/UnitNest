@@ -2,10 +2,7 @@
 import 'package:emonitor/domain/model/Notification/notification.dart';
 import 'package:emonitor/domain/model/building/building.dart';
 import 'package:emonitor/domain/model/building/room.dart';
-import 'package:emonitor/domain/model/payment/payment.dart';
-import 'package:emonitor/domain/service/finder_service.dart';
-import 'package:emonitor/domain/service/payment_service.dart';
-import 'package:emonitor/domain/service/room_service.dart';
+
 import 'package:emonitor/presentation/Provider/main/notification_provider.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/widgets/button/button.dart';

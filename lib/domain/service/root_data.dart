@@ -91,7 +91,7 @@ class RootDataService  {
     static Future<String?> uploadImageToFirebaseStorage(Uint8List imageBytes) async {
      try{
        // Create a reference to the location you want to upload to
-      //  print(imageBytes);
+       //  print(imageBytes);
        print("trigger starting uploading image");
       final storageRef = FirebaseStorage.instance.ref();
       final imageRef = storageRef.child("receipts/${DateTime.now().millisecondsSinceEpoch}.png");

@@ -183,6 +183,8 @@ class RoomDetailScreen extends StatelessWidget {
                 deposit: deposit,
                 rentParking: rentParking,
               ));
+          newRoom.consumptionList = room.consumptionList;
+          newRoom.paymentList = room.paymentList;
           roomProvider.addOrUpdateRoom(newRoom);
           // final newBuidling = Room(
           //     id: room?.id,
@@ -261,8 +263,7 @@ class RoomDetailScreen extends StatelessWidget {
                       }, icon: Icon(Icons.history,color: UniColor.iconNormal,)),
                       IconButton(
                     onPressed: () async {
-                      final isFormTrue = await onEditRoom(
-                          context, roomProvider.currentSelectedRoom);
+                      final isFormTrue = await onEditRoom(context, roomProvider.currentSelectedRoom);
                       if (isFormTrue == true) {
                         showCustomSnackBar(context,
                             message:

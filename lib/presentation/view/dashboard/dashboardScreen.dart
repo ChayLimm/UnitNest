@@ -1,12 +1,13 @@
 import 'package:emonitor/domain/model/building/building.dart';
 import 'package:emonitor/domain/model/building/room.dart';
+import 'package:emonitor/domain/model/stakeholder/tenant.dart';
 import 'package:emonitor/domain/service/finder_service.dart';
 import 'package:emonitor/domain/service/room_service.dart';
 import 'package:emonitor/presentation/Provider/Setting/setting_provider.dart';
 import 'package:emonitor/presentation/Provider/main/monthly_report_provider.dart';
 import 'package:emonitor/presentation/Provider/main/room_provider.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
-import 'package:emonitor/presentation/view/MonthlyReport/widget/icome_break_down.dart';
+import 'package:emonitor/presentation/view/MonthlyReport/widget/income_break_down.dart';
 import 'package:emonitor/presentation/view/dashboard/widget/Invoice_list.dart';
 import 'package:emonitor/presentation/view/dashboard/widget/dashboardWidget.dart';
 import 'package:emonitor/presentation/view/dashboard/widget/unpaid_list.dart';
@@ -194,19 +195,23 @@ Widget _buildHeader(BuildContext context,String username, String phoneNumber, St
                 style: const TextStyle(color: Colors.grey, fontSize: 12)),
           ],
         ),
-        UniButton(context: context, label: "test", trigger: (){
-          final roomProvider=context.read<RoomProvider>();
-          ///tennat sample
-          // Tenant sampleTenant = Tenant(chatID: "750096094", identifyID: "identifyID", userName: "userName", contact: "contact", deposit: 0);
+        // UniButton(context: context, label: "test", trigger: (){
+        //   final roomProvider=context.read<RoomProvider>();
+        //   ///tennat sample
+        //   Tenant sampleTenant = Tenant(chatID: "1065582966", identifyID: "0123465", userName: "Cheng ChayLim", contact: "08512341", deposit: 0);
+        //   // Room? roomTenant = FinderService.instance.getRoomWithChatID("1065582966"); //lim
+        //   final roomTenant = Room(name: "A002", price: 100,tenant: sampleTenant,roomStatus: Availibility.taken);
+        //   roomTenant.consumptionList.add(Consumption(waterMeter: 250, electricityMeter: 2115,timestamp: DateTime(DateTime.now().year, DateTime.now().month - 1, DateTime.now().day)));
+        //   roomProvider.repository.rootData!.listBuilding.first.roomList.add(roomTenant);
           
-          Room? roomTenant = FinderService.instance.getRoomWithChatID("750096094");
-          roomTenant!.consumptionList.add(Consumption(waterMeter: 100, electricityMeter: 100,timestamp: DateTime(DateTime.now().year, DateTime.now().month - 1, DateTime.now().day)));
-          // roomProvider.repository.rootData!.listBuilding.first.roomList.first.consumptionList.add(Consumption(waterMeter: 100, electricityMeter: 100,timestamp: DateTime(DateTime.now().year, DateTime.now().month - 1, DateTime.now().day)));
-          // roomProvider.repository.rootData!.listBuilding.first.roomList.first.tenant = sampleTenant;
-          // roomProvider.repository.rootData!.listBuilding.first.roomList.first.roomStatus = Availibility.taken;
-          // print();
-        }, buttonType: ButtonType.tertiary)
-        ,
+        //   // print(roomTenant.consumptionList.last.waterMeter);
+        //   // roomProvider.repository.rootData!.listBuilding.first.roomList.add(roomTenant);
+        //   // roomProvider.repository.rootData!.listBuilding.first.roomList.first.consumptionList.add(Consumption(waterMeter: 100, electricityMeter: 100,timestamp: DateTime(DateTime.now().year, DateTime.now().month - 1, DateTime.now().day)));
+        //   // roomProvider.repository.rootData!.listBuilding.first.roomList.first.tenant = sampleTenant;
+        //   // roomProvider.repository.rootData!.listBuilding.first.roomList.first.roomStatus = Availibility.taken;
+        //   // print();
+        // }, buttonType: ButtonType.tertiary)
+        // ,
         UniButton(context: context, 
         label: "Make Payment", 
         trigger: ()async{

@@ -58,25 +58,36 @@ class _SettingState extends State<Setting> {
                               });
                             }),
                           ),
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: currentPage == 1 ? UniColor.backGroundColor : UniColor.white,
-                          ),
-                            child:
-                        customListTile("Password & Security", Icons.lock, () {
+                    //     Container(
+                    //       decoration: BoxDecoration(
+                    //         borderRadius: BorderRadius.circular(10),
+                    //         color: currentPage == 1 ? UniColor.backGroundColor : UniColor.white,
+                    //       ),
+                    //         child:
+                    //     customListTile("Password & Security", Icons.lock, () {
+                    //     setState(() {
+                    //       currentPage = 1;
+                    //     });
+                    //   }),
+                    // ),
+                    label("System Settings"),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: currentPage == 1 ? UniColor.backGroundColor : UniColor.white,
+                      ),
+                      child: customListTile("Price Charge", Icons.price_change, () {
                         setState(() {
                           currentPage = 1;
                         });
                       }),
                     ),
-                    label("System Settings"),
                     Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
                         color: currentPage == 2 ? UniColor.backGroundColor : UniColor.white,
                       ),
-                      child: customListTile("Price Charge", Icons.price_change, () {
+                      child: customListTile("Bakong Account", Icons.qr_code_scanner, () {
                         setState(() {
                           currentPage = 2;
                         });
@@ -87,20 +98,9 @@ class _SettingState extends State<Setting> {
                         borderRadius: BorderRadius.circular(10),
                         color: currentPage == 3 ? UniColor.backGroundColor : UniColor.white,
                       ),
-                      child: customListTile("Bakong Account", Icons.qr_code_scanner, () {
-                        setState(() {
-                          currentPage = 3;
-                        });
-                      }),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: currentPage == 4 ? UniColor.backGroundColor : UniColor.white,
-                      ),
                       child: customListTile("Rules", Icons.description, () {
                         setState(() {
-                          currentPage = 4;
+                          currentPage = 3;
                         });
                       }),
                     ),
@@ -108,11 +108,11 @@ class _SettingState extends State<Setting> {
                     Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
-                        color: currentPage == 5 ? UniColor.backGroundColor : UniColor.white,
+                        color: currentPage == 4 ? UniColor.backGroundColor : UniColor.white,
                       ),
                       child: customListTile("Contact Us", Icons.phone_in_talk, () {
                         setState(() {
-                          currentPage = 5;
+                          currentPage = 4;
                         });
                       }),
                     ),
@@ -135,7 +135,7 @@ class _SettingState extends State<Setting> {
                   index: currentPage,
                   children:  [
                     SettingProfile(),
-                    Center(child: Text("data2"),),
+                    // Center(child: Text("data2"),),
                     PriceChargeSetting(),
                     Bakong(),
                     RulesPage(),

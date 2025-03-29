@@ -3,7 +3,6 @@ import 'package:emonitor/presentation/Provider/main/notification_provider.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/view/Notification/widget/payment_detail.dart';
 import 'package:emonitor/presentation/view/Notification/widget/registration_detail.dart';
-import 'package:emonitor/presentation/widgets/component.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

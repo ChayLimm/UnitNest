@@ -341,8 +341,8 @@ class ShowReceiptDialog extends StatelessWidget {
                       customeDivider(),
                       Table(
                         children: [
-                          build5CellRow(3,"1", "Water", "$waterUsage m³", "\$ ${priceCharge.waterPrice}", "\$ $waterTotal"),
-                          build5CellRow(4,"2", "Electricity", "$electricityUsage kwh", "\$ ${priceCharge.electricityPrice}", "\$ $electricityTotal"),
+                          build5CellRow(3,"1", "Water", "$waterUsage m³", "\$ ${priceCharge.waterPrice}", "\$ ${waterTotal.toStringAsFixed(2)}"),
+                          build5CellRow(4,"2", "Electricity", "$electricityUsage kwh", "\$ ${priceCharge.electricityPrice}", "\$ ${electricityTotal.toStringAsFixed(2)}"),
                           build5CellRow(5,"3", "Hygiene","1", "\$ ${priceCharge.hygieneFee}", "\$ ${priceCharge.hygieneFee}"),
                           build5CellRow(7,"4", "Deposit", "${payment.deposit}", "---", "\$ ${payment.deposit}"),
                           if(!payment.lastPayment)...[

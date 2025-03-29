@@ -56,7 +56,7 @@ class InvoiceList extends StatelessWidget {
               ),
               child: const Icon(Icons.receipt_long,color: Colors.white,size: 20,),
             ),
-            title:item.paymentList.last.timeStamp.millisecond.toString(),
+            title:"INV#${item.paymentList.last.transaction.hashCode.toString()}",
             trailing: "\$ ${item.paymentList.last.totalPrice.toString()}",
             subtitle: item.name,
             status: "Pending",

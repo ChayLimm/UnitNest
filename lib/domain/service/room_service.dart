@@ -5,7 +5,6 @@ import 'package:emonitor/domain/model/system/priceCharge.dart';
 import 'package:emonitor/domain/service/payment_service.dart';
 import 'package:emonitor/domain/service/root_data.dart';
 import 'package:emonitor/domain/service/telegram_service.dart';
-import 'package:flutter/material.dart';
 
 class RoomService {
   static RoomService? _instance;
@@ -112,7 +111,7 @@ class RoomService {
           newConsumption.timestamp.month == timeStamp.month) {
         late Consumption preConsumption;
         for (var consumption in room.consumptionList) {
-          if (consumption.timestamp.isBefore(timeStamp)) {
+          if (consumption.timestamp.isBefore(newConsumption.timestamp)) {
             preConsumption = consumption;
             return Consumption(
               waterMeter:newConsumption.waterMeter - preConsumption.waterMeter,
@@ -125,16 +124,18 @@ class RoomService {
   }
 
   Payment? getPaymentFor(Room room, DateTime timeStamp) {
-    for (var payment in room.paymentList) {
+    for (var i = room.paymentList.length - 1; i >= 0; i--) { // Start from the last element
+      var payment = room.paymentList[i];
       if (payment.timeStamp.year == timeStamp.year &&
           payment.timeStamp.month == timeStamp.month) {
-        print("found payment ${payment.timeStamp}");
+        print("found latest payment ${payment.timeStamp}");
         return payment;
       }
     }
     print("not found payment");
     return null;
   }
+
 
   ///
   ///CRUD Rooms
@@ -144,8 +145,7 @@ class RoomService {
     final buildings = repository.rootData!.listBuilding;
 
     // Find the index of the building
-    final buildingIndex =
-        buildings.indexWhere((building) => building == newBuilding);
+    final buildingIndex = buildings.indexWhere((building) => building == newBuilding);
 
     if (buildingIndex == -1) {
       print('Building not found');
@@ -236,7 +236,7 @@ class RoomService {
   }
 
   Future<void> refreshRoomsPayment() async {
-   for(Building building in repository.rootData!.listBuilding){
+   for(Building building in repository.rootData!.listBuilding){   
      for (var room in building.roomList) {
       Payment? thisMonthPayment = RoomService.instance.getPaymentFor(room, DateTime.now());
       // reduce api call by checking only pending payment

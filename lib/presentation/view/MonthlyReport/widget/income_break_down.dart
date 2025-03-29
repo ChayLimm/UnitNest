@@ -179,7 +179,7 @@ class IncomeCard extends StatelessWidget {
                           child: BreakdownCard(
                             title: "Water total",
                             totalPrice: data.water,
-                            itemCount: "${data.waterAmount} m³",
+                            itemCount: "${data.waterAmount.toStringAsFixed(2)} m³",
                             totalTargetAmount: data.total,
                           ),
                         ),
@@ -188,7 +188,7 @@ class IncomeCard extends StatelessWidget {
                           child: BreakdownCard(
                             title: "Electricity total",
                             totalPrice: data.electricity,
-                            itemCount: "${data.electricity} KWH",
+                            itemCount: "${data.electricity.toStringAsFixed(2)} KWH",
                             totalTargetAmount: data.total,
                           ),
                         ),
@@ -259,7 +259,7 @@ class BreakdownCard extends StatelessWidget {
             title,
             style: UniTextStyles.body,
           ),
-          Text( totalPrice.toString(),
+          Text( "\$ ${totalPrice.toStringAsFixed(2)}",
             style: UniTextStyles.label,
           ),
           LinearPercentIndicator(

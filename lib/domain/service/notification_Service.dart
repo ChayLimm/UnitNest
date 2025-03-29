@@ -1,7 +1,5 @@
 import 'dart:typed_data';
-
 import 'package:emonitor/domain/model/Notification/notification.dart';
-import 'package:emonitor/domain/model/building/building.dart';
 import 'package:emonitor/domain/model/building/room.dart';
 import 'package:emonitor/domain/model/payment/payment.dart';
 import 'package:emonitor/domain/model/stakeholder/tenant.dart';
@@ -49,6 +47,7 @@ Future<bool> approve({required BuildContext context,required UniNotification not
         /// find the whose request is this
         for(var building in repository.rootData!.listBuilding){
           for(var room in building.roomList){
+             print("room in loop tenant chatid : ${room.tenant!.chatID}");
               if(room.tenant != null && room.tenant!.chatID == notification.chatID){
 
                   Consumption newConsumption = Consumption(
@@ -67,6 +66,7 @@ Future<bool> approve({required BuildContext context,required UniNotification not
                     if(pngbyte == null || pngbyte.isEmpty){
                       // room.roomStatus = Availibility.available;
                       // room.tenant = null;
+                      print("cancel the payment reuqest");
                       return false;                   
                     }else{
                       // approve
@@ -75,13 +75,24 @@ Future<bool> approve({required BuildContext context,required UniNotification not
                       payment.receipt = recieptURL;
                       // approve legit tenant
                       notification.read = true;
-                      notification.isApprove = true;
-                      payment.paymentStatus = PaymentStatus.paid;
+                      // notification.isApprove = true;
+
+                      payment.paymentStatus = PaymentStatus.pending;
+
                       room.paymentList.add(payment);
-                      print("approve payment success");
+                      print("approve payment success5555 ${notification.toJson()}");
+                      ////debug
+                      print("Noti in list");
+                      for(var item in repository.notificationList!.listNotification){
+                        if(item!.id == notification.id){
+                         item.read = true;
+                        }
+                      }
+                      repository.synceToCloud();
+
                       TelegramService.instance.sendReceipt(notification.chatID, payment.receipt!, "Payment is due on 5/${DateTime.now().month}/${DateTime.now().year}");
                       buildingProvider.refresh();
-                      // await repository.synceToCloud();
+
                       return true;
                       }else{
                         print("In Notification service, reciept url is null");
@@ -89,13 +100,14 @@ Future<bool> approve({required BuildContext context,required UniNotification not
                     }             
             }else{
                 print( "Can not find tenant in notification approval");
-              return false;
               
             }
           }
         }
         
         break;
+
+    
       case NotificationType.registration:
         print("proccesing approve registration");
         // convert data to registertype
@@ -134,7 +146,7 @@ Future<bool> approve({required BuildContext context,required UniNotification not
                       return false;
                     }else{
                       // approve
-                      print("Upladoing image to cloude");
+                      print("Uploading image to cloude");
                       String? recieptURL = await RootDataService.uploadImageToFirebaseStorage(pngbyte);
                       if(recieptURL != null){
                       print("Reciept URL = $recieptURL");
@@ -167,11 +179,17 @@ Future<bool> approve({required BuildContext context,required UniNotification not
 }
 
 Future<void> reject(UniNotification notification) async{
-        TelegramService.instance.sendMesage(
-        int.parse(notification.chatID),
+        TelegramService.instance.sendMesage(int.parse(notification.chatID),
         "Request rejected!, please contact landlord for more info"
       );
       notification.read = true;
+      ////debug
+      // print("Noti in list");
+      // for(var item in repository.notificationList!.listNotification){
+      //   if(item!.id == notification.id){
+      //     item.read = true;
+      //   }
+      // }
       print("reject sync to cloud");
       //
       repository.synceToCloud();

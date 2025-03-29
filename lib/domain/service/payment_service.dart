@@ -7,6 +7,7 @@ import 'package:emonitor/domain/model/payment/transaction.dart';
 import 'package:emonitor/domain/model/stakeholder/tenant.dart';
 import 'package:emonitor/domain/model/system/priceCharge.dart';
 import 'package:emonitor/domain/service/khqr_service.dart';
+import 'package:emonitor/domain/service/room_service.dart';
 import 'package:emonitor/domain/service/root_data.dart';
 import 'package:http/http.dart' as http;
 
@@ -89,7 +90,7 @@ class PaymentService {
   }
    
     print("in proccess payment function assign payment 2");
-    print(room.consumptionList.last.electricityMeter);
+    // print(room.consumptionList.last.electricityMeter);
     //find deposit
     if (tenant.deposit < room.price) {
       deposit = room.price - tenant.deposit;
@@ -164,7 +165,7 @@ class PaymentService {
 
 
   PaymentStatus? getRoomPaymentStatus(Room room, DateTime dateTime){
-    Payment? payment = getPaymentFor(room, dateTime);
+    Payment? payment = RoomService.instance.getPaymentFor(room, dateTime);
     if(payment != null){
       return payment.paymentStatus;
     }else
@@ -175,15 +176,7 @@ class PaymentService {
     }
   }
 
-  Payment? getPaymentFor(Room room, DateTime dateTime) {
-    for(var payment in room.paymentList){
-      if(payment.timeStamp.month == dateTime.month && payment.timeStamp.year == dateTime.year){
-        return payment;
-      }
-      return null;
-    }
 
-  }
 
   Future<bool> checkTransStatus(Payment payment) async {
     String md5 = payment.transaction.md5;

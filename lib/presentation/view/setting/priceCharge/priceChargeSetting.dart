@@ -1,9 +1,9 @@
 import 'package:emonitor/domain/model/system/priceCharge.dart';
 import 'package:emonitor/presentation/Provider/Setting/setting_provider.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
+import 'package:emonitor/presentation/view/setting/priceCharge/widget/add_price_form.dart';
 import 'package:emonitor/presentation/widgets/button/button.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
-import 'package:emonitor/presentation/widgets/form/dialogForm.dart';
 import 'package:emonitor/presentation/widgets/infoCard/infoCard.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -34,123 +34,7 @@ class _PriceChargeSettingState extends State<PriceChargeSetting> {
   ///
   /// Dialog 
   /// 
-  Future<bool> showDialogForm(BuildContext context) async{
-      ///
-      /// Init data for add form;
-      ///
-      double electricityPrice = 0;
-      double waterPrice = 0;
-      double rentParkingPrice = 0;
-      double hygieneFee = 0;
-      double finePerDayPrice = 0;
-      double fineStartOn = 5;
-
-     final isFormTrue = await uniForm(
-        context: context, 
-        title: "Add New Price Charge", 
-        subtitle: "Set up your monthly price charge", 
-        onDone: onDone,
-        form: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            label("Electricity"),
-                    buildTextFormField(
-                       validator: (value){
-                         if (value == null || value.isEmpty) {
-                              return "Electricity per day Price is required";
-                            }
-                            if (double.tryParse(value) == null) {
-                              return "Must be digits";
-                            }
-                            return null; // Valid input
-                       },
-                      onChanged: (value){
-                             if(double.tryParse(value!) != null){
-                            electricityPrice = double.parse(value);
-                          }                       
-                      }
-                      ),
-                       label("Water"),
-                    buildTextFormField(
-                       validator: (value){
-                         if (value == null || value.isEmpty) {
-                              return "Water per day Price is required";
-                            }
-                            if (double.tryParse(value) == null) {
-                              return "Must be digits";
-                            }
-                            return null; //
-                       },
-                      onChanged: (value){
-                             if(double.tryParse(value!) != null){
-                            waterPrice = double.parse(value);
-                          }                       
-                      }
-                      ),
-                       label("Parking Fee"),
-                    buildTextFormField(
-                       validator: (value){
-                         if (value == null || value.isEmpty) {
-                              return "Parking fee Price is required";
-                            }
-                            if (double.tryParse(value) == null) {
-                              return "Must be digits";
-                            }
-                            return null; //
-                       },
-                      onChanged: (value){
-                             if(double.tryParse(value!) != null){
-                            rentParkingPrice = double.parse(value);
-                          }                       
-                      }
-                      ),
-                       label("Hygiene Fee"),
-                    buildTextFormField(
-                       validator: (value){
-                       if (value == null || value.isEmpty) {
-                              return "Hygiene fee price is required";
-                            }
-                            if (double.tryParse(value) == null) {
-                              return "Must be digits";
-                            }
-                            return null; //
-                       },
-                      onChanged: (value){
-                             if(double.tryParse(value!) != null){
-                            hygieneFee = double.parse(value);
-                          }                       
-                      }
-                      ), label("Fine per day"),
-                    buildTextFormField(
-                       validator: (value){
-                        if (value == null || value.isEmpty) {
-                              return "fine per day Price is required";
-                            }
-                            if (double.tryParse(value) == null) {
-                              return "Must be digits";
-                            }
-                            return null; //
-                       },
-                      onChanged: (value){
-                             if(double.tryParse(value!) != null){
-                           finePerDayPrice = double.parse(value);
-                          }                       
-               }
-            )
-          ],
-        ), 
-    );
  
-      if(isFormTrue){
-        PriceCharge pricecharge = PriceCharge(electricityPrice: electricityPrice, waterPrice: waterPrice, hygieneFee: hygieneFee, finePerDay: finePerDayPrice, fineStartOn: fineStartOn, rentParkingPrice: rentParkingPrice, startDate: DateTime.now());
-        final settingProvider = context.read<SettingProvider>();
-        await settingProvider.addPriceCharge(pricecharge);
-        return true;
-      }else{
-        return false;
-      }
-
-  }
   @override
   Widget build(BuildContext context) {
     return Consumer<SettingProvider>(builder: (context, settingProvider, child) {
@@ -245,7 +129,7 @@ class _PriceChargeSettingState extends State<PriceChargeSetting> {
                             label: "Fine Per day",
                             value: "\$ ${priceCharge.finePerDay}"),
                         InfoItem(
-                            label: "Fine start on", value: "${priceCharge.finePerDay.toInt()} / ${DateTime.now().month} / ${DateTime.now().year}"),
+                            label: "Fine start on", value: "${priceCharge.fineStartOn.toInt()} / ${DateTime.now().month} / ${DateTime.now().year}"),
                       ])
                     ],
                   ),
@@ -261,8 +145,9 @@ class _PriceChargeSettingState extends State<PriceChargeSetting> {
                   child: Padding(
                     padding:
                     const EdgeInsets.only(top: 70, left: 20, right: 20),
-                    child: SingleChildScrollView(
-                        child: Column(
+                    
+                        child: 
+                        Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -327,7 +212,7 @@ class _PriceChargeSettingState extends State<PriceChargeSetting> {
                             )
                           ],
                         ),
-                    ),
+                    
                   )
                 )
             ],

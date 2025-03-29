@@ -4,6 +4,7 @@ import 'package:emonitor/domain/model/building/building.dart';
 import 'package:emonitor/domain/model/building/room.dart';
 import 'package:emonitor/domain/model/payment/payment.dart';
 import 'package:emonitor/domain/service/payment_service.dart';
+import 'package:emonitor/domain/service/room_service.dart';
 import 'package:emonitor/presentation/Provider/main/room_provider.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/widgets/button/button.dart';
@@ -23,6 +24,9 @@ class RoomlistScreen extends StatelessWidget {
     // Initial attribute for form
     String name = "";
     double price = 0;
+    double electricityMeter = 0;
+    double waterMeter = 0;
+
     final roomProvider = context.read<RoomProvider>();
     final isFromTrue = await uniForm(
       context: context,
@@ -55,10 +59,36 @@ class RoomlistScreen extends StatelessWidget {
               return null;
             },
           ),
+          label("Electricity Meter"),
+          buildTextFormField(
+            onChanged: (value) {
+              electricityMeter = double.parse(value);
+            },
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return "electricityMeter is required";
+              }
+              return null;
+            },
+          ),
+          label("Water Meter"),
+          buildTextFormField(
+            onChanged: (value) {
+              waterMeter = double.parse(value);
+            },
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return "Water meter is required";
+              }
+              return null;
+            },
+          ),
         ],
       ),
       onDone: () async {
+        Consumption newConsumption = Consumption(waterMeter: waterMeter, electricityMeter: electricityMeter);
         Room newRoom = Room(name: name, price: price);
+        newRoom.consumptionList.add(newConsumption);
         await roomProvider.addOrUpdateRoom(newRoom);
       },
     );
@@ -184,33 +214,44 @@ class _FilterInfoWidgetState extends State<FilterInfoWidget> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                       
-                        DropdownButton<PaymentStatus>(
-                          focusColor: UniColor.primary,
-                          value: selectedStatus, // Currently selected value
-                          hint:  Text("Select Payment Status",style: UniTextStyles.body,), // Placeholder text
-                          onChanged: (PaymentStatus? newValue) {
-                            if (newValue != null) {
-                             setState(() {
-                                selectedStatus = newValue; // Update selected status
-                                // Sort the list based on the selected status
-                                sortedList = roomProvider.sortRoomsByLastPaymentStatus(
-                                    widget.rentalData, selectedStatus);
-                              });
-                            }
-                          },
-                          items: PaymentStatus.values.map((PaymentStatus status) {
-                            return DropdownMenuItem<PaymentStatus>(
-                              value: status,
-                              child: Text(status.status,style: UniTextStyles.body,), // Display the status text
-                            );
-                          }).toList(),
-                            
-                            isDense: true,
-                            icon: null,
-                            underline: const SizedBox(),
-                            dropdownColor: Colors.white, 
-                            style: UniTextStyles.body.copyWith(color: UniColor.primary), 
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10,vertical: 8),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: UniColor.primary,
+                              
+                            ),
+                            borderRadius: BorderRadius.circular(10)
 
+                          ),
+                          child: DropdownButton<PaymentStatus>(
+                            focusColor: UniColor.primary,
+                            value: selectedStatus, // Currently selected value
+                            hint:  Text("Select Payment Status",style: UniTextStyles.body,), // Placeholder text
+                            onChanged: (PaymentStatus? newValue) {
+                              if (newValue != null) {
+                               setState(() {
+                                  selectedStatus = newValue; // Update selected status
+                                  // Sort the list based on the selected status
+                                  sortedList = roomProvider.sortRoomsByLastPaymentStatus(
+                                      widget.rentalData, selectedStatus);
+                                });
+                              }
+                            },
+                            items: PaymentStatus.values.map((PaymentStatus status) {
+                              return DropdownMenuItem<PaymentStatus>(
+                                value: status,
+                                child: Text(status.status,style: UniTextStyles.body,), // Display the status text
+                              );
+                            }).toList(),
+                              
+                              isDense: true,
+                              icon: null,
+                              underline: const SizedBox(),
+                              dropdownColor: Colors.white, 
+                              style: UniTextStyles.body.copyWith(color: UniColor.primary), 
+                          
+                          ),
                         ),
                           IconButton(
                           onPressed: () async {
@@ -253,7 +294,7 @@ Widget buildTableData(BuildContext context, List<Room> rentalData) {
           // Render data
           Color? statusColor;
           PaymentStatus? paymentStatus = PaymentService.instance.getRoomPaymentStatus(room, DateTime.now());
-          Payment? payment = PaymentService.instance.getPaymentFor(room, DateTime.now());
+          Payment? payment = RoomService.instance.getPaymentFor(room, DateTime.now());
 
           switch (paymentStatus) {
             case PaymentStatus.unpaid:

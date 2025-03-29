@@ -95,6 +95,9 @@ Widget buildAchive(BuildContext context) {
 Widget tabViewAll(BuildContext context) {
 
   final notiProvider = context.watch<NotificationProvider>();
+
+  final notiList = notiProvider.notiList.where((noti) => noti != null && noti.read == false);
+
   print("rebuild tab view");
   return Container(
     padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
@@ -104,20 +107,43 @@ Widget tabViewAll(BuildContext context) {
     ),
     child: Stack(
       children: [
-        // if(notiProvider.isLoading)...[
-        //   loading()
-        // ],
+       if(notiList.isEmpty)...{
+        SizedBox(
+            height: 600,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children:[ 
+                   ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.asset(
+                      'assets/images/emptyRequest.png',
+                      scale: 1.1,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  // const SizedBox(height: 32,),
+                  Text("No Notifications",style: UniTextStyles.label,),
+                  const SizedBox(height: 10,),
+                  Text("You have no notification right now.\n               Come back later",style: UniTextStyles.body,)
+                  ],
+              ),
+            ),
+          )
+       },
+       if(notiList.isNotEmpty)...[
         ListView(
           children: [
-            ...notiProvider.notiList!.where((noti) => noti != null && noti.read == false) // Filter out null and read notifications
-                .map((noti) {
+            ...notiList.map((noti) {
                   return UniNotify(
                     notification: noti!,
                     onTap: notiProvider.setCurrentNotifyDetails,
                   );
-                }).toList(), // Convert the iterable to a list
+                }), // Convert the iterable to a list
           ],
         ),
+       ],
+       
         Positioned(
           top: 0,
           right: 0,

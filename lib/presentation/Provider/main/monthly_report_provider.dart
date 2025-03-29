@@ -39,13 +39,4 @@ class MonthlyReportProvider extends ChangeNotifier {
       return  MonthyReportService.instance.totalForMonth(selectedBuilding!,selectedDate);
       }
   }
-
-  // IncomeBreakDown getAllIncome(){
-  //   IncomeBreakDown totalIncome = IncomeBreakDown(electricity: 0, electricityAmount: 0, water: 0, waterAmount: 0, parking: 0, parkingAmount: 0, hygiene: 0, hygieneAmount: 0, fine: 0, fineAmount: 0, deposit: 0, depositAmount: 0, total: 0, roomTotal: 0);
-  //   for(var building in rootDataService.rootData!.listBuilding){
-  //     totalIncome = totalIncome +  MonthyReportService.instance.totalForMonth(building, selectedDate);
-  //   }
-  //   return totalIncome;
-  // }
-
 }

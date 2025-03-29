@@ -31,6 +31,7 @@ class NotificationProvider extends ChangeNotifier {
 
   List<Building> get buildingList => rootDataService.rootData!.listBuilding;
 
+  // ignore: body_might_complete_normally_nullable
   Building? get building{
     for(var building in rootDataService.rootData!.listBuilding){
       for(var room in building.roomList){
