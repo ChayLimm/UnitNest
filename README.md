@@ -80,5 +80,28 @@ In Cambodia, tenants and landlords face challenges in the rental process, such a
 - Integrating AI for predictive analytics and expense tracking.  
 - Expanding the system to support commercial spaces and offices.
 
+## **Installation & Usage**  
+
+### **Install Dependencies**  
+Run the following command to install the required dependencies:  
+
+```bash
+flutter pub get
+```
+
+### **Run the Application**  
+Use the command below to start the application:  
+
+```bash
+flutter run
+```
+
+### **Request Access to the Telegram Bot**  
+To use the system, you need to register your email for access.  
+
+1. Send us an email with your **registration Gmail**.  
+2. We will grant access to the Telegram bot and notify you once it's ready.
+
+
 ## **License**  
 MIT License  
