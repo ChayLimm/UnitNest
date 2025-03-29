@@ -27,6 +27,7 @@ class BakongKhqrImpl extends BakongRepository{
           );
 
           if (response.statusCode == 200) {
+            // ignore: unnecessary_null_comparison
             if(response != null){
               return true;
             }

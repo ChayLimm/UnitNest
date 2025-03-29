@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:emonitor/domain/model/building/building.dart';
 import 'package:emonitor/domain/model/building/room.dart';
@@ -8,8 +7,8 @@ import 'package:emonitor/domain/model/payment/transaction.dart';
 import 'package:emonitor/domain/model/stakeholder/tenant.dart';
 import 'package:emonitor/domain/model/system/priceCharge.dart';
 import 'package:emonitor/domain/service/khqr_service.dart';
+import 'package:emonitor/domain/service/room_service.dart';
 import 'package:emonitor/domain/service/root_data.dart';
-import 'package:emonitor/presentation/view/receipt/receipt.dart';
 import 'package:http/http.dart' as http;
 
 
@@ -46,11 +45,11 @@ class PaymentService {
   
   
 
-  Future<void> proccessPayment(String tenantID,[Consumption? consumption, bool lastpayment = false]) async {
+  Future<Payment> proccessPayment(String tenantID,[Consumption? consumption, bool lastpayment = false]) async {
     print("in proccess apyment function assign payment ");
 
     // declare data
-    final DateTime timestamp =consumption == null ? DateTime.now() : consumption.timestamp;
+    final DateTime timestamp = consumption == null ? DateTime.now() : consumption.timestamp;
     late PriceCharge priceCharge;
     late Building building;
     late Room room;
@@ -64,45 +63,62 @@ class PaymentService {
         priceCharge = item;
       }
     }
-            print("in proccess apyment function assign payment 1");
+    print("in proccess apyment function assign payment 1");
 
     //find who is paying for which room
-    for (var building1 in repository.rootData!.listBuilding) {
-                  print("#########1");
+    bool found = false;
 
-      for (var room1 in building1.roomList) {
-        print("########2");
-        if (room.tenant!.id == tenantID) {
-          print("#########3");
-          building = building1;
-          room = room1;
-          tenant = room.tenant!;
-        }
+    for (var building1 in repository.rootData!.listBuilding) {
+    print("Checking Building: ${building1.name}");
+    for (var room1 in building1.roomList) {
+      print("Checking Room: ${room1.name}, Tenant: ${room1.tenant}");
+
+      if (room1.tenant != null) {
+        print("Tenant to find ! : $tenantID");
+        print("Tenant chatID ! : ${room1.tenant!.chatID}");
+      }
+      if (room1.tenant != null && room1.tenant!.chatID == tenantID) {
+        print("Tenant found in room ${room1.name}");
+        building = building1;
+        room = room1;
+        tenant = room1.tenant!;
+        found = true;
+        break;
       }
     }
-            print("in proccess apyment function assign payment 2");
-
+    if (found) break;
+  }
+   
+    print("in proccess payment function assign payment 2");
+    // print(room.consumptionList.last.electricityMeter);
     //find deposit
     if (tenant.deposit < room.price) {
       deposit = room.price - tenant.deposit;
     } else {
       deposit = 0;
     }
-
+    print("done check deposit");
     //calculate roomprice & rent parking if have
     if (consumption == null) {
       //first payment
-      totalPrice = room.price +
-          deposit +
-          (tenant.rentParking.toDouble() * priceCharge.rentParkingPrice);
+      totalPrice = room.price + priceCharge.hygieneFee + deposit +(tenant.rentParking.toDouble() * priceCharge.rentParkingPrice);
     } else {
+
       Consumption lastCons = room.consumptionList.last;
-      final double elecTotalPrice =
-          (consumption.electricityMeter - lastCons.electricityMeter) *
-              priceCharge.electricityPrice;
-      final double waterPrice = (consumption.waterMeter - lastCons.waterMeter) *
-              priceCharge.waterPrice +
-          priceCharge.hygieneFee;
+      print("last consumption checked");
+      if (room.consumptionList.isNotEmpty) {
+      print("process function");
+      for (var item in room.consumptionList) {
+        if (item.timestamp.isBefore(consumption.timestamp)) {
+          lastCons = item;
+          break;
+        }
+      }
+    }
+      
+      final double elecTotalPrice =(consumption.electricityMeter - lastCons.electricityMeter) * priceCharge.electricityPrice;
+      final double waterPrice = (consumption.waterMeter - lastCons.waterMeter) *priceCharge.waterPrice + priceCharge.hygieneFee;
+    
       if (lastpayment) {
         //last payment
         totalPrice =deposit + elecTotalPrice + waterPrice + priceCharge.hygieneFee;
@@ -115,16 +131,20 @@ class PaymentService {
             waterPrice +
             priceCharge.hygieneFee;
       }
-
       room.consumptionList.add(consumption);
     }
+          //convert total price
+    totalPrice = double.parse(totalPrice.toStringAsFixed(2));
+    print("requestiing  transaction qr for ${totalPrice}");
 
     TransactionKHQR transaction = await KhqrService.instance.requestKHQR(totalPrice);
-
+    
     print("assign payment");
     Payment payment = Payment(
-      tenant: tenant,
-      room: room,
+      lastPayment: lastpayment,
+      roomPrice: room.price,
+      tenantChatID: tenant.chatID,
+      roomID: room.id,
       deposit: deposit,
       transaction: transaction,
       totalPrice: totalPrice,
@@ -132,63 +152,40 @@ class PaymentService {
       parkingFee: (tenant.rentParking.toDouble() * priceCharge.rentParkingPrice),
       parkingAmount : tenant.rentParking.toInt(),
     );
-    print("assign payment Done");
+    print("assign payment Done ${payment.totalPrice}");
 
-    ////
-    ///  get reciept
-    ///
-    
-    late String recieptURL;
-    Uint8List? receiptPNG = await Receipt(payment: payment).capturePNG();
-    try{
-      recieptURL = await repository.uploadImageToFirebaseStorage(receiptPNG!);
-      print("upload image to cloud");
-    }catch (e){
-      throw "Payment error : $e";
-    }
-    // add reciept to the database
-    payment.receipt = recieptURL;
-    print(recieptURL);
 
     payment.paymentStatus = PaymentStatus.pending;
-    room.paymentList.add(payment);
+    // room.paymentList.add(payment);
     //sync with cloud
-    repository.synceToCloud();
+    // repository.synceToCloud();
     print("done processing payment!!!!!!!!!!!");
+    return payment;
   }
 
 
-  PaymentStatus getRoomPaymentStatus(Room room, DateTime dateTime){
-    Payment? payment = getPaymentFor(room, dateTime);
+  PaymentStatus? getRoomPaymentStatus(Room room, DateTime dateTime){
+    Payment? payment = RoomService.instance.getPaymentFor(room, dateTime);
     if(payment != null){
       return payment.paymentStatus;
-    }
-    return PaymentStatus.unpaid;
-  }
-
-  Payment? getPaymentFor(Room room, DateTime dateTime) {
-    for(var payment in room.paymentList){
-      if(payment.timeStamp.month == dateTime.month && payment.timeStamp.year == dateTime.year){
-        return payment;
-      }
+    }else
+    if(room.tenant == null ){
       return null;
+    }else {
+      return PaymentStatus.unpaid;
     }
-
   }
+
+
 
   Future<bool> checkTransStatus(Payment payment) async {
     String md5 = payment.transaction.md5;
-    final url = Uri.parse('http://localhost:4040/khqrkhqrstatus');
+    final url = Uri.parse('https://unitnest-api.vercel.app/khqrstatus');
     try {
       var body = jsonEncode({
-        'contents': [
-          {
-            'parts': [
-              {'md5': md5}
-            ]
-          }
-        ]
-      });
+        'md5': md5
+      }
+      );
 
       var response = await http.post(
         url,
@@ -197,7 +194,22 @@ class PaymentService {
         },
         body: body,
       );
-      return true;
+      ///
+      ///check condition
+      ///
+      if (response.statusCode == 200) {
+        var jsonResponse = jsonDecode(response.body);
+        if (jsonResponse['data'] != null) {
+          print("Data exists: ${jsonResponse['data']}");
+          return true;
+        } else {
+          print("Data is null.");
+          return false;
+        }
+      } else {
+        print("Request failed with status: ${response.statusCode}");
+        return false;
+      }
       // check (reposone ?= null) true;
     } catch (e) {
       print(e);
@@ -235,4 +247,10 @@ class PaymentService {
       }
     }
   }  
+  void paymentHistory(){
+    
+  }
+
+
+
 }

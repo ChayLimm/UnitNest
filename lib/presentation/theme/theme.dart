@@ -9,6 +9,8 @@ class UniColor{
   static Color yellow             = const Color(0xFFF8A849);
 
   static Color bgColor            = const Color(0xFFF8F8F8);
+  static Color bgColor2           = const Color(0xFFF0F0F0);
+  
 
   static Color neutralDark        = const Color(0xFF000000); 
   static Color neutral            = const Color(0xFF757575);
@@ -18,6 +20,9 @@ class UniColor{
 
   static Color get backGroundColor { 
     return UniColor.bgColor;
+  }
+  static Color get backGroundColor2 { 
+    return UniColor.bgColor2;
   }
 
   static Color get textNormal {

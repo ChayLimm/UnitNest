@@ -7,6 +7,9 @@ part 'tenant.g.dart';
 class Tenant {
   final String id = const Uuid().v4();
   final DateTime registeredOn = DateTime.now();
+
+  final String chatID;
+
   String identifyID;
   String userName;
   String contact;
@@ -14,6 +17,7 @@ class Tenant {
   int rentParking ;
 
   Tenant({
+    required this.chatID,
     required this.identifyID,
     required this.userName,
     required this.contact,

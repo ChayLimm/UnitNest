@@ -1,23 +1,30 @@
-import 'package:emonitor/domain/model/system/system.dart';
+import 'package:emonitor/data/repository/api/http_api.dart';
 import 'package:emonitor/data/repository/firebase/fire_auth_impl.dart';
 import 'package:emonitor/data/repository/firebase/fire_store_impl.dart';
 import 'package:emonitor/data/repository/khqr/bakong_KHQR.dart';
 import 'package:emonitor/domain/service/authentication_service.dart';
 import 'package:emonitor/domain/service/building_service.dart';
+import 'package:emonitor/domain/service/finder_service.dart';
 import 'package:emonitor/domain/service/khqr_service.dart';
+import 'package:emonitor/domain/service/monthy_report_service.dart';
+import 'package:emonitor/domain/service/notification_Service.dart';
 import 'package:emonitor/domain/service/payment_service.dart';
 import 'package:emonitor/domain/service/room_service.dart';
 import 'package:emonitor/domain/service/root_data.dart';
 import 'package:emonitor/domain/service/setting_service.dart';
+import 'package:emonitor/domain/service/telegram_service.dart';
 import 'package:emonitor/domain/service/tenant_service.dart';
 import 'package:emonitor/presentation/Provider/Setting/setting_provider.dart';
 import 'package:emonitor/presentation/Provider/main/building_provider.dart';
+import 'package:emonitor/presentation/Provider/main/monthly_report_provider.dart';
+import 'package:emonitor/presentation/Provider/main/notification_provider.dart';
 import 'package:emonitor/presentation/Provider/main/room_provider.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/view/authentication/authenPage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 // import 'package:flutter_riverpod/flutter_riverpod.dart';  // Import Riverpod
 
@@ -38,8 +45,9 @@ void main() async {
     );
   } else {
     await Firebase.initializeApp();
+     WidgetsFlutterBinding.ensureInitialized();
+     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky); // Hide status and nav bar
   }
-  System.num += 1;
 
   // Create RootDataService instance
   final rootDataService = RootDataService(DatabaseRepoImpl());
@@ -52,6 +60,10 @@ void main() async {
   RoomService.initialize(rootDataService);
   TenantService.initialize(rootDataService);
   PaymentService.initialize(rootDataService);
+  TelegramService.initialize(HttpApiCall());
+  NotificationService.initialize(rootDataService);
+  FinderService.initialize(rootDataService);
+  MonthyReportService.initialize(rootDataService:rootDataService);
 
   runApp(
     MultiProvider(
@@ -60,7 +72,9 @@ void main() async {
         ChangeNotifierProvider<SettingProvider>(create: (_) => SettingProvider(rootDataService),),
         ChangeNotifierProvider<BuildingProvider>(create: (_) => BuildingProvider(rootDataService),),
         ChangeNotifierProvider<RoomProvider>(create: (_) => RoomProvider(rootDataService),),
-       
+        ChangeNotifierProvider<NotificationProvider>(create: (_) => NotificationProvider(rootDataService: rootDataService),),
+        ChangeNotifierProvider<MonthlyReportProvider>(create: (_) => MonthlyReportProvider(rootDataService: rootDataService),),
+
       ],
       child: MainApp(rootDataService:rootDataService),
     ),

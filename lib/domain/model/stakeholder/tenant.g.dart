@@ -7,6 +7,7 @@ part of 'tenant.dart';
 // **************************************************************************
 
 Tenant _$TenantFromJson(Map<String, dynamic> json) => Tenant(
+      chatID: json['chatID'] as String,
       identifyID: json['identifyID'] as String,
       userName: json['userName'] as String,
       contact: json['contact'] as String,
@@ -15,6 +16,7 @@ Tenant _$TenantFromJson(Map<String, dynamic> json) => Tenant(
     );
 
 Map<String, dynamic> _$TenantToJson(Tenant instance) => <String, dynamic>{
+      'chatID': instance.chatID,
       'identifyID': instance.identifyID,
       'userName': instance.userName,
       'contact': instance.contact,

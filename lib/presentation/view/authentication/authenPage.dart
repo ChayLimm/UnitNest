@@ -5,6 +5,7 @@ import 'package:emonitor/domain/model/system/priceCharge.dart';
 import 'package:emonitor/domain/model/system/system.dart';
 import 'package:emonitor/domain/service/authentication_service.dart';
 import 'package:emonitor/domain/service/root_data.dart';
+import 'package:emonitor/domain/service/telegram_service.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/view/Main/mainScreen.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
@@ -213,8 +214,10 @@ class _AuthenPageState extends  State<AuthenPage>  {
   @override
   void initState() {
     // TODO: implement initState
+    // TelegramService.instance.sendMesage(1065582966, "nov na");
     super.initState();
     login("test2@gmail.com", "Team1234");
+
   }
 
   @override

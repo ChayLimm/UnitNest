@@ -1,6 +1,9 @@
 import 'package:emonitor/domain/model/building/room.dart';
+import 'package:emonitor/domain/model/payment/payment.dart';
 import 'package:emonitor/domain/model/stakeholder/tenant.dart';
+import 'package:emonitor/domain/service/payment_service.dart';
 import 'package:emonitor/domain/service/root_data.dart';
+import 'package:emonitor/domain/service/telegram_service.dart';
 
 class TenantService {
   static TenantService? _instance;
@@ -30,6 +33,16 @@ class TenantService {
     }
   }
 
+  Tenant? getTenantByChatID(String chatID){
+    for(var building in repository.rootData!.listBuilding){
+      for(var room in building.roomList){
+        if(room.tenant != null && room.tenant!.chatID ==chatID){
+          return room.tenant;
+        }
+      }
+  }
+  }
+
   /// Helper method to find a room by tenant ID
   Room? _findRoomByTenantId(String tenantId) {
     for (var building in repository.rootData!.listBuilding) {
@@ -55,16 +68,33 @@ class TenantService {
   }
 
   /// Register a tenant to a room
-  void registrationTenant(Tenant tenant, double deposit, Room room) {
-    final targetRoom = _findRoomById(room.id);
-    if (targetRoom != null) {
-      targetRoom.tenant = tenant;
-      // Call payment processing service (ignored as per your request)
-      // proccessPayment(tenant.id);
-      repository.synceToCloud();
-    } else {
-      print('Room not found');
+  Future<Payment?> registrationTenant(Tenant tenant, Room roomToSearch) async {
+    for (int i = 0; i < repository.rootData!.listBuilding.length; i++) {
+      for (int j = 0; j < repository.rootData!.listBuilding[i].roomList.length; j++) {
+        
+        if (repository.rootData!.listBuilding[i].roomList[j].id == roomToSearch.id) {
+
+          repository.rootData!.listBuilding[i].roomList[j].tenant = tenant;
+          repository.rootData!.listBuilding[i].roomList[j].roomStatus = Availibility.taken;
+          
+           if (repository.rootData!.listBuilding[i].roomList[j].tenant != null) {
+                try {    
+                    Payment payment = await PaymentService.instance.proccessPayment(tenant.chatID);
+                    // TelegramService.instance.sendReceipt(tenant.chatID, payment.receipt!, "Payment for your room include deposit");
+                    // repository.synceToCloud();
+                    return payment;
+                } catch (e){
+                throw "error register tenant : $e";
+                }
+              
+              } else {
+                print('Room not found');
+              }
+        }
+      }
     }
+
+   
   }
 
   /// Update tenant details

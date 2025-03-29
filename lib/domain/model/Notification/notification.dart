@@ -37,37 +37,36 @@ enum NotificationStatus {
 @JsonSerializable(explicitToJson: true)
 class NotificationList{
   final String id = Uuid().v4();
-  final List<Notification?> listNotification;
+   List<UniNotification?> listNotification;
   NotificationList(this.listNotification);
 
   factory NotificationList.fromJson(Map<String, dynamic> json) => _$NotificationListFromJson(json);
   Map<String, dynamic> toJson() => _$NotificationListToJson(this);
 }
 
-
-
-
 @JsonSerializable()
-class Notification {
-  late String id;
+class UniNotification {
+  String id;
   final String chatID;
   final String systemID;
   final NotificationType dataType;
   NotificationStatus status;
+  bool isApprove ;
   final dynamic notifyData;
-  bool? read = false;
+  bool read ;
 
-  Notification({
+  UniNotification({
+    required this.isApprove,
     required this.id,
     required this.chatID,
     required this.systemID,
     required this.notifyData,
     required this.dataType,
     required this.status,
-    this.read
+    this.read= false
   });
 
-  factory Notification.fromJson(Map<String, dynamic> json) {
+  factory UniNotification.fromJson(Map<String, dynamic> json) {
   // Parse the `dataType` field into the `NotificationType` enum
   final dataTypeString = json['dataType'] as String;
 
@@ -89,25 +88,46 @@ class Notification {
       ? NotifyRegistration.fromJson(json['notifyData'])
       : NotifyPaymentRequest.fromJson(json['notifyData']);
 
-  return Notification(
-    id : "docId!",
+  return UniNotification(
+    id : "null",
     chatID: json['chatID'],
     systemID: json['systemID'],
     notifyData: notifyData,
     dataType: dataType, // Use the parsed enum value
     read: json['read'],
+    isApprove: json['isApprove'],
     status: status
   );
 }
 
   Map<String, dynamic> toJson() {
-    return {
+    print("to json part");
+    print(dataType.status);
+    if(dataType.status == "paymentRequest"){
+      NotifyPaymentRequest data = notifyData;
+      return {
+      'id' : id,
       'chatID': chatID,
       'systemID': systemID,
-      'dataType': dataType.toString().split('.').last,
-      'notifyData': notifyData.toJson(),
-      'read' : read
+      'dataType': dataType.status,
+      'notifyData': data.toJson(),
+      'read' : read,
+      'isApprove' : isApprove,
+      'status':status.name
     };
+    }else{
+       NotifyRegistration data = notifyData;
+       return {
+      'id' : id,
+      'chatID': chatID,
+      'systemID': systemID,
+      'dataType':  dataType.status,
+      'notifyData': data.toJson(),
+      'read' : read,
+      'isApprove' : isApprove,
+      'status':status.name
+    };
+   }
   }
 }
 

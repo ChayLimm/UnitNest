@@ -1,9 +1,21 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:emonitor/domain/model/json/jsonconvertor.dart';
+import 'package:emonitor/domain/model/payment/payment.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../theme/theme.dart';
 
+
+Widget loading([Color? color]) {
+  return Container(
+    alignment: Alignment.center,
+    color: color ?? Colors.black.withOpacity(0.2),
+    child: LoadingAnimationWidget.inkDrop(
+      color: UniColor.primary,
+      size: 36.0,
+    ),
+  );
+}
 
 
 void showCustomSnackBar(
@@ -32,9 +44,9 @@ Widget label(String label,[double margin = 10]){
 }
 
 BoxShadow shadow() => BoxShadow(
-      color: Colors.black.withOpacity(0.2),
+      color: Colors.black.withOpacity(0.1),
       spreadRadius: 1,
-      blurRadius: 10,
+      blurRadius: 5,
       offset: const Offset(3, 3),
     );
 
@@ -103,7 +115,7 @@ Widget customFloatingButton({required VoidCallback onPressed}) {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8.0),
       ),
-      child: Icon(Icons.bookmark_add, color: Colors.white),
+      child: const Icon(Icons.bookmark_add, color: Colors.white),
     ),
   );
 }

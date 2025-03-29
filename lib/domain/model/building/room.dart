@@ -40,15 +40,18 @@ class Room{
 }
 
 @JsonSerializable()
-class Consumption{
-  final DateTime timestamp = DateTime.now();
+class Consumption {
+  final DateTime timestamp;
   final double waterMeter;
   final double electricityMeter;
-  
-  Consumption({required this.waterMeter, required this.electricityMeter});
 
-  factory Consumption.fromJson(Map<String, dynamic> json) => _$ConsumptionFromJson(json);
+  Consumption({
+    required this.waterMeter,
+    required this.electricityMeter,
+    DateTime? timestamp, 
+  }) : timestamp = timestamp ?? DateTime.now(); // Assigns default value if null
+
+  factory Consumption.fromJson(Map<String, dynamic> json) =>
+      _$ConsumptionFromJson(json);
   Map<String, dynamic> toJson() => _$ConsumptionToJson(this);
- 
-
 }
