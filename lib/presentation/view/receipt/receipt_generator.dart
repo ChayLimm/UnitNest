@@ -34,29 +34,30 @@ class ShowReceiptDialog extends StatelessWidget {
       throw "Room cannot be found in RECEIPT dialog";
     }
 
-    // Find new consumption
-    print("find new consumption");
-    newConsumption = (room!.consumptionList.isNotEmpty)
-        ? room!.consumptionList.last
-        : Consumption(waterMeter: 0, electricityMeter: 0);
+    if(room!.paymentList.isNotEmpty && room!.paymentList.last.tenantChatID == payment.tenantChatID){
+      // == is paying for next month
+      print("find new consumption");
+      newConsumption = (room!.consumptionList.isNotEmpty)? room!.consumptionList.last
+          : Consumption(waterMeter: 0, electricityMeter: 0);
 
-    // Find previous consumption
-    // print("find pre consumption");
-    // print("Room payemtn id : ${payment.roomID}");
-    // print("Room: ${room!.name}");
-    // print("Room: ${room!.id}");
-    // print("Consumption List: ${room?.consumptionList}");
-    // print("New Consumption: ${newConsumption!.electricityMeter}");
-    if (room!.consumptionList.isNotEmpty) {
-      print("process function");
-      for (var item in room!.consumptionList) {
-        if (item.timestamp.isBefore(newConsumption!.timestamp)) {
-          preConsumption = item;
-          lastPaidOn = DateFormat('dd/MM/yyyy').format(item.timestamp);
-          break;
+      if (room!.consumptionList.isNotEmpty) {
+        print("process function");
+        for (var item in room!.consumptionList) {
+          if (item.timestamp.isBefore(newConsumption!.timestamp)) {
+            preConsumption = item;
+            lastPaidOn = DateFormat('dd/MM/yyyy').format(item.timestamp);
+            break;
+          }
         }
       }
+    }else{
+      newConsumption = (room!.consumptionList.isNotEmpty)? room!.consumptionList.last
+          : Consumption(waterMeter: 0, electricityMeter: 0);
+      preConsumption = newConsumption;
     }
+    
+    // Find new consumption
+    
 
     building = FinderService.instance.findBuildingByRoomID(payment.roomID);
 

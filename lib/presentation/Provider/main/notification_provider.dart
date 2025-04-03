@@ -4,6 +4,7 @@ import 'package:emonitor/domain/model/Notification/notification.dart';
 import 'package:emonitor/domain/model/building/building.dart';
 import 'package:emonitor/domain/model/building/room.dart';
 import 'package:emonitor/domain/service/notification_Service.dart';
+import 'package:emonitor/domain/service/room_service.dart';
 import 'package:emonitor/domain/service/root_data.dart';
 import 'package:flutter/material.dart';
 
@@ -109,6 +110,7 @@ class NotificationProvider extends ChangeNotifier {
     toggleLoading();
     print("set curretn notification to null");
     setCurrentNotifyDetails(null);
+    RoomService.instance.refreshRoomsPayment();
     return isApprove;
   } 
   void reject (UniNotification notification){
@@ -124,7 +126,7 @@ class NotificationProvider extends ChangeNotifier {
   currentNotifyDetails = null;
   print("Refreshing notification list");
   print(systemId);
-  
+  RoomService.instance.refreshRoomsPayment();
   toggleLoading();
   
   try {
