@@ -6,7 +6,7 @@ part 'landlord.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class Landlord{
-  final String id = const Uuid().v4();
+    final String id = const Uuid().v4();
     String username;
     String phoneNumber;
     final DateTime createdAt = DateTime.now();

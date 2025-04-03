@@ -250,5 +250,6 @@ class RoomService {
       }
     }
    }
+   repository.synceToCloud();
   }
 }

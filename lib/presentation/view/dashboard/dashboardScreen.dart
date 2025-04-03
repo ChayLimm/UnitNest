@@ -198,7 +198,7 @@ Widget _buildHeader(BuildContext context,String username, String phoneNumber, St
         // UniButton(context: context, label: "test", trigger: (){
         //   final roomProvider=context.read<RoomProvider>();
         //   ///tennat sample
-        //   Tenant sampleTenant = Tenant(chatID: "1065582966", identifyID: "0123465", userName: "Cheng ChayLim", contact: "08512341", deposit: 0);
+        //   Tenant sampleTenant = Tenant(chatID: "5203023919", identifyID: "0123465", userName: "Bing Bing", contact: "0412341234", deposit: 0);
         //   // Room? roomTenant = FinderService.instance.getRoomWithChatID("1065582966"); //lim
         //   final roomTenant = Room(name: "A002", price: 100,tenant: sampleTenant,roomStatus: Availibility.taken);
         //   roomTenant.consumptionList.add(Consumption(waterMeter: 250, electricityMeter: 2115,timestamp: DateTime(DateTime.now().year, DateTime.now().month - 1, DateTime.now().day)));

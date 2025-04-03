@@ -36,7 +36,7 @@ class RoomProvider extends ChangeNotifier {
   //     notifyListeners();
   // }
 
-  Future<void> addOrUpdateRoom(Room newRoom) async{
+   Future<void> addOrUpdateRoom(Room newRoom) async{
       RoomService.instance.updateOrAdd(currentSelectedBuilding!, newRoom);
       notifyListeners();
     }

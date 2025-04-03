@@ -12,7 +12,7 @@ part 'system.g.dart';
 class System extends ChangeNotifier {
   final String id;
   Landlord landlord;
-  int currentMonth = 3;
+  int? currentMonth;
 
   ////Convert this into JSON
   List<Building> listBuilding = [];

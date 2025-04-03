@@ -216,7 +216,6 @@ class _AuthenPageState extends  State<AuthenPage>  {
     // TODO: implement initState
     // TelegramService.instance.sendMesage(1065582966, "nov na");
     super.initState();
-    login("test2@gmail.com", "Team1234");
 
   }
 

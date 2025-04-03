@@ -1,19 +1,7 @@
 # **UnitNest: Your Automated Building Renting Management System with Payment Integration via Telegram**  
 _A fully automated building rental management system that streamlines the rental process with integrated payment tracking via Telegram._
 
-## **Table of Contents**  
-- [Introduction](#introduction)  
-- [Problem Statement](#problem-statement)  
-- [Project Objectives](#project-objectives)  
-- [System Components](#system-components)  
-  - [Telegram Bot for Tenants](#telegram-bot-for-tenants)  
-  - [Flutter Application for Landlords](#flutter-application-for-landlords)  
-- [Technologies Used](#technologies-used)  
-- [Expected Outcomes](#expected-outcomes)  
-- [Challenges and Risks](#challenges-and-risks)  
-- [Future Enhancements](#future-enhancements)  
-- [License](#license)
-
+## **Table of Contents** 
 ## **Introduction**  
 The aim of this project is to develop an automated building renting management system that streamlines the rental process for both tenants and landlords. Tenants can conveniently pay their rent through a Telegram bot, while landlords can monitor and manage payments through a dedicated Flutter application.
 
