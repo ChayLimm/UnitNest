@@ -91,5 +91,6 @@ To use the system, you need to register your email for access.
 2. We will grant access to the Telegram bot and notify you once it's ready.
 
 
-## **License**  
-MIT License  
+## License  
+This project is licensed under a **custom MIT License**. Commercial use requires prior agreement.  
+See [LICENSE](LICENSE) for full terms.  
