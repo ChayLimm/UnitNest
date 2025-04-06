@@ -237,7 +237,7 @@ class _PaymentDialogState extends State<PaymentDialog> {
                         buildingProvider.refresh();
                         buildingProvider.repository.synceToCloud();
                         Navigator.push(context,MaterialPageRoute(builder: (context){
-                          return Mainscreen();
+                        return Mainscreen();
                         }));
                         }else{
                           print("In Notification service, reciept url is null");
