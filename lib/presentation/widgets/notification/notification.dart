@@ -21,7 +21,7 @@ class UniNotify extends StatelessWidget {
     switch (notification.dataType) {
       case NotificationType.registration:
         final request = notification.notifyData as NotifyRegistration;
-        return "${request.name} has registered as a tenant";
+        return "${request.name} has requested tenant registration.";
       case NotificationType.paymentRequest:
         final request = notification.notifyData as NotifyPaymentRequest;
         final Tenant? tenant = TenantService.instance.getTenantByChatID(notification.chatID);

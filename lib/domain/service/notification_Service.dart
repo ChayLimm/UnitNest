@@ -8,6 +8,7 @@ import 'package:emonitor/domain/service/root_data.dart';
 import 'package:emonitor/domain/service/telegram_service.dart';
 import 'package:emonitor/domain/service/tenant_service.dart';
 import 'package:emonitor/presentation/Provider/main/building_provider.dart';
+import 'package:emonitor/presentation/Provider/main/room_provider.dart';
 import 'package:emonitor/presentation/view/receipt/receipt_generator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,8 @@ class NotificationService {
     } return _instance!;
   }
 
-Future<bool> approve({required BuildContext context,required UniNotification notification,Room? room,double deposit =0,int tenantRentParking = 0}) async {
+Future<bool> approve({required BuildContext context,required UniNotification notification,Room? room,double? deposit,int tenantRentParking = 0}) async {
+   deposit??  0;
    print("Appoving in notification service ");
    final buildingProvider = context.read<BuildingProvider>();
    switch(notification.dataType){
@@ -47,9 +49,8 @@ Future<bool> approve({required BuildContext context,required UniNotification not
         /// find the whose request is this
         for(var building in repository.rootData!.listBuilding){
           for(var room in building.roomList){
-             print("room in loop tenant chatid : ${room.tenant!.chatID}");
+            print("room in loop tenant chatid : ${room.tenant?.chatID ?? "null"}");
               if(room.tenant != null && room.tenant!.chatID == notification.chatID){
-
                   Consumption newConsumption = Consumption(
                     waterMeter: notiData.water, 
                     electricityMeter: notiData.electricity
@@ -91,8 +92,9 @@ Future<bool> approve({required BuildContext context,required UniNotification not
                       repository.synceToCloud();
 
                       TelegramService.instance.sendReceipt(notification.chatID, payment.receipt!, "Payment is due on 5/${DateTime.now().month}/${DateTime.now().year}");
+                      print("Send message after everything is done : ${payment.receipt!}");
                       buildingProvider.refresh();
-
+                      context.read<RoomProvider>().refreshRoomsPayment();
                       return true;
                       }else{
                         print("In Notification service, reciept url is null");
@@ -118,7 +120,7 @@ Future<bool> approve({required BuildContext context,required UniNotification not
           identifyID: notiData.idIdentification , 
           userName: notiData.name, 
           contact: notiData.phone, 
-          deposit: deposit,
+          deposit: deposit!,
           rentParking: tenantRentParking
           );
         Payment? payment =  await TenantService.instance.registrationTenant(newTenant, room!);

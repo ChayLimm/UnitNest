@@ -39,10 +39,14 @@ Map<String, dynamic> _$RoomToJson(Room instance) => <String, dynamic>{
 Consumption _$ConsumptionFromJson(Map<String, dynamic> json) => Consumption(
       waterMeter: (json['waterMeter'] as num).toDouble(),
       electricityMeter: (json['electricityMeter'] as num).toDouble(),
+      timestamp: json['timestamp'] == null
+          ? null
+          : DateTime.parse(json['timestamp'] as String),
     );
 
 Map<String, dynamic> _$ConsumptionToJson(Consumption instance) =>
     <String, dynamic>{
+      'timestamp': instance.timestamp.toIso8601String(),
       'waterMeter': instance.waterMeter,
       'electricityMeter': instance.electricityMeter,
     };

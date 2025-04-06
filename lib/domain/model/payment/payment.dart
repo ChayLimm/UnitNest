@@ -22,12 +22,12 @@ enum PaymentApproval{
   final String status;
   const PaymentApproval(this.status);
 }
-
-
+String _dateTimeToJson(DateTime date) => date.toIso8601String();
 
 @JsonSerializable(explicitToJson: true)
 class Payment {
-  late DateTime timeStamp ;
+  @JsonKey(fromJson: DateTime.parse, toJson: _dateTimeToJson)
+  late DateTime timeStamp;
   final String tenantChatID;
   final String roomID;
   final TransactionKHQR transaction;
@@ -50,12 +50,22 @@ class Payment {
   PaymentStatus paymentStatus = PaymentStatus.unpaid;
   PaymentApproval paymentApproval = PaymentApproval.pending;
 
-  Payment({this.lastPayment= false, required this.roomPrice,this.receipt,required this.parkingAmount,required this.parkingFee ,required this.hygiene ,required this.tenantChatID, required this.totalPrice,required this.roomID, required this.deposit,required this.transaction,this.fine = 0, }){
-    this.timeStamp = DateTime.now();
-  }
+  Payment({
+    this.lastPayment = false, 
+    required this.roomPrice,
+    this.receipt,
+    required this.parkingAmount,
+    required this.parkingFee,
+    required this.hygiene,
+    required this.tenantChatID, 
+    required this.totalPrice,
+    required this.roomID, 
+    required this.deposit,
+    required this.transaction,
+    this.fine = 0,
+    DateTime? timeStamp,
+  }) : timeStamp = timeStamp ?? DateTime.now();
 
   factory Payment.fromJson(Map<String, dynamic> json) => _$PaymentFromJson(json);
   Map<String, dynamic> toJson() => _$PaymentToJson(this);
 }
-
-

@@ -1,7 +1,8 @@
 import 'package:emonitor/domain/model/building/building.dart';
 import 'package:emonitor/domain/model/building/room.dart';
+import 'package:emonitor/domain/model/payment/payment.dart';
+import 'package:emonitor/domain/model/payment/transaction.dart';
 import 'package:emonitor/domain/model/stakeholder/tenant.dart';
-import 'package:emonitor/domain/service/finder_service.dart';
 import 'package:emonitor/domain/service/room_service.dart';
 import 'package:emonitor/presentation/Provider/Setting/setting_provider.dart';
 import 'package:emonitor/presentation/Provider/main/monthly_report_provider.dart';
@@ -195,23 +196,24 @@ Widget _buildHeader(BuildContext context,String username, String phoneNumber, St
                 style: const TextStyle(color: Colors.grey, fontSize: 12)),
           ],
         ),
-        // UniButton(context: context, label: "test", trigger: (){
-        //   final roomProvider=context.read<RoomProvider>();
-        //   ///tennat sample
-        //   Tenant sampleTenant = Tenant(chatID: "5203023919", identifyID: "0123465", userName: "Bing Bing", contact: "0412341234", deposit: 0);
-        //   // Room? roomTenant = FinderService.instance.getRoomWithChatID("1065582966"); //lim
-        //   final roomTenant = Room(name: "A002", price: 100,tenant: sampleTenant,roomStatus: Availibility.taken);
-        //   roomTenant.consumptionList.add(Consumption(waterMeter: 250, electricityMeter: 2115,timestamp: DateTime(DateTime.now().year, DateTime.now().month - 1, DateTime.now().day)));
-        //   roomProvider.repository.rootData!.listBuilding.first.roomList.add(roomTenant);
+        UniButton(context: context, label: "test", trigger: (){
+          final roomProvider=context.read<RoomProvider>();
+          ///tennat sample
+          Tenant sampleTenant = Tenant(chatID: "1065582966", identifyID: "0123465", userName: "Cheng ChayLim", contact: "0853242343", deposit: 100);//1065582966 lim
+          // Room? roomTenant = FinderService.instance.getRoomWithChatID("1065582966"); //lim
+          final roomTenant = Room(name: "A003", price: 100,tenant: sampleTenant,roomStatus: Availibility.taken);
+          roomTenant.consumptionList.add(Consumption(waterMeter: 250, electricityMeter: 2115,timestamp: DateTime(DateTime.now().year, DateTime.now().month - 1, DateTime.now().day)));
+          roomTenant.paymentList.add(Payment(timeStamp: DateTime(2025, 3, 6),roomPrice: 100, parkingAmount: 0, parkingFee: 0, hygiene: 1, tenantChatID:  "1065582966", totalPrice: 120, roomID: roomTenant.id, deposit: 100, transaction: TransactionKHQR(qr: "kk",md5: "fdd")));
+          roomProvider.repository.rootData!.listBuilding.first.roomList.add(roomTenant);
           
-        //   // print(roomTenant.consumptionList.last.waterMeter);
-        //   // roomProvider.repository.rootData!.listBuilding.first.roomList.add(roomTenant);
-        //   // roomProvider.repository.rootData!.listBuilding.first.roomList.first.consumptionList.add(Consumption(waterMeter: 100, electricityMeter: 100,timestamp: DateTime(DateTime.now().year, DateTime.now().month - 1, DateTime.now().day)));
-        //   // roomProvider.repository.rootData!.listBuilding.first.roomList.first.tenant = sampleTenant;
-        //   // roomProvider.repository.rootData!.listBuilding.first.roomList.first.roomStatus = Availibility.taken;
-        //   // print();
-        // }, buttonType: ButtonType.tertiary)
-        // ,
+          // print(roomTenant.consumptionList.last.waterMeter);
+          // roomProvider.repository.rootData!.listBuilding.first.roomList.add(roomTenant);
+          // roomProvider.repository.rootData!.listBuilding.first.roomList.first.consumptionList.add(Consumption(waterMeter: 100, electricityMeter: 100,timestamp: DateTime(DateTime.now().year, DateTime.now().month - 1, DateTime.now().day)));
+          // roomProvider.repository.rootData!.listBuilding.first.roomList.first.tenant = sampleTenant;
+          // roomProvider.repository.rootData!.listBuilding.first.roomList.first.roomStatus = Availibility.taken;
+          // print();
+        }, buttonType: ButtonType.tertiary)
+        ,
         UniButton(context: context, 
         label: "Make Payment", 
         trigger: ()async{

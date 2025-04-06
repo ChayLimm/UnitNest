@@ -12,14 +12,14 @@ enum ButtonType {
 }
 
 // Step 2: Create a StatelessWidget class
-class UniButton extends StatelessWidget {
+class UniButton extends StatefulWidget {
   final BuildContext context;
   final String label;
-  FutureOr<void> Function() trigger;
+  final FutureOr<void> Function() trigger;
   final ButtonType buttonType;
   final Color? color;
 
-  UniButton({
+  const UniButton({
     required this.context,
     required this.label,
     required this.trigger,
@@ -29,34 +29,44 @@ class UniButton extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<UniButton> createState() => _UniButtonState();
+}
+
+class _UniButtonState extends State<UniButton> {
+  bool _isDisabled = false; // State persisted across rebuilds
+
+  void _toggleDisabled() {
+    setState(() => _isDisabled = true);
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) setState(() => _isDisabled = false);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Step 3: Use a switch statement to handle different button types
-    switch (buttonType) {
+    switch (widget.buttonType) {
       case ButtonType.primary:
         return _buildPrimaryButton();
       case ButtonType.secondary:
         return _buildSecondaryButton();
       case ButtonType.tertiary:
-        return _buildTertiaryButton(); // New case for tertiary button
+        return _buildTertiaryButton();
     }
   }
 
-  // Helper method to build the primary button
   Widget _buildPrimaryButton() {
     return InkWell(
-      hoverColor: UniColor.white,
-      splashColor: UniColor.white,
-      onTap: trigger,
+      onTap: widget.trigger,
       child: Container(
         height: 36,
         padding: const EdgeInsets.symmetric(horizontal: 15),
         decoration: BoxDecoration(
-          color: color ?? UniColor.primary,
+          color: widget.color ?? UniColor.primary,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Center(
           child: Text(
-            label,
+            widget.label,
             style: UniTextStyles.button,
           ),
         ),
@@ -64,25 +74,19 @@ class UniButton extends StatelessWidget {
     );
   }
 
-  // Helper method to build the secondary button
   Widget _buildSecondaryButton() {
     return InkWell(
-      hoverColor: UniColor.white,
-      splashColor: UniColor.white,
-      onTap: trigger,
+      onTap: widget.trigger,
       child: Container(
         height: 36,
         padding: const EdgeInsets.symmetric(horizontal: 15),
         decoration: BoxDecoration(
-          border: Border.all(
-            color: UniColor.primary,
-            width: 1,
-          ),
+          border: Border.all(color: UniColor.primary, width: 1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Center(
           child: Text(
-            label,
+            widget.label,
             style: TextStyle(color: UniColor.primary),
           ),
         ),
@@ -90,23 +94,24 @@ class UniButton extends StatelessWidget {
     );
   }
 
-  // Helper method to build the tertiary button
   Widget _buildTertiaryButton() {
     return InkWell(
-      hoverColor: UniColor.white,
-      splashColor: UniColor.white,
-      onTap: trigger,
+      onTap: _isDisabled
+          ? null
+          : () async {
+              _toggleDisabled();
+              await widget.trigger(); // Wait for the action to complete
+            },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12),
         height: 36,
-          child: Text(
-            label,
-            style: TextStyle(
-              color: UniColor.primary, // Text color
-              decoration: TextDecoration.underline, // Optional: Add underline
-            ),
+        child: Text(
+          widget.label,
+          style: TextStyle(
+            color: _isDisabled ? Colors.grey : UniColor.primary,
+            decoration: TextDecoration.underline,
           ),
-      
+        ),
       ),
     );
   }

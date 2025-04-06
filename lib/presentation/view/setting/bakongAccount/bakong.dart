@@ -125,11 +125,11 @@ class Bakong extends StatelessWidget {
                       style: UniTextStyles.body,
                     ),
                     trailing: SizedBox(
-                      width: 50,
+                      width: 60,
                       child: UniButton(
                         buttonType: ButtonType.secondary,
                           context: context,
-                          label: "Edit",
+                          label: "Edit ",
                           trigger: () async {
                             final isFromTrue = await editBakong(context);
                             isFromTrue

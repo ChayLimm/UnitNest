@@ -374,11 +374,12 @@ class ShowReceiptDialog extends StatelessWidget {
                 flex: 3,
               child: 
                   BakongKhqrView(
-
                       width: 150,
                       merchantName: "UnitNest",
                       amount: "${payment.totalPrice}",
-                      qrString: payment.transaction.qr),
+                      qrString: payment.transaction.qr,
+                      
+                      ),
               
               )
             ],
