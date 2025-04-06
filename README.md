@@ -1,30 +1,7 @@
 # **UnitNest: Your Automated Building Renting Management System with Payment Integration via Telegram**  
 _A fully automated building rental management system that streamlines the rental process with integrated payment tracking via Telegram._
 
-## **Table of Contents**  
-- [**UnitNest: Your Automated Building Renting Management System with Payment Integration via Telegram**](#unitnest-your-automated-building-renting-management-system-with-payment-integration-via-telegram)
-  - [**Table of Contents**](#table-of-contents)
-  - [**Introduction**](#introduction)
-  - [**Problem Statement**](#problem-statement)
-  - [**Project Objectives**](#project-objectives)
-  - [**System Components**](#system-components)
-    - [**Telegram Bot for Tenants**](#telegram-bot-for-tenants)
-    - [**Flutter Application for Landlords**](#flutter-application-for-landlords)
-  - [**Technologies Used**](#technologies-used)
-    - [**Backend:**](#backend)
-    - [**Frontend:**](#frontend)
-    - [**Payment Integration:**](#payment-integration)
-    - [**Hosting (Locally):**](#hosting-locally)
-    - [**Tools:**](#tools)
-  - [**Expected Outcomes**](#expected-outcomes)
-  - [**Challenges and Risks**](#challenges-and-risks)
-  - [**Future Enhancements**](#future-enhancements)
-  - [**Installation \& Usage**](#installation--usage)
-    - [**Install Dependencies**](#install-dependencies)
-    - [**Run the Application**](#run-the-application)
-    - [**Request Access to the Telegram Bot**](#request-access-to-the-telegram-bot)
-  - [**License**](#license)
-
+## **Table of Contents** 
 ## **Introduction**  
 The aim of this project is to develop an automated building renting management system that streamlines the rental process for both tenants and landlords. Tenants can conveniently pay their rent through a Telegram bot, while landlords can monitor and manage payments through a dedicated Flutter application.
 
@@ -114,5 +91,6 @@ To use the system, you need to register your email for access.
 2. We will grant access to the Telegram bot and notify you once it's ready.
 
 
-## **License**  
-MIT License  
+## License  
+This project is licensed under a **custom MIT License**. Commercial use requires prior agreement.  
+See [LICENSE](LICENSE) for full terms.  
