@@ -9,6 +9,7 @@ import 'package:emonitor/domain/model/system/priceCharge.dart';
 import 'package:emonitor/domain/service/khqr_service.dart';
 import 'package:emonitor/domain/service/room_service.dart';
 import 'package:emonitor/domain/service/root_data.dart';
+import 'package:emonitor/global_url.dart';
 import 'package:http/http.dart' as http;
 
 
@@ -180,7 +181,7 @@ class PaymentService {
 
   Future<bool> checkTransStatus(Payment payment) async {
     String md5 = payment.transaction.md5;
-    final url = Uri.parse('https://unitnest-api.vercel.app/khqrstatus');
+    final url = Uri.parse("${global_url}/khqrstatus");
     try {
       var body = jsonEncode({
         'md5': md5

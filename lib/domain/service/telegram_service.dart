@@ -1,5 +1,5 @@
 import 'package:emonitor/domain/repository/repo.dart';
-import 'package:flutter/material.dart';
+import 'package:emonitor/global_url.dart';
 
 class TelegramService {
   static TelegramService? _instance;
@@ -10,6 +10,7 @@ class TelegramService {
   ///
   ///initialize
   ///
+  String url = "${global_url+"/telegram"}";
 
   static void initialize(ApiRepository repository) {
     if (_instance == null) {
@@ -41,7 +42,7 @@ class TelegramService {
     };
 
     await repository.post(
-      'https://unitnest-api.vercel.app/telegram',
+      url,//'https://unitnest-api.vercel.app/telegram',
       headers: {'Content-Type': 'application/json'},
       body: body,
     );
@@ -53,7 +54,7 @@ class TelegramService {
     };
 
    await repository.post(
-      'https://unitnest-api.vercel.app/telegram',
+      url,//'https://unitnest-api.vercel.app/telegram',
       headers: {'Content-Type': 'application/json'},
       body: body,
     );
@@ -65,7 +66,7 @@ class TelegramService {
     };
 
      await repository.post(
-      'https://unitnest-api.vercel.app/telegram',
+      url, //'https://unitnest-api.vercel.app/telegram',
       headers: {'Content-Type': 'application/json'},
       body: body,
     );

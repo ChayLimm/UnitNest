@@ -256,10 +256,8 @@ class RoomDetailScreen extends StatelessWidget {
                   width: 100,
                   child: Row(
                     children: [
-                      IconButton(onPressed: () async{ 
-                        await showDialog(context: context, builder: (context){
-                          return showRoomHistory(context);
-                        });
+                      IconButton(onPressed: () { 
+                        Navigator.push(context,MaterialPageRoute(builder: (context)=>ShowRoomHistory()));
                       }, icon: Icon(Icons.history,color: UniColor.iconNormal,)),
                       IconButton(
                     onPressed: () async {

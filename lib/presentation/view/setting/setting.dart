@@ -1,10 +1,15 @@
+import 'package:emonitor/data/repository/firebase/fire_store_impl.dart';
+import 'package:emonitor/domain/service/root_data.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
+import 'package:emonitor/presentation/view/authentication/authenPage.dart';
 import 'package:emonitor/presentation/view/setting/bakongAccount/bakong.dart';
 import 'package:emonitor/presentation/view/setting/contactUs/contactUs.dart';
 import 'package:emonitor/presentation/view/setting/priceCharge/priceChargeSetting.dart';
 import 'package:emonitor/presentation/view/setting/profile/settingProfile.dart';
 import 'package:emonitor/presentation/view/setting/rules/rule.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
+import 'package:emonitor/presentation/widgets/dialog/show_confirmation_dialog.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Setting extends StatefulWidget {
@@ -116,6 +121,35 @@ class _SettingState extends State<Setting> {
                         });
                       }),
                     ),
+                     Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      height: 200,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.logout, size: 18,color: UniColor.red,),
+                              TextButton(
+                              onPressed: ()async{
+
+                              // sign out
+                              bool isSignOut = await showConfirmationDialog(context: context, title: "Are you sure?", content: "You want to log out?");
+                              if(isSignOut){
+                                  final rootDataService = RootDataService(DatabaseRepoImpl());
+
+                              await FirebaseAuth.instance.signOut();
+                              Navigator.push(context, MaterialPageRoute(builder: (context)=>AuthenPage(rootDataService: rootDataService,)
+                                )
+                              );
+
+                            }
+                            }, child: Text("Logout",style: UniTextStyles.body.copyWith(color: UniColor.red,),))
+                            ],
+                          )
+                        ],
+                      ),
+                     )
 
                   ],
                 ),
