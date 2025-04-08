@@ -3,16 +3,19 @@ import 'dart:convert';
 import 'package:emonitor/domain/model/payment/transaction.dart';
 import 'package:emonitor/domain/model/stakeholder/landlord.dart';
 import 'package:emonitor/domain/repository/repo.dart';
+import 'package:emonitor/global_url.dart';
 import 'package:http/http.dart' as http;
 
 
 class BakongKhqrImpl extends BakongRepository{
 
+  final url = "${global_url+"/khqr"}";//'https://unitnest-api.vercel.app/khqr';
+ //'https://unitnest-api.vercel.app/khqr';
+ 
   @override
   Future<bool> checkPaymentStatus(TransactionKHQR transaction) async {
     // TODO: implement checkPaymentStatus
     final String md5 = transaction.md5;
-    const url = 'https://unitnest-api.vercel.app/khqr';
       final headers = {
         'Content-Type': 'application/json',
       };
@@ -20,8 +23,9 @@ class BakongKhqrImpl extends BakongRepository{
         'md5': md5,
       });
         try {
+          print("${url}status");
           final response = await http.post(
-            Uri.parse(url),
+            Uri.parse("${url}status"),
             headers: headers,
             body: body,
           );
@@ -42,7 +46,7 @@ class BakongKhqrImpl extends BakongRepository{
 
   @override
   Future<TransactionKHQR> requestKHQR(BakongAccount bakongAccount, double amount) async {
-    const url = 'https://unitnest-api.vercel.app/khqr';
+    
     final headers = {
   'Content-Type': 'application/json', // Content-Type in headers
 };

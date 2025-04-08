@@ -1,20 +1,16 @@
 import 'package:emonitor/domain/service/authentication_service.dart';
-import 'package:emonitor/domain/service/root_data.dart';
 import 'package:emonitor/presentation/Provider/Setting/setting_provider.dart';
 import 'package:emonitor/presentation/theme/theme.dart';
 import 'package:emonitor/presentation/view/setting/profile/edit.dart';
 import 'package:emonitor/presentation/widgets/button/button.dart';
 import 'package:emonitor/presentation/widgets/component.dart';
-import 'package:emonitor/presentation/widgets/form/dialogForm.dart';
+import 'package:emonitor/presentation/widgets/dialog/show_confirmation_dialog.dart';
 import 'package:emonitor/presentation/widgets/infoCard/infoCard.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class SettingProfile extends StatelessWidget {
   
-
-  
-
   @override
   Widget build(BuildContext context) {
 
@@ -85,13 +81,14 @@ class SettingProfile extends StatelessWidget {
             UniButton(
               context: context, 
               label: "reset password", 
-              trigger: (){
+              trigger: () async {
+                bool isConfirmed = await showConfirmationDialog(context: context, title: "Are you sure?", content: "You want to send a password reset email to your email address?");
                 AuthenticationService.instance.sendPasswordResetEmail();
-                showCustomSnackBar(
+                if(isConfirmed){ showCustomSnackBar(
                 context, 
                 message: "An email has been sent to your email address with instructions to reset your password. Please check your inbox (and spam folder) to proceed.",
                 backgroundColor: UniColor.primary);
-              }, 
+              }},
               buttonType: ButtonType.tertiary
               )
 
